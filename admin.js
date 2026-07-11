@@ -578,7 +578,7 @@ if (adminSession) {
 }
 if (adminSession?.role !== "super_admin")
   $$("[data-super-only]").forEach((el) => el.remove());
-document.addEventListener("click", (event) => {
+document.addEventListener("click", async (event) => {
   const button = event.target.closest("button");
   if (!button) return;
   if (button.hasAttribute("data-logout")) {
