@@ -181,6 +181,8 @@
       if (element.type === "checkbox") element.checked = Boolean(value);
       else element.value = value ?? "";
     });
+    if (type === "blogs")
+      window.PakMarketBlogEditor.mount(form.elements.content);
     dialog.showModal();
   }
   document.addEventListener("click", async (event) => {
@@ -249,6 +251,16 @@
       if (!form.reportValidity()) return;
       const data = Object.fromEntries(new FormData(form).entries()),
         type = editing.type;
+      if (
+        type === "blogs" &&
+        !String(data.content || "")
+          .replace(/<[^>]*>/g, "")
+          .replace(/&nbsp;/g, " ")
+          .trim()
+      ) {
+        toast("Write some article content before saving.");
+        return;
+      }
       ["enabled", "featured", "seoIndex"].forEach((key) => {
         if (form.elements[key]) data[key] = form.elements[key].checked;
       });

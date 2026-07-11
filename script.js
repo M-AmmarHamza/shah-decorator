@@ -25,7 +25,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const globalSettings=(()=>{try{return JSON.parse(localStorage.getItem("pakmarket_global_settings_v1")||"{}")}catch{return{}}})();
   document.querySelectorAll(".footer-links").forEach(group=>{if(!group.querySelector('a[href="privacy-policy.html"]')&&/return|payment|contact/i.test(group.textContent+group.parentElement?.textContent))group.insertAdjacentHTML("beforeend",'<a href="privacy-policy.html">Privacy Policy</a><a href="terms.html">Terms & Conditions</a><a href="shipping-policy.html">Shipping Policy</a>')});
   const socialMap={facebook:globalSettings.facebook,instagram:globalSettings.instagram};Object.entries(socialMap).forEach(([name,url])=>{if(url)document.querySelectorAll(`.socials a[aria-label="${name[0].toUpperCase()+name.slice(1)}"]`).forEach(link=>link.href=url)});
-  const contentEscape = (value) =>
+const contentEscape = (value) =>
     String(value ?? "").replace(
       /[&<>'"]/g,
       (character) =>
@@ -37,6 +37,27 @@ document.addEventListener("DOMContentLoaded", () => {
           '"': "&quot;",
         })[character],
     );
+
+function sanitizeRichHtml(value) {
+  const template = document.createElement("template");
+  template.innerHTML = String(value || "");
+  template.content
+    .querySelectorAll("script,style,iframe,object,embed,form")
+    .forEach((node) => node.remove());
+  template.content.querySelectorAll("*").forEach((node) => {
+    [...node.attributes].forEach((attribute) => {
+      const name = attribute.name.toLowerCase();
+      const content = attribute.value.trim().toLowerCase();
+      if (
+        name.startsWith("on") ||
+        ((name === "href" || name === "src") &&
+          content.startsWith("javascript:"))
+      )
+        node.removeAttribute(attribute.name);
+    });
+  });
+  return template.innerHTML;
+}
   const scheduledIsLive = (item) =>
     item.enabled &&
     (!item.start || Date.now() >= new Date(item.start).getTime()) &&
@@ -172,15 +193,19 @@ document.addEventListener("DOMContentLoaded", () => {
             image.alt = item.title;
           }
           const article = document.querySelector(".article-content");
-          if (article)
-            article.innerHTML = String(item.content || "")
-              .split(/\n{2,}/)
-              .filter(Boolean)
-              .map(
-                (paragraph, index) =>
-                  `<p${index === 0 ? ' class="article-lead"' : ""}>${contentEscape(paragraph).replaceAll("\n", "<br>")}</p>`,
-              )
-              .join("");
+          if (article) {
+            const content = String(item.content || "");
+            article.innerHTML = /<[a-z][\s\S]*>/i.test(content)
+              ? sanitizeRichHtml(content)
+              : content
+                  .split(/\n{2,}/)
+                  .filter(Boolean)
+                  .map(
+                    (paragraph, index) =>
+                      `<p${index === 0 ? ' class="article-lead"' : ""}>${contentEscape(paragraph).replaceAll("\n", "<br>")}</p>`,
+                  )
+                  .join("");
+          }
         }
       }
     }
