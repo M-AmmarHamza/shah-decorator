@@ -31,7 +31,7 @@
       .trim()
       .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "");
-  const toDatabaseContent = (type, item) => type === "events" ? {id:item.id,name:item.title,message:item.message,secondary_message:item.secondary||null,discount_code:item.code||null,starts_at:item.start,ends_at:item.end,enabled:item.enabled} : type === "coming" ? {id:item.id,name:item.name,image_url:item.image,description:item.description,starts_at:item.start,launches_at:item.end,enabled:item.enabled} : {id:item.id,title:item.title,slug:item.slug,category:item.category,author_name:item.author,cover_url:item.image,excerpt:item.excerpt,content:item.content,status:item.enabled?"published":"draft",featured:item.featured,published_at:item.publishDate?`${item.publishDate}T00:00:00+05:00`:null,seo_index:item.seoIndex,seo_title:item.seoTitle,meta_description:item.metaDescription,keywords:String(item.keywords||"").split(",").map(value=>value.trim()).filter(Boolean)};
+  const toDatabaseContent = (type, item) => type === "events" ? {id:item.id,name:item.title,message:item.message,secondary_message:item.secondary||null,discount_code:item.code||null,starts_at:item.start,ends_at:item.end,enabled:item.enabled} : type === "coming" ? {id:item.id,name:item.name,category_name:item.category||null,image_url:item.image,description:item.description,starts_at:item.start,launches_at:item.end,enabled:item.enabled} : {id:item.id,title:item.title,slug:item.slug,category:item.category,author_name:item.author,cover_url:item.image,excerpt:item.excerpt,content:item.content,status:item.enabled?"published":"draft",featured:item.featured,published_at:item.publishDate?`${item.publishDate}T00:00:00+05:00`:null,seo_index:item.seoIndex,seo_title:item.seoTitle,meta_description:item.metaDescription,keywords:String(item.keywords||"").split(",").map(value=>value.trim()).filter(Boolean)};
   const nav = document.querySelector(".admin-sidebar nav"),
     requestNav = nav.querySelector('[data-admin-view="requests"]');
   [
@@ -153,12 +153,14 @@
     `<label>${label}<input type="${type}" name="${name}" ${extra}></label>`;
   const check = (label, name, copy) =>
     `<label class="content-check"><input type="checkbox" name="${name}"><span><b>${label}</b><small>${copy}</small></span></label>`;
+  const categorySelect = () =>
+    `<label>Category<select name="category" required data-managed-category>${window.PakMarketCategories.options()}</select><small>Managed centrally in Business Center → Categories.</small></label>`;
   function fieldsFor(type) {
     if (type === "events")
       return `<input type="hidden" name="id"><div class="content-form-row">${input("Event name", "title", "text", "required maxlength=80")}${input("Discount code", "code", "text", "maxlength=30")}</div>${input("Main announcement", "message", "text", "required maxlength=140")}${input("Secondary message", "secondary", "text", "maxlength=100 placeholder='e.g. Free delivery above Rs. 3,000'")}<div class="content-form-row">${input("Start date & time", "start", "datetime-local", "required")}${input("End date & time", "end", "datetime-local", "required")}</div>${check("Enabled", "enabled", "Campaign can run during its scheduled window.")}`;
     if (type === "coming")
-      return `<input type="hidden" name="id">${input("Product / collection name", "name", "text", "required maxlength=80")}${input("Image URL", "image", "url", "required")}<label>Description<textarea name="description" rows="4" required maxlength="240"></textarea></label><div class="content-form-row">${input("Start showing", "start", "datetime-local", "required")}${input("Launch / stop showing", "end", "datetime-local", "required")}</div>${check("Enabled", "enabled", "Show automatically between the selected dates.")}`;
-    return `<input type="hidden" name="id"><div class="content-form-row">${input("Blog title", "title", "text", "required maxlength=100")}${input("URL slug", "slug", "text", "required maxlength=100")}</div><div class="content-form-row">${input("Category", "category", "text", "required maxlength=40")}${input("Author", "author", "text", "required maxlength=60")}</div>${input("Cover image URL", "image", "url", "required")}<label>Short excerpt<textarea name="excerpt" rows="3" required maxlength="260"></textarea></label><label>Article content<textarea name="content" rows="8" required maxlength="10000" placeholder="Write the complete article here..."></textarea></label><div class="content-form-row">${input("Reading time (minutes)", "readTime", "number", "required min=1 max=60")}${input("Publish date", "publishDate", "date", "required")}</div><div class="content-check-grid">${check("Published", "enabled", "Visible on the public blog.")}${check("Featured", "featured", "Use as the main featured story.")}${check("SEO Index", "seoIndex", "Allow search-engine indexing.")}</div><div class="content-form-row">${input("SEO title", "seoTitle", "text", "required maxlength=60")}${input("Focus keywords", "keywords", "text", "maxlength=160")}</div><label>Meta description<textarea name="metaDescription" rows="3" required maxlength="160"></textarea></label>`;
+      return `<input type="hidden" name="id">${input("Product / collection name", "name", "text", "required maxlength=80")}${categorySelect()}${input("Image URL", "image", "url", "required")}<label>Description<textarea name="description" rows="4" required maxlength="240"></textarea></label><div class="content-form-row">${input("Start showing", "start", "datetime-local", "required")}${input("Launch / stop showing", "end", "datetime-local", "required")}</div>${check("Enabled", "enabled", "Show automatically between the selected dates.")}`;
+    return `<input type="hidden" name="id"><div class="content-form-row">${input("Blog title", "title", "text", "required maxlength=100")}${input("URL slug", "slug", "text", "required maxlength=100")}</div><div class="content-form-row">${categorySelect()}${input("Author", "author", "text", "required maxlength=60")}</div>${input("Cover image URL", "image", "url", "required")}<label>Short excerpt<textarea name="excerpt" rows="3" required maxlength="260"></textarea></label><label>Article content<textarea name="content" rows="8" required maxlength="10000" placeholder="Write the complete article here..."></textarea></label><div class="content-form-row">${input("Reading time (minutes)", "readTime", "number", "required min=1 max=60")}${input("Publish date", "publishDate", "date", "required")}</div><div class="content-check-grid">${check("Published", "enabled", "Visible on the public blog.")}${check("Featured", "featured", "Use as the main featured story.")}${check("SEO Index", "seoIndex", "Allow search-engine indexing.")}</div><div class="content-form-row">${input("SEO title", "seoTitle", "text", "required maxlength=60")}${input("Focus keywords", "keywords", "text", "maxlength=160")}</div><label>Meta description<textarea name="metaDescription" rows="3" required maxlength="160"></textarea></label>`;
   }
   function openEditor(type, id) {
     const source = { events, coming, blogs }[type],
@@ -181,6 +183,11 @@
       if (element.type === "checkbox") element.checked = Boolean(value);
       else element.value = value ?? "";
     });
+    if (form.elements.category)
+      window.PakMarketCategories.populate(
+        form.elements.category,
+        item.category || "",
+      );
     if (type === "blogs")
       window.PakMarketBlogEditor.mount(form.elements.content);
     dialog.showModal();

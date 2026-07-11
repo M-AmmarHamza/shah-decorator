@@ -105,7 +105,9 @@
       state.orders = local("pakmarket_orders_v1");
       state.payments = local("pakmarket_payments_v1");
       state.reviews = local("pakmarket_reviews_v1");
-      state.categories = local("pakmarket_categories_v1");
+      state.categories = local("pakmarket_categories_v1").length
+        ? local("pakmarket_categories_v1")
+        : window.PakMarketCategories.getAll();
       state.team = local("pakmarket_users_v1");
       state.analytics = local("pakmarket_analytics_v1");
     }
@@ -114,6 +116,7 @@
   const statusSelect = (item, resource, values) =>
     `<select data-pro-status="${resource}" data-id="${item.id}">${values.map((value) => `<option ${item.status === value ? "selected" : ""}>${value}</option>`).join("")}</select>`;
   function render() {
+    window.PakMarketCategories.set(state.categories);
     panel(
       "orders",
       state.orders.length
@@ -174,7 +177,7 @@
     );
     panel(
       "categories",
-      `<form class="pro-inline-form" data-category-form><input class="field" name="name" required placeholder="New category name"><button class="admin-btn primary">Add category</button></form>${state.categories.map((category) => row("category", esc(category.name), `/${esc(category.slug)}`, `<button data-category-delete="${category.id}" class="icon-action"><span class="material-symbols-outlined">delete</span></button>`)).join("") || empty("No managed categories yet.")}`,
+      `<div class="category-manager-intro"><span class="material-symbols-outlined">account_tree</span><div><strong>Shared Category Manager</strong><small>One category list for Products, Blogs and Upcoming.</small></div></div><form class="pro-inline-form" data-category-form><input class="field" name="name" required placeholder="New shared category name"><button class="admin-btn primary">Add category</button></form>${state.categories.map((category) => row("category", esc(category.name), `Products · Blogs · Upcoming · /${esc(category.slug)}`, `<button data-category-delete="${category.id}" class="icon-action" title="Delete category"><span class="material-symbols-outlined">delete</span></button>`)).join("") || empty("No managed categories yet. Add one category to use it everywhere.")}`,
     );
     panel(
       "team",
@@ -290,6 +293,14 @@
             .replace(/^-|-$/g, ""),
           enabled: true,
         };
+      if (
+        state.categories.some(
+          (item) => item.name.trim().toLowerCase() === name.trim().toLowerCase(),
+        )
+      ) {
+        toast("This category already exists.");
+        return;
+      }
       if (db?.configured) await db.save("categories", category);
       else {
         state.categories.push(category);

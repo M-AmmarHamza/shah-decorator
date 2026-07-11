@@ -125,6 +125,24 @@ const seedProducts = [
   },
 ];
 let products = loadProducts();
+const managedCategoryNames = new Set(
+  window.PakMarketCategories.getAll().map((category) => category.name),
+);
+products.forEach((product) => product.category && managedCategoryNames.add(product.category));
+window.PakMarketCategories.set(
+  [...managedCategoryNames].map((name) => ({
+    id:
+      window.PakMarketCategories
+        .getAll()
+        .find((category) => category.name === name)?.id || crypto.randomUUID(),
+    name,
+    slug: String(name)
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, ""),
+    enabled: true,
+  })),
+);
 const $ = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
 function normalizeProduct(p) {
@@ -338,6 +356,7 @@ const dialog = $("[data-product-dialog]"),
 function openProduct(id = null, seoTab = false) {
   const p = id ? products.find((item) => item.id === id) : null;
   form.reset();
+  window.PakMarketCategories.populate(form.elements.category, p?.category || "");
   for (const el of form.elements) {
     if (!el.name || !p || !(el.name in p)) continue;
     if (el.type === "checkbox") el.checked = Boolean(p[el.name]);
