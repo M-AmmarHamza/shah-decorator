@@ -125,7 +125,7 @@
               row(
                 "receipt_long",
                 `Order #${order.order_number || order.id}`,
-                `${esc(order.customer_name)} · ${esc(order.phone)} · Rs. ${Number(order.total || 0).toLocaleString("en-PK")}`,
+                `${esc(order.customer_name)} · ${esc(order.phone)} · Rs. ${Number(order.total || 0).toLocaleString("en-PK")}${order.offer_code ? ` · Offer ${esc(order.offer_code)}` : ""}${order.delivery_included ? " · Delivery included" : ` · Delivery Rs. ${Number(order.delivery_fee || 0).toLocaleString("en-PK")}`}`,
                 statusSelect(order, "orders", [
                   "pending",
                   "confirmed",
@@ -201,7 +201,7 @@
     );
     panel(
       "settings",
-      `<form class="pro-settings" data-settings-form><div class="content-form-row"><label>WhatsApp number<input class="field" name="whatsapp" value="${esc(settings.whatsapp || "923161013991")}"></label><label>Support email<input class="field" type="email" name="email" value="${esc(settings.email || "")}"></label></div><div class="content-form-row"><label>Facebook URL<input class="field" type="url" name="facebook" value="${esc(settings.facebook || "")}"></label><label>Instagram URL<input class="field" type="url" name="instagram" value="${esc(settings.instagram || "")}"></label></div><details><summary>Payment and advanced settings</summary><div class="content-form-row"><label>Easypaisa/JazzCash<input class="field" name="wallet" value="${esc(settings.wallet || "03161013991")}"></label><label>Account title<input class="field" name="accountTitle" value="${esc(settings.accountTitle || "Muhammad Ammar")}"></label></div></details><button class="admin-btn primary">Save settings</button></form>`,
+      `<form class="pro-settings" data-settings-form><div class="content-form-row"><label>WhatsApp number<input class="field" name="whatsapp" value="${esc(settings.whatsapp || "923161013991")}"></label><label>Support email<input class="field" type="email" name="email" value="${esc(settings.email || "")}"></label></div><div class="content-form-row"><label>Default delivery treatment<select class="field" name="deliveryMode"><option value="separate" ${settings.deliveryMode==="separate"?"selected":""}>Charge separately</option><option value="included" ${settings.deliveryMode==="included"?"selected":""}>Included in product price</option><option value="free" ${settings.deliveryMode==="free"?"selected":""}>Free delivery</option></select></label><label>Default delivery charge (Rs.)<input class="field" type="number" min="0" name="deliveryFee" value="${esc(settings.deliveryFee || "0")}"></label></div><div class="content-form-row"><label>Facebook URL<input class="field" type="url" name="facebook" value="${esc(settings.facebook || "")}"></label><label>Instagram URL<input class="field" type="url" name="instagram" value="${esc(settings.instagram || "")}"></label></div><details><summary>Payment and advanced settings</summary><div class="content-form-row"><label>Easypaisa/JazzCash<input class="field" name="wallet" value="${esc(settings.wallet || "03161013991")}"></label><label>Account title<input class="field" name="accountTitle" value="${esc(settings.accountTitle || "Muhammad Ammar")}"></label></div></details><button class="admin-btn primary">Save settings</button></form>`,
     );
     panel(
       "media",

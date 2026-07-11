@@ -1,5 +1,6 @@
 import "./supabase-client.js";
 import "./social-normalize.css";
+import "./promotions.css";
 
 const WHATSAPP_NUMBER = "923161013991";
 
@@ -62,6 +63,53 @@ function sanitizeRichHtml(value) {
     item.enabled &&
     (!item.start || Date.now() >= new Date(item.start).getTime()) &&
     (!item.end || Date.now() <= new Date(item.end).getTime());
+  const promotionEvents = (() => {
+    try {
+      return (JSON.parse(localStorage.getItem("pakmarket_events_v1")) || []).filter(
+        scheduledIsLive,
+      );
+    } catch {
+      return [];
+    }
+  })();
+  const productOffer = (product) =>
+    promotionEvents
+      .filter((offer) => {
+        const scope = offer.productScope || "all";
+        if (scope === "all") return true;
+        if (scope === "category") return offer.targetCategory === product.category;
+        return (offer.productIds || []).some((id) =>
+          [product.id, product.sku, product.slug].includes(id),
+        );
+      })
+      .filter((offer) => Number(product.price || 0) >= Number(offer.minimumOrder || 0))
+      .sort((a, b) => Number(b.discountValue || 0) - Number(a.discountValue || 0))[0];
+  const offerDetails = (product) => {
+    const offer = productOffer(product);
+    const price = Number(product.price || 0);
+    const discount = !offer
+      ? 0
+      : offer.discountType === "fixed"
+        ? Math.min(price, Number(offer.discountValue || 0))
+        : Math.min(price, (price * Number(offer.discountValue || 0)) / 100);
+    const settingsMode = globalSettings.deliveryMode || "separate";
+    const mode = offer?.deliveryMode && offer.deliveryMode !== "default"
+      ? offer.deliveryMode
+      : settingsMode;
+    const deliveryFee = mode === "separate"
+      ? Number(offer?.deliveryFee || globalSettings.deliveryFee || 0)
+      : 0;
+    return { offer, price, discount, finalPrice: Math.max(0, price - discount), mode, deliveryFee };
+  };
+  const orderMessage = (product) => {
+    const details = offerDetails(product);
+    const delivery = details.mode === "free"
+      ? "Free delivery"
+      : details.mode === "included"
+        ? "Delivery included in price"
+        : `Delivery charged separately${details.deliveryFee ? `: Rs. ${details.deliveryFee.toLocaleString("en-PK")}` : " (to be confirmed by owner)"}`;
+    return `Assalam o Alaikum, I want to order ${product.name}.\nProduct price: Rs. ${details.price.toLocaleString("en-PK")}${details.offer ? `\nOffer: ${details.offer.title}${details.offer.code ? ` (${details.offer.code})` : ""}\nDiscount: Rs. ${Math.round(details.discount).toLocaleString("en-PK")}\nPrice after discount: Rs. ${Math.round(details.finalPrice).toLocaleString("en-PK")}` : ""}\nDelivery: ${delivery}\nPlease confirm the final order total.`;
+  };
 
   try {
     const storedEvents = localStorage.getItem("pakmarket_events_v1");
@@ -425,10 +473,11 @@ function sanitizeRichHtml(value) {
               .toLowerCase()
               .replace(/[^a-z0-9]+/g, " ")
               .trim()}${product.featured ? " best" : ""}`;
+            const promotion = offerDetails(product);
             return `<article class="product-card" data-product-card data-category="all ${safe(category)}">
             <a class="image-link" href="product.html?product=${encodeURIComponent(product.slug || product.id)}"><img src="${safe(product.image)}" alt="${safe(product.imageAlt || product.name)}"></a>
-            <span class="badge-light product-badge">${out ? "Out of Stock" : `${Number(product.stock)} in stock`}</span>
-            <div class="product-body"><h3>${safe(product.name)}</h3><div class="price-row"><span class="price">Rs. ${Number(product.price || 0).toLocaleString("en-PK")}</span>${Number(product.comparePrice) > Number(product.price) ? `<span class="old-price">Rs. ${Number(product.comparePrice).toLocaleString("en-PK")}</span>` : ""}</div>${out ? '<span class="btn btn-soft card-button">Currently unavailable</span>' : `<a class="btn btn-whatsapp card-button" href="${whatsappUrl(`Assalam o Alaikum, I want to order ${product.name}. Please share details.`)}" target="_blank" rel="noreferrer"><span class="material-symbols-outlined">chat</span>Order on WhatsApp</a>`}</div>
+            <span class="badge-light product-badge">${out ? "Out of Stock" : promotion.offer ? safe(promotion.offer.title) : `${Number(product.stock)} in stock`}</span>
+            <div class="product-body"><h3>${safe(product.name)}</h3><div class="price-row"><span class="price">Rs. ${Math.round(promotion.finalPrice).toLocaleString("en-PK")}</span>${promotion.discount ? `<span class="old-price">Rs. ${Number(product.price).toLocaleString("en-PK")}</span>` : Number(product.comparePrice) > Number(product.price) ? `<span class="old-price">Rs. ${Number(product.comparePrice).toLocaleString("en-PK")}</span>` : ""}</div>${promotion.offer ? `<small class="offer-note">${safe(promotion.offer.code ? `Use ${promotion.offer.code}` : "Offer automatically applied")} · ${promotion.mode === "free" ? "Free delivery" : promotion.mode === "included" ? "Delivery included" : "Delivery separate"}</small>` : ""}${out ? '<span class="btn btn-soft card-button">Currently unavailable</span>' : `<a class="btn btn-whatsapp card-button" href="${whatsappUrl(orderMessage(product))}" target="_blank" rel="noreferrer"><span class="material-symbols-outlined">chat</span>Order on WhatsApp</a>`}</div>
           </article>`;
           })
           .join("");
@@ -910,5 +959,39 @@ function sanitizeRichHtml(value) {
   if(location.pathname.endsWith("product.html")){
     const product=(()=>{try{const slug=new URLSearchParams(location.search).get("product");return (JSON.parse(localStorage.getItem("pakmarket_inventory_v1"))||[]).find(item=>item.slug===slug)||null}catch{return null}})();
     if(product){const actions=document.querySelector(".detail-primary-actions");if(actions&&!actions.querySelector("[data-wishlist]")){const button=document.createElement("button");button.type="button";button.className="btn wishlist-button";button.dataset.wishlist=product.id;button.innerHTML='<span class="material-symbols-outlined">favorite</span><span>Save</span>';actions.append(button);button.addEventListener("click",async()=>{if(!window.PakMarketDB?.configured){showToast("Wishlist will be available after the live account system is connected.");return}const session=await window.PakMarketDB.session();if(!session){location.href="auth.html?next=product";return}const {error}=await window.PakMarketDB.client.from("wishlists").upsert({user_id:session.user.id,product_id:product.id});showToast(error?error.message:"Saved to your wishlist.")})}if(window.PakMarketDB?.configured){const reviewSection=document.createElement("section");reviewSection.className="container section product-reviews";reviewSection.innerHTML='<div><span class="eyebrow">Customer feedback</span><h2>Product Reviews</h2></div><div data-review-list><p>Loading reviews…</p></div><form data-review-form><div class="form-row"><label>Rating<select class="field" name="rating"><option value="5">5 — Excellent</option><option value="4">4 — Good</option><option value="3">3 — Average</option><option value="2">2 — Fair</option><option value="1">1 — Poor</option></select></label><label>Review title<input class="field" name="title" maxlength="80"></label></div><label>Your review<textarea class="field" name="body" rows="4" required maxlength="600"></textarea></label><button class="btn btn-primary">Submit review</button><small>Reviews appear after approval.</small></form>';document.querySelector(".product-detail")?.after(reviewSection);window.PakMarketDB.client.from("product_reviews").select("*").eq("product_id",product.id).eq("approved",true).then(({data})=>{reviewSection.querySelector("[data-review-list]").innerHTML=data?.length?data.map(review=>`<article class="review-item"><strong>${"★".repeat(review.rating)} ${contentEscape(review.title||"")}</strong><p>${contentEscape(review.body||"")}</p></article>`).join(""):"<p>No approved reviews yet.</p>"});reviewSection.querySelector("[data-review-form]").addEventListener("submit",async event=>{event.preventDefault();const session=await window.PakMarketDB.session();if(!session){location.href="auth.html?next=product";return}const values=new FormData(event.currentTarget),{error}=await window.PakMarketDB.client.from("product_reviews").upsert({product_id:product.id,user_id:session.user.id,rating:Number(values.get("rating")),title:values.get("title"),body:values.get("body"),approved:false});showToast(error?error.message:"Review submitted for approval.");if(!error)event.currentTarget.reset()})}const schema={"@context":"https://schema.org","@type":"Product",name:product.name,image:[product.image],description:product.description,sku:product.sku,offers:{"@type":"Offer",priceCurrency:"PKR",price:product.price,availability:product.stock>0?"https://schema.org/InStock":"https://schema.org/OutOfStock",url:location.href}};const node=document.createElement("script");node.type="application/ld+json";node.textContent=JSON.stringify(schema);document.head.append(node)}
+    if (product) {
+      const details = offerDetails(product);
+      document.querySelectorAll('.detail-primary-actions a[href*="wa.me"]').forEach(
+        (link) => (link.href = whatsappUrl(orderMessage(product))),
+      );
+      const priceNode = document.querySelector(".detail-copy .price");
+      if (priceNode && details.discount)
+        priceNode.innerHTML = `Rs. ${Math.round(details.finalPrice).toLocaleString("en-PK")} <del>Rs. ${details.price.toLocaleString("en-PK")}</del>`;
+      if (details.offer && !document.querySelector(".managed-offer-card")) {
+        const offerCard = document.createElement("div");
+        offerCard.className = "managed-offer-card";
+        offerCard.innerHTML = `<strong>${contentEscape(details.offer.title)}</strong><span>${details.offer.code ? `Use code ${contentEscape(details.offer.code)} · ` : ""}${details.mode === "free" ? "Free delivery" : details.mode === "included" ? "Delivery included" : "Delivery charged separately"}</span>`;
+        document.querySelector(".detail-primary-actions")?.before(offerCard);
+      }
+      if (!window.PakMarketDB?.configured && !document.querySelector(".product-reviews")) {
+        const reviewSection = document.createElement("section");
+        reviewSection.className = "container section product-reviews";
+        const key = `pakmarket_local_reviews_${product.id}`;
+        const reviews = JSON.parse(localStorage.getItem(key) || "[]");
+        reviewSection.innerHTML = `<div><span class="eyebrow">Customer feedback</span><h2>Rate This Product</h2></div><div data-review-list>${reviews.length ? reviews.map((review) => `<article class="review-item"><strong>${"★".repeat(review.rating)} ${contentEscape(review.title || "")}</strong><p>${contentEscape(review.body)}</p><small>Pending owner verification</small></article>`).join("") : "<p>No customer ratings yet.</p>"}</div><form data-local-review-form><div class="form-row"><label>Rating<select class="field" name="rating"><option value="5">5 — Excellent</option><option value="4">4 — Good</option><option value="3">3 — Average</option><option value="2">2 — Fair</option><option value="1">1 — Poor</option></select></label><label>Review title<input class="field" name="title" maxlength="80"></label></div><label>Your review<textarea class="field" name="body" rows="4" required maxlength="600"></textarea></label><button class="btn btn-primary">Submit rating</button><small>Owner approval is required before public publishing.</small></form>`;
+        document.querySelector(".product-detail")?.after(reviewSection);
+        reviewSection.querySelector("[data-local-review-form]").addEventListener("submit", (event) => {
+          event.preventDefault();
+          const values = new FormData(event.currentTarget);
+          reviews.push({ id: crypto.randomUUID(), rating: Number(values.get("rating")), title: values.get("title"), body: values.get("body"), approved: false });
+          localStorage.setItem(key, JSON.stringify(reviews));
+          const queue = JSON.parse(localStorage.getItem("pakmarket_reviews_v1") || "[]");
+          queue.push({ ...reviews.at(-1), product_id: product.id, product_name: product.name });
+          localStorage.setItem("pakmarket_reviews_v1", JSON.stringify(queue));
+          showToast("Rating submitted for owner approval.");
+          event.currentTarget.reset();
+        });
+      }
+    }
   }
 });

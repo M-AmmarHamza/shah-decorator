@@ -125,6 +125,7 @@ const seedProducts = [
   },
 ];
 let products = loadProducts();
+localStorage.setItem(STORAGE_KEY, JSON.stringify(products));
 const managedCategoryNames = new Set(
   window.PakMarketCategories.getAll().map((category) => category.name),
 );
