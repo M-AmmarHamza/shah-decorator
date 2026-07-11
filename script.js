@@ -608,64 +608,6 @@ function sanitizeRichHtml(value) {
     });
   });
 
-  const catalogGrid = document.querySelector("[data-storefront-grid]");
-  if (catalogGrid) {
-    const existing = [...catalogGrid.querySelectorAll("[data-product-card]")];
-    const extraNames = [
-      "Ajrak Table Runner",
-      "Multani Ceramic Planter",
-      "Scented Bakhoor Set",
-      "Handwoven Cotton Throw",
-      "Minimal Brass Vase",
-      "Rose Petal Face Mist",
-      "Classic Khussa Pair",
-      "Artisan Tea Tray",
-      "Natural Neem Soap Set",
-      "Block Print Cushion",
-      "Wooden Spice Box",
-      "Herbal Hair Oil",
-      "Canvas Market Tote",
-      "Blue Pottery Mug Set",
-      "Macrame Wall Hanging",
-      "Dates Gift Box",
-      "Handmade Journal",
-      "Terracotta Serveware",
-      "Embroidered Clutch",
-      "Organic Green Tea",
-      "Camel Skin Lamp",
-      "Linen Table Napkins",
-      "Sidr Honey Soap",
-      "Leather Card Holder",
-      "Truck Art Coasters",
-      "Kashmiri Shawl",
-      "Ceramic Oil Burner",
-      "Hand-Carved Salad Spoons",
-      "Natural Lip Balm Set",
-      "Woven Storage Basket",
-      "Traditional Prayer Mat",
-      "Festive Gift Hamper",
-      "Handloom Cotton Scarf",
-      "Copper Tea Kettle",
-    ];
-    const categories = ["craft", "decor", "organic", "new", "best", "sale"];
-    const imageSources = existing
-      .map((card) => card.querySelector("img")?.src)
-      .filter(Boolean);
-    if (imageSources.length)
-      extraNames
-        .slice(0, Math.max(0, 40 - existing.length))
-        .forEach((name, index) => {
-          const category = categories[index % categories.length];
-          const price = 850 + ((index * 375) % 6200);
-          const card = document.createElement("article");
-          card.className = "product-card";
-          card.dataset.productCard = "";
-          card.dataset.category = `all ${category}`;
-          card.innerHTML = `<a class="image-link" href="product.html"><img src="${imageSources[index % imageSources.length]}" alt="${name}"></a><span class="badge product-badge">Available</span><div class="product-body"><h3>${name}</h3><div class="price-row"><span class="price">Rs. ${price.toLocaleString("en-PK")}</span></div><a class="btn btn-whatsapp card-button" href="${whatsappUrl(`Assalam o Alaikum, I want to order ${name}. Please share details.`)}" target="_blank" rel="noreferrer"><span class="material-symbols-outlined">chat</span>Order on WhatsApp</a></div>`;
-          catalogGrid.appendChild(card);
-        });
-  }
-
   const filterButtons = document.querySelectorAll("[data-filter]");
   const products = [...document.querySelectorAll("[data-product-card]")];
   const loadMoreButton = document.querySelector("[data-load-more]");
