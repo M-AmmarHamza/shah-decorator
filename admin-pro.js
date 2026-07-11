@@ -205,7 +205,7 @@
     );
     panel(
       "media",
-      `<form class="media-upload" data-media-form><label>Media type<select class="field" name="bucket"><option value="product-media">Product image</option><option value="blog-media">Blog image</option></select></label><label>Choose image<input class="field" type="file" name="file" accept="image/jpeg,image/png,image/webp" required></label><button class="admin-btn primary">Upload image</button><p data-media-result></p></form>`,
+      `<div class="hero-spec-card"><span class="material-symbols-outlined">view_carousel</span><div><strong>Homepage header slide sizes</strong><p><b>Desktop:</b> 1920 × 760px &nbsp;·&nbsp; <b>Mobile:</b> 1080 × 1350px</p><small>Use WebP. Keep important subject/text inside the center safe area because the website uses responsive cover cropping.</small></div></div><form class="media-upload" data-media-form><label>Media type<select class="field" name="bucket"><option value="product-media">Product image</option><option value="blog-media">Blog image</option></select></label><label>Choose image<input class="field" type="file" name="file" accept="image/jpeg,image/png,image/webp" required></label><button class="admin-btn primary">Upload image</button><p data-media-result></p></form>`,
     );
     const counts = Object.entries(
       state.analytics.reduce(

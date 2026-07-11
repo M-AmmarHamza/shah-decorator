@@ -844,8 +844,11 @@ function sanitizeRichHtml(value) {
     const slides = [...slider.querySelectorAll(".hero-slide")];
     const dots = [...slider.querySelectorAll("[data-hero-dot]")];
     if (slides.length < 2) return;
-    let current = 0;
-    let timer;
+    let current = slides.findIndex((slide) => slide.classList.contains("active"));
+    if (current < 0) current = 0;
+    let timer = null;
+    let paused = false;
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
     const showSlide = (index) => {
       current = (index + slides.length) % slides.length;
       slides.forEach((slide, position) =>
@@ -854,23 +857,48 @@ function sanitizeRichHtml(value) {
       dots.forEach((dot, position) =>
         dot.classList.toggle("active", position === current),
       );
+      dots.forEach((dot, position) =>
+        dot.setAttribute("aria-current", position === current ? "true" : "false"),
+      );
     };
-    const start = () => {
-      timer = window.setInterval(() => showSlide(current + 1), 5000);
+    const stop = () => {
+      window.clearTimeout(timer);
+      timer = null;
     };
-    const restart = () => {
-      window.clearInterval(timer);
-      start();
+    const schedule = () => {
+      stop();
+      if (paused || reduceMotion.matches || document.hidden) return;
+      timer = window.setTimeout(() => {
+        showSlide(current + 1);
+        schedule();
+      }, 4500);
     };
     dots.forEach((dot, index) =>
       dot.addEventListener("click", () => {
         showSlide(index);
-        restart();
+        schedule();
       }),
     );
-    slider.addEventListener("mouseenter", () => window.clearInterval(timer));
-    slider.addEventListener("mouseleave", start);
-    start();
+    slider.addEventListener("mouseenter", () => {
+      paused = true;
+      stop();
+    });
+    slider.addEventListener("mouseleave", () => {
+      paused = false;
+      schedule();
+    });
+    slider.addEventListener("focusin", () => {
+      paused = true;
+      stop();
+    });
+    slider.addEventListener("focusout", () => {
+      paused = false;
+      schedule();
+    });
+    document.addEventListener("visibilitychange", schedule);
+    reduceMotion.addEventListener?.("change", schedule);
+    showSlide(current);
+    schedule();
   });
 
   document.querySelectorAll("[data-featured-slider]").forEach((slider) => {
