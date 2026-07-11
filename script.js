@@ -278,21 +278,21 @@ function sanitizeRichHtml(value) {
             grid = document.querySelector(".editorial-grid");
           if (lead) {
             lead.href = `blog-detail.html?blog=${encodeURIComponent(featured.slug)}`;
-            lead.innerHTML = `<div class="blog-lead-image"><img src="${contentEscape(featured.image)}" alt="${contentEscape(featured.title)}"></div><div class="blog-lead-copy"><span>Featured story</span><h2>${contentEscape(featured.title)}</h2><p>${contentEscape(featured.excerpt)}</p><small>By ${contentEscape(featured.author)} · ${Number(featured.readTime) || 5} min read</small></div>`;
+            lead.innerHTML = `<div class="blog-lead-image"><img src="${contentEscape(featured.image)}" alt="${contentEscape(featured.coverAlt || featured.title)}" data-image-slug="${contentEscape(featured.coverSlug || "")}"></div><div class="blog-lead-copy"><span>Featured story</span><h2>${contentEscape(featured.title)}</h2><p>${contentEscape(featured.excerpt)}</p><small>By ${contentEscape(featured.author)} · ${Number(featured.readTime) || 5} min read</small></div>`;
           }
           if (top)
             top.innerHTML = others
               .slice(0, 3)
               .map(
                 (item) =>
-                  `<a href="blog-detail.html?blog=${encodeURIComponent(item.slug)}"><img src="${contentEscape(item.image)}" alt="${contentEscape(item.title)}"><h3>${contentEscape(item.title)}</h3><small>${contentEscape(item.category)} · ${Number(item.readTime) || 5} min read</small></a>`,
+                  `<a href="blog-detail.html?blog=${encodeURIComponent(item.slug)}"><img src="${contentEscape(item.image)}" alt="${contentEscape(item.coverAlt || item.title)}" data-image-slug="${contentEscape(item.coverSlug || "")}"><h3>${contentEscape(item.title)}</h3><small>${contentEscape(item.category)} · ${Number(item.readTime) || 5} min read</small></a>`,
               )
               .join("");
           if (grid)
             grid.innerHTML = published
               .map(
                 (item) =>
-                  `<article class="blog-card"><a href="blog-detail.html?blog=${encodeURIComponent(item.slug)}"><div class="blog-media"><img src="${contentEscape(item.image)}" alt="${contentEscape(item.title)}"><span class="badge-light">${contentEscape(item.category)}</span></div><div class="blog-body"><h3>${contentEscape(item.title)}</h3><p>${contentEscape(item.excerpt)}</p><span class="blog-meta">${Number(item.readTime) || 5} min read</span><span class="inline-link">Read More <span class="material-symbols-outlined">arrow_forward</span></span></div></a></article>`,
+                  `<article class="blog-card"><a href="blog-detail.html?blog=${encodeURIComponent(item.slug)}"><div class="blog-media"><img src="${contentEscape(item.image)}" alt="${contentEscape(item.coverAlt || item.title)}" data-image-slug="${contentEscape(item.coverSlug || "")}"><span class="badge-light">${contentEscape(item.category)}</span></div><div class="blog-body"><h3>${contentEscape(item.title)}</h3><p>${contentEscape(item.excerpt)}</p><span class="blog-meta">${Number(item.readTime) || 5} min read</span><span class="inline-link">Read More <span class="material-symbols-outlined">arrow_forward</span></span></div></a></article>`,
               )
               .join("");
         }
@@ -338,7 +338,8 @@ function sanitizeRichHtml(value) {
           const image = document.querySelector(".article-media img");
           if (image) {
             image.src = item.image;
-            image.alt = item.title;
+            image.alt = item.coverAlt || item.title;
+            image.dataset.imageSlug = item.coverSlug || "";
           }
           const article = document.querySelector(".article-content");
           if (article) {
