@@ -205,6 +205,8 @@ function setView(view) {
   $$("[data-view]").forEach((v) =>
     v.classList.toggle("active", v.dataset.view === view),
   );
+  const productAction = $("[data-product-action]");
+  if (productAction) productAction.hidden = view !== "inventory";
   $("[data-view-title]").textContent = {
     dashboard: "Dashboard",
     inventory: "Inventory",
@@ -608,4 +610,5 @@ document.addEventListener("click", async (event) => {
   }
 });
 renderAll();
+setView("dashboard");
 if(window.PakMarketDB?.configured)window.PakMarketDB.list("products",{order:{column:"created_at",ascending:false}}).then(rows=>{products=(rows||[]).map(fromDatabaseProduct);localStorage.setItem(STORAGE_KEY,JSON.stringify(products));renderAll()}).catch(error=>toast(`Could not load shared inventory: ${error.message}`));

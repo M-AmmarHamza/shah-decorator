@@ -1,10 +1,4 @@
 import "./supabase-client.js";
-for (const href of ["admin-content.css", "admin-pro.css"]) {
-  const link = document.createElement("link");
-  link.rel = "stylesheet";
-  link.href = href;
-  document.head.append(link);
-}
 
 const db = window.PakMarketDB;
 let session = null;
