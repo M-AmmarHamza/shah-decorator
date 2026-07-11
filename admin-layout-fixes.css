@@ -1,0 +1,74 @@
+/* Keep the admin navigation usable on short desktop and laptop screens. */
+.admin-sidebar {
+  box-sizing: border-box;
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+  padding-bottom: 18px;
+}
+
+.admin-brand {
+  flex: 0 0 auto;
+  padding-bottom: 22px;
+}
+
+.admin-sidebar nav {
+  min-height: 0;
+  flex: 1 1 auto;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 5px;
+  scrollbar-color: rgba(128, 232, 189, 0.55) transparent;
+  scrollbar-width: thin;
+}
+
+.admin-sidebar nav::-webkit-scrollbar { width: 5px; }
+.admin-sidebar nav::-webkit-scrollbar-track { background: transparent; }
+.admin-sidebar nav::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(128, 232, 189, 0.5);
+}
+
+.admin-sidebar-foot {
+  position: relative;
+  z-index: 2;
+  flex: 0 0 auto;
+  margin-top: 12px;
+  background: #073f30;
+  padding-top: 15px;
+}
+
+.admin-sidebar-foot button {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  border: 0;
+  background: transparent;
+  color: #ffb8b8;
+  padding: 0;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.admin-sidebar-foot p {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-height: 720px) and (min-width: 901px) {
+  .admin-sidebar { padding-top: 18px; }
+  .admin-brand { padding-bottom: 14px; }
+  .admin-sidebar nav { gap: 3px; }
+  .admin-sidebar nav button { padding-block: 10px; }
+  .admin-sidebar-foot { gap: 10px; padding-top: 12px; }
+}
+
+@media (max-width: 900px) {
+  .admin-sidebar {
+    position: fixed;
+    height: 100dvh;
+  }
+}
