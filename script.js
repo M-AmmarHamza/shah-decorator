@@ -1,7 +1,10 @@
+import "./supabase-client.js";
+
 const WHATSAPP_NUMBER = "923161013991";
 
 function whatsappUrl(message) {
-  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+  let number=WHATSAPP_NUMBER;try{number=JSON.parse(localStorage.getItem("pakmarket_global_settings_v1")||"{}").whatsapp||number}catch{}
+  return `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
 }
 
 function showToast(message) {
@@ -18,14 +21,405 @@ function showToast(message) {
 
 document.addEventListener("DOMContentLoaded", () => {
   const page = document.body.dataset.page || "";
+  const globalSettings=(()=>{try{return JSON.parse(localStorage.getItem("pakmarket_global_settings_v1")||"{}")}catch{return{}}})();
+  document.querySelectorAll(".footer-links").forEach(group=>{if(!group.querySelector('a[href="privacy-policy.html"]')&&/return|payment|contact/i.test(group.textContent+group.parentElement?.textContent))group.insertAdjacentHTML("beforeend",'<a href="privacy-policy.html">Privacy Policy</a><a href="terms.html">Terms & Conditions</a><a href="shipping-policy.html">Shipping Policy</a>')});
+  const socialMap={facebook:globalSettings.facebook,instagram:globalSettings.instagram};Object.entries(socialMap).forEach(([name,url])=>{if(url)document.querySelectorAll(`.socials a[aria-label="${name[0].toUpperCase()+name.slice(1)}"]`).forEach(link=>link.href=url)});
+  const contentEscape = (value) =>
+    String(value ?? "").replace(
+      /[&<>'"]/g,
+      (character) =>
+        ({
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          "'": "&#39;",
+          '"': "&quot;",
+        })[character],
+    );
+  const scheduledIsLive = (item) =>
+    item.enabled &&
+    (!item.start || Date.now() >= new Date(item.start).getTime()) &&
+    (!item.end || Date.now() <= new Date(item.end).getTime());
+
+  try {
+    const storedEvents = localStorage.getItem("pakmarket_events_v1");
+    if (storedEvents !== null) {
+      const activeEvent = (JSON.parse(storedEvents) || [])
+        .filter(scheduledIsLive)
+        .sort((a, b) => new Date(b.start) - new Date(a.start))[0];
+      document.querySelectorAll(".announcement-bar").forEach((bar) => {
+        if (!activeEvent) {
+          bar.hidden = true;
+          return;
+        }
+        bar.hidden = false;
+        const track = bar.querySelector(".announcement-track");
+        if (track) {
+          const group = `<span><span class="material-symbols-outlined">celebration</span>${contentEscape(activeEvent.message)}</span>${activeEvent.code ? `<b>Use code: ${contentEscape(activeEvent.code)}</b>` : ""}${activeEvent.secondary ? `<span>${contentEscape(activeEvent.secondary)}</span>` : ""}`;
+          track.innerHTML =
+            group +
+            group
+              .replaceAll("<span", '<span aria-hidden="true"')
+              .replaceAll("<b", '<b aria-hidden="true"');
+        }
+      });
+    }
+  } catch {}
+
+  try {
+    const storedComing = localStorage.getItem("pakmarket_coming_v1"),
+      comingSection = document.querySelector(".coming-section");
+    if (storedComing !== null && comingSection) {
+      const items = (JSON.parse(storedComing) || []).filter(scheduledIsLive),
+        grid = comingSection.querySelector(".coming-grid");
+      if (!items.length) comingSection.hidden = true;
+      else if (grid)
+        grid.innerHTML = items
+          .map(
+            (item) =>
+              `<article class="coming-card"><img src="${contentEscape(item.image)}" alt="${contentEscape(item.name)}"><div><span>Coming Soon</span><h3>${contentEscape(item.name)}</h3><p>${contentEscape(item.description)}</p><a href="#" data-whatsapp data-item="${contentEscape(item.name)} launch notification">Notify Me</a></div></article>`,
+          )
+          .join("");
+    }
+  } catch {}
+
+  try {
+    const storedBlogs = localStorage.getItem("pakmarket_blogs_v1"),
+      isBlogList = location.pathname.toLowerCase().endsWith("blog.html"),
+      isBlogDetail = location.pathname
+        .toLowerCase()
+        .endsWith("blog-detail.html");
+    if (storedBlogs !== null && (isBlogList || isBlogDetail)) {
+      const allBlogs = JSON.parse(storedBlogs) || [],
+        session = JSON.parse(
+          localStorage.getItem("pakmarket_session_v1") || "null",
+        ),
+        canPreview =
+          new URLSearchParams(location.search).get("preview") === "1" &&
+          ["admin", "super_admin"].includes(session?.role);
+      if (isBlogList) {
+        const published = allBlogs.filter((item) => item.enabled);
+        if (published.length) {
+          const featured =
+              published.find((item) => item.featured) || published[0],
+            others = published.filter((item) => item.id !== featured.id),
+            lead = document.querySelector(".blog-lead"),
+            top = document.querySelector(".blog-top-row"),
+            grid = document.querySelector(".editorial-grid");
+          if (lead) {
+            lead.href = `blog-detail.html?blog=${encodeURIComponent(featured.slug)}`;
+            lead.innerHTML = `<div class="blog-lead-image"><img src="${contentEscape(featured.image)}" alt="${contentEscape(featured.title)}"></div><div class="blog-lead-copy"><span>Featured story</span><h2>${contentEscape(featured.title)}</h2><p>${contentEscape(featured.excerpt)}</p><small>By ${contentEscape(featured.author)} · ${Number(featured.readTime) || 5} min read</small></div>`;
+          }
+          if (top)
+            top.innerHTML = others
+              .slice(0, 3)
+              .map(
+                (item) =>
+                  `<a href="blog-detail.html?blog=${encodeURIComponent(item.slug)}"><img src="${contentEscape(item.image)}" alt="${contentEscape(item.title)}"><h3>${contentEscape(item.title)}</h3><small>${contentEscape(item.category)} · ${Number(item.readTime) || 5} min read</small></a>`,
+              )
+              .join("");
+          if (grid)
+            grid.innerHTML = published
+              .map(
+                (item) =>
+                  `<article class="blog-card"><a href="blog-detail.html?blog=${encodeURIComponent(item.slug)}"><div class="blog-media"><img src="${contentEscape(item.image)}" alt="${contentEscape(item.title)}"><span class="badge-light">${contentEscape(item.category)}</span></div><div class="blog-body"><h3>${contentEscape(item.title)}</h3><p>${contentEscape(item.excerpt)}</p><span class="blog-meta">${Number(item.readTime) || 5} min read</span><span class="inline-link">Read More <span class="material-symbols-outlined">arrow_forward</span></span></div></a></article>`,
+              )
+              .join("");
+        }
+      }
+      if (isBlogDetail) {
+        const slug = new URLSearchParams(location.search).get("blog"),
+          item = allBlogs.find(
+            (blog) => blog.slug === slug && (blog.enabled || canPreview),
+          );
+        if (item) {
+          document.title = item.seoTitle || item.title;
+          const setMeta = (name, value) => {
+            let meta = document.querySelector(`meta[name="${name}"]`);
+            if (!meta) {
+              meta = document.createElement("meta");
+              meta.name = name;
+              document.head.append(meta);
+            }
+            meta.content = value || "";
+          };
+          setMeta("description", item.metaDescription);
+          setMeta("keywords", item.keywords);
+          setMeta(
+            "robots",
+            item.seoIndex && item.enabled
+              ? "index, follow"
+              : "noindex, nofollow",
+          );
+          const heading = document.querySelector(".article-heading");
+          heading.querySelector("h1").textContent = item.title;
+          heading.querySelector(".article-intro").textContent = item.excerpt;
+          heading.querySelector(".eyebrow").textContent = item.category;
+          const strong = heading.querySelector(".article-meta strong");
+          if (strong) strong.textContent = item.author;
+          const time = heading.querySelector("time");
+          if (time) {
+            time.dateTime = item.publishDate;
+            time.innerHTML = `<span class="material-symbols-outlined">calendar_today</span>${new Date(item.publishDate + "T00:00:00").toLocaleDateString("en-PK", { dateStyle: "long" })}`;
+          }
+          const read = heading.querySelector(".article-meta>span:last-child");
+          if (read)
+            read.innerHTML = `<span class="material-symbols-outlined">schedule</span>${Number(item.readTime) || 5} min read`;
+          const image = document.querySelector(".article-media img");
+          if (image) {
+            image.src = item.image;
+            image.alt = item.title;
+          }
+          const article = document.querySelector(".article-content");
+          if (article)
+            article.innerHTML = String(item.content || "")
+              .split(/\n{2,}/)
+              .filter(Boolean)
+              .map(
+                (paragraph, index) =>
+                  `<p${index === 0 ? ' class="article-lead"' : ""}>${contentEscape(paragraph).replaceAll("\n", "<br>")}</p>`,
+              )
+              .join("");
+        }
+      }
+    }
+  } catch {}
+
+  try {
+    const filename = (
+      window.location.pathname.split("/").pop() || "index.html"
+    ).toLowerCase();
+    const pageKey = {
+      "index.html": "home",
+      "products.html": "products",
+      "product.html": "product",
+      "blog.html": "blog",
+      "blog-detail.html": "blog-detail",
+      "about.html": "about",
+      "contact.html": "contact",
+      "payment.html": "payment",
+      "return-policy.html": "return-policy",
+    }[filename];
+    const pageSettings = (
+      JSON.parse(localStorage.getItem("pakmarket_pages_v1")) || []
+    ).find((item) => item.key === pageKey);
+    if (pageSettings) {
+      document.title = pageSettings.metaTitle || document.title;
+      const setMeta = (name, content) => {
+        let meta = document.querySelector(`meta[name="${name}"]`);
+        if (!meta) {
+          meta = document.createElement("meta");
+          meta.name = name;
+          document.head.appendChild(meta);
+        }
+        meta.content = content || "";
+      };
+      setMeta("description", pageSettings.metaDescription);
+      setMeta("keywords", pageSettings.keywords);
+      setMeta(
+        "robots",
+        pageSettings.seoIndex && pageSettings.enabled
+          ? "index, follow, max-image-preview:large"
+          : "noindex, nofollow",
+      );
+      let canonical = document.querySelector('link[rel="canonical"]');
+      if (!canonical) {
+        canonical = document.createElement("link");
+        canonical.rel = "canonical";
+        document.head.appendChild(canonical);
+      }
+      canonical.href = pageSettings.canonical;
+      const selectors = {
+        home: [".hero-content h1", ".hero-content > p"],
+        products: [".page-hero h1", ".page-hero p"],
+        product: [".detail-copy h1", ".detail-description"],
+        blog: [".page-hero h1", ".page-hero p"],
+        "blog-detail": [".article-heading h1", ".article-intro"],
+        about: [".about-hero h1", ".about-hero p"],
+        contact: [".page-hero h1", ".page-hero p"],
+        payment: [".page-hero h1", ".page-hero p"],
+        "return-policy": [".page-hero h1", ".page-hero p"],
+      };
+      const replaceHeadingLevel = (element, level) => {
+        const safeLevel = ["h1", "h2", "h3"].includes(
+          (level || "").toLowerCase(),
+        )
+          ? level.toLowerCase()
+          : element.tagName.toLowerCase();
+        if (element.tagName.toLowerCase() === safeLevel) return element;
+        const replacement = document.createElement(safeLevel);
+        [...element.attributes].forEach((attribute) =>
+          replacement.setAttribute(attribute.name, attribute.value),
+        );
+        replacement.innerHTML = element.innerHTML;
+        element.replaceWith(replacement);
+        return replacement;
+      };
+      const [headingSelector, paragraphSelector] = selectors[pageKey] || [];
+      let heading = headingSelector && document.querySelector(headingSelector);
+      const paragraph =
+        paragraphSelector && document.querySelector(paragraphSelector);
+      if (heading)
+        heading = replaceHeadingLevel(
+          heading,
+          pageSettings.headingLevel || "h1",
+        );
+      if (heading && pageSettings.heading)
+        heading.textContent = pageSettings.heading;
+      if (paragraph && pageSettings.paragraph)
+        paragraph.textContent = pageSettings.paragraph;
+      if (pageKey === "home") {
+        document
+          .querySelectorAll("[data-home-heading]")
+          .forEach((originalElement) => {
+            const key = originalElement.dataset.homeHeading;
+            const element = replaceHeadingLevel(
+              originalElement,
+              pageSettings[`${key}Level`] || "h2",
+            );
+            const value = pageSettings[key];
+            if (value) element.textContent = value;
+          });
+      }
+      const session = JSON.parse(
+        localStorage.getItem("pakmarket_session_v1") || "null",
+      );
+      const canPreview =
+        new URLSearchParams(location.search).get("preview") === "1" &&
+        ["admin", "super_admin"].includes(session?.role);
+      if (!pageSettings.enabled && !canPreview) {
+        const main = document.querySelector("main");
+        if (main)
+          main.innerHTML =
+            '<section class="page-unavailable"><span class="material-symbols-outlined">construction</span><h1>Page temporarily unavailable</h1><p>This page is currently disabled. Please return to the homepage.</p><a class="btn btn-primary" href="index.html">Back to Home</a></section>';
+      }
+    }
+  } catch {}
+
+  const managedSlug = new URLSearchParams(window.location.search).get(
+    "product",
+  );
+  if (managedSlug && window.location.pathname.endsWith("product.html")) {
+    try {
+      const inventory =
+        JSON.parse(localStorage.getItem("pakmarket_inventory_v1")) || [];
+      const managedProduct = inventory.find(
+        (item) => item.slug === managedSlug || item.id === managedSlug,
+      );
+      if (managedProduct) {
+        document.title =
+          managedProduct.seoTitle || `${managedProduct.name} | PakMarket`;
+        let description = document.querySelector('meta[name="description"]');
+        if (!description) {
+          description = document.createElement("meta");
+          description.name = "description";
+          document.head.appendChild(description);
+        }
+        description.content =
+          managedProduct.metaDescription || managedProduct.description || "";
+        let robots = document.querySelector('meta[name="robots"]');
+        if (!robots) {
+          robots = document.createElement("meta");
+          robots.name = "robots";
+          document.head.appendChild(robots);
+        }
+        robots.content =
+          managedProduct.seoIndex && managedProduct.enabled
+            ? "index, follow, max-image-preview:large"
+            : "noindex, nofollow";
+      }
+    } catch {}
+  }
+
+  const storefrontGrid = document.querySelector("[data-storefront-grid]");
+  if (storefrontGrid) {
+    try {
+      const managed = JSON.parse(
+        localStorage.getItem("pakmarket_inventory_v1"),
+      );
+      if (Array.isArray(managed)) {
+        const safe = (value = "") =>
+          String(value).replace(
+            /[&<>'"]/g,
+            (char) =>
+              ({
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                "'": "&#39;",
+                '"': "&quot;",
+              })[char],
+          );
+        const visible = managed.filter(
+          (product) => product.enabled ?? product.status === "active",
+        );
+        storefrontGrid.innerHTML = visible
+          .map((product) => {
+            const out = Number(product.stock) <= 0;
+            const category = `${String(product.category || "product")
+              .toLowerCase()
+              .replace(/[^a-z0-9]+/g, " ")
+              .trim()}${product.featured ? " best" : ""}`;
+            return `<article class="product-card" data-product-card data-category="all ${safe(category)}">
+            <a class="image-link" href="product.html?product=${encodeURIComponent(product.slug || product.id)}"><img src="${safe(product.image)}" alt="${safe(product.imageAlt || product.name)}"></a>
+            <span class="badge-light product-badge">${out ? "Out of Stock" : `${Number(product.stock)} in stock`}</span>
+            <div class="product-body"><h3>${safe(product.name)}</h3><div class="price-row"><span class="price">Rs. ${Number(product.price || 0).toLocaleString("en-PK")}</span>${Number(product.comparePrice) > Number(product.price) ? `<span class="old-price">Rs. ${Number(product.comparePrice).toLocaleString("en-PK")}</span>` : ""}</div>${out ? '<span class="btn btn-soft card-button">Currently unavailable</span>' : `<a class="btn btn-whatsapp card-button" href="${whatsappUrl(`Assalam o Alaikum, I want to order ${product.name}. Please share details.`)}" target="_blank" rel="noreferrer"><span class="material-symbols-outlined">chat</span>Order on WhatsApp</a>`}</div>
+          </article>`;
+          })
+          .join("");
+      }
+    } catch (error) {
+      console.warn("Could not load managed inventory", error);
+    }
+  }
 
   document.querySelectorAll("[data-page-link]").forEach((link) => {
     if (link.dataset.pageLink === page) link.classList.add("active");
   });
 
+  let currentSession = null;
+  try {
+    currentSession = JSON.parse(localStorage.getItem("pakmarket_session_v1"));
+  } catch {}
+  const accountHref =
+    currentSession && ["admin", "super_admin"].includes(currentSession.role)
+      ? "admin.html"
+      : "auth.html";
+  const navActions = document.querySelector(".nav-actions");
+  if (navActions && !navActions.querySelector("[data-account-link]")) {
+    const accountLink = document.createElement("a");
+    accountLink.className = "account-link";
+    accountLink.dataset.accountLink = "";
+    accountLink.href = accountHref;
+    accountLink.setAttribute(
+      "aria-label",
+      currentSession ? "Open account" : "Sign in or create account",
+    );
+    accountLink.innerHTML = `<span class="material-symbols-outlined">${currentSession ? "account_circle" : "login"}</span>`;
+    navActions.appendChild(accountLink);
+  }
+  const mobileNav = document.querySelector("[data-mobile-panel] nav");
+  if (mobileNav && !mobileNav.querySelector("[data-account-link]")) {
+    const mobileAccount = document.createElement("a");
+    mobileAccount.dataset.accountLink = "";
+    mobileAccount.href = accountHref;
+    mobileAccount.textContent =
+      currentSession && ["admin", "super_admin"].includes(currentSession.role)
+        ? "Admin Dashboard"
+        : currentSession
+          ? "My Account"
+          : "Sign in / Create account";
+    mobileNav.insertBefore(mobileAccount, mobileNav.lastElementChild);
+  }
+
   document.querySelectorAll("[data-whatsapp]").forEach((link) => {
     const item = link.dataset.item || "PakMarket products";
-    link.setAttribute("href", whatsappUrl(`Assalam o Alaikum, I want to order ${item}. Please share details.`));
+    link.setAttribute(
+      "href",
+      whatsappUrl(
+        `Assalam o Alaikum, I want to order ${item}. Please share details.`,
+      ),
+    );
     link.setAttribute("target", "_blank");
     link.setAttribute("rel", "noreferrer");
   });
@@ -33,11 +427,34 @@ document.addEventListener("DOMContentLoaded", () => {
   const menuButton = document.querySelector("[data-menu-button]");
   const mobilePanel = document.querySelector("[data-mobile-panel]");
   if (menuButton && mobilePanel) {
-    menuButton.addEventListener("click", () => {
-      const isOpen = mobilePanel.classList.toggle("open");
+    const setMenuOpen = (isOpen) => {
+      mobilePanel.classList.toggle("open", isOpen);
       document.body.classList.toggle("menu-open", isOpen);
       menuButton.setAttribute("aria-expanded", String(isOpen));
-      menuButton.querySelector(".material-symbols-outlined").textContent = isOpen ? "close" : "menu";
+      menuButton.querySelector(".material-symbols-outlined").textContent =
+        isOpen ? "close" : "menu";
+    };
+    const closeButton = document.createElement("button");
+    closeButton.className = "mobile-panel-close";
+    closeButton.type = "button";
+    closeButton.setAttribute("aria-label", "Close menu");
+    closeButton.innerHTML =
+      '<span class="material-symbols-outlined">close</span>';
+    mobilePanel.prepend(closeButton);
+    menuButton.addEventListener("click", () =>
+      setMenuOpen(!mobilePanel.classList.contains("open")),
+    );
+    closeButton.addEventListener("click", () => setMenuOpen(false));
+    mobilePanel
+      .querySelectorAll("a")
+      .forEach((link) =>
+        link.addEventListener("click", () => setMenuOpen(false)),
+      );
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && mobilePanel.classList.contains("open")) {
+        setMenuOpen(false);
+        menuButton.focus();
+      }
     });
   }
 
@@ -46,7 +463,10 @@ document.addEventListener("DOMContentLoaded", () => {
       const item = trigger.closest("[data-accordion-item]");
       item.classList.toggle("open");
       const icon = trigger.querySelector(".material-symbols-outlined");
-      if (icon) icon.textContent = item.classList.contains("open") ? "expand_less" : "expand_more";
+      if (icon)
+        icon.textContent = item.classList.contains("open")
+          ? "expand_less"
+          : "expand_more";
     });
   });
 
@@ -55,7 +475,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const item = trigger.closest(".faq-item");
       item.classList.toggle("open");
       const icon = trigger.querySelector(".material-symbols-outlined");
-      if (icon) icon.textContent = item.classList.contains("open") ? "remove" : "add";
+      if (icon)
+        icon.textContent = item.classList.contains("open") ? "remove" : "add";
     });
   });
 
@@ -66,34 +487,128 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!main || !image) return;
       main.src = image.src;
       main.alt = image.alt;
-      document.querySelectorAll("[data-gallery-thumb]").forEach((item) => item.classList.remove("active"));
+      document
+        .querySelectorAll("[data-gallery-thumb]")
+        .forEach((item) => item.classList.remove("active"));
       thumb.classList.add("active");
     });
   });
 
+  const catalogGrid = document.querySelector("[data-storefront-grid]");
+  if (catalogGrid) {
+    const existing = [...catalogGrid.querySelectorAll("[data-product-card]")];
+    const extraNames = [
+      "Ajrak Table Runner",
+      "Multani Ceramic Planter",
+      "Scented Bakhoor Set",
+      "Handwoven Cotton Throw",
+      "Minimal Brass Vase",
+      "Rose Petal Face Mist",
+      "Classic Khussa Pair",
+      "Artisan Tea Tray",
+      "Natural Neem Soap Set",
+      "Block Print Cushion",
+      "Wooden Spice Box",
+      "Herbal Hair Oil",
+      "Canvas Market Tote",
+      "Blue Pottery Mug Set",
+      "Macrame Wall Hanging",
+      "Dates Gift Box",
+      "Handmade Journal",
+      "Terracotta Serveware",
+      "Embroidered Clutch",
+      "Organic Green Tea",
+      "Camel Skin Lamp",
+      "Linen Table Napkins",
+      "Sidr Honey Soap",
+      "Leather Card Holder",
+      "Truck Art Coasters",
+      "Kashmiri Shawl",
+      "Ceramic Oil Burner",
+      "Hand-Carved Salad Spoons",
+      "Natural Lip Balm Set",
+      "Woven Storage Basket",
+      "Traditional Prayer Mat",
+      "Festive Gift Hamper",
+      "Handloom Cotton Scarf",
+      "Copper Tea Kettle",
+    ];
+    const categories = ["craft", "decor", "organic", "new", "best", "sale"];
+    const imageSources = existing
+      .map((card) => card.querySelector("img")?.src)
+      .filter(Boolean);
+    if (imageSources.length)
+      extraNames
+        .slice(0, Math.max(0, 40 - existing.length))
+        .forEach((name, index) => {
+          const category = categories[index % categories.length];
+          const price = 850 + ((index * 375) % 6200);
+          const card = document.createElement("article");
+          card.className = "product-card";
+          card.dataset.productCard = "";
+          card.dataset.category = `all ${category}`;
+          card.innerHTML = `<a class="image-link" href="product.html"><img src="${imageSources[index % imageSources.length]}" alt="${name}"></a><span class="badge product-badge">Available</span><div class="product-body"><h3>${name}</h3><div class="price-row"><span class="price">Rs. ${price.toLocaleString("en-PK")}</span></div><a class="btn btn-whatsapp card-button" href="${whatsappUrl(`Assalam o Alaikum, I want to order ${name}. Please share details.`)}" target="_blank" rel="noreferrer"><span class="material-symbols-outlined">chat</span>Order on WhatsApp</a></div>`;
+          catalogGrid.appendChild(card);
+        });
+  }
+
   const filterButtons = document.querySelectorAll("[data-filter]");
-  const products = document.querySelectorAll("[data-product-card]");
+  const products = [...document.querySelectorAll("[data-product-card]")];
+  const loadMoreButton = document.querySelector("[data-load-more]");
+  const pageSize =
+    window.innerWidth <= 680 ? 6 : window.innerWidth <= 1020 ? 8 : 10;
+  const initialSize =
+    window.innerWidth <= 680 ? 10 : window.innerWidth <= 1020 ? 12 : 20;
+  let visibleLimit = initialSize;
+  let activeFilter = "all";
+  let searchTerm = "";
+
+  const updateProductVisibility = () => {
+    const matches = products.filter((card) => {
+      const categories = (card.dataset.category || "").split(" ");
+      return (
+        (activeFilter === "all" || categories.includes(activeFilter)) &&
+        card.textContent.toLowerCase().includes(searchTerm)
+      );
+    });
+    products.forEach((card) => {
+      card.style.display = "none";
+    });
+    matches.slice(0, visibleLimit).forEach((card) => {
+      card.style.display = "";
+    });
+    if (loadMoreButton) {
+      const remaining = Math.max(0, matches.length - visibleLimit);
+      loadMoreButton.parentElement.style.display = remaining ? "flex" : "none";
+      loadMoreButton.firstChild.textContent = remaining
+        ? `Load ${Math.min(pageSize, remaining)} More Products `
+        : "All Products Loaded ";
+    }
+  };
+
   filterButtons.forEach((button) => {
     button.addEventListener("click", () => {
       filterButtons.forEach((item) => item.classList.remove("active"));
       button.classList.add("active");
-      const filter = button.dataset.filter;
-      products.forEach((card) => {
-        const categories = (card.dataset.category || "").split(" ");
-        card.style.display = filter === "all" || categories.includes(filter) ? "" : "none";
-      });
+      activeFilter = button.dataset.filter;
+      visibleLimit = initialSize;
+      updateProductVisibility();
     });
   });
 
   document.querySelectorAll("[data-search-products]").forEach((input) => {
     input.addEventListener("input", () => {
-      const term = input.value.trim().toLowerCase();
-      products.forEach((card) => {
-        const text = card.textContent.toLowerCase();
-        card.style.display = text.includes(term) ? "" : "none";
-      });
+      searchTerm = input.value.trim().toLowerCase();
+      visibleLimit = initialSize;
+      updateProductVisibility();
     });
   });
+
+  loadMoreButton?.addEventListener("click", () => {
+    visibleLimit += pageSize;
+    updateProductVisibility();
+  });
+  if (products.length) updateProductVisibility();
 
   document.querySelectorAll("[data-subscribe-form]").forEach((form) => {
     form.addEventListener("submit", (event) => {
@@ -102,4 +617,233 @@ document.addEventListener("DOMContentLoaded", () => {
       showToast("Thanks. You are on the PakMarket updates list.");
     });
   });
+
+  document.querySelectorAll("[data-contact-form]").forEach((form) => {
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      if (!form.reportValidity()) return;
+      const data = new FormData(form);
+      const message = [
+        "Assalam o Alaikum, I am contacting PakMarket.",
+        `Name: ${data.get("name")}`,
+        `Phone: ${data.get("phone")}`,
+        `Email: ${data.get("email") || "Not provided"}`,
+        `Topic: ${data.get("topic")}`,
+        `Message: ${data.get("message")}`,
+      ].join("\n");
+      window.open(whatsappUrl(message), "_blank", "noopener,noreferrer");
+      showToast("Your message is ready in WhatsApp.");
+    });
+  });
+
+  document.querySelectorAll("[data-copy-link]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(window.location.href);
+        showToast("Article link copied.");
+      } catch {
+        showToast("Copy the link from your browser address bar.");
+      }
+    });
+  });
+
+  document.querySelectorAll("[data-share-platform]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      const platform = button.dataset.sharePlatform;
+      const container = button.closest("[data-share-title]");
+      const title = container?.dataset.shareTitle || document.title;
+      const url = window.location.href;
+      const encodedUrl = encodeURIComponent(url);
+      const encodedText = encodeURIComponent(`${title} — ${url}`);
+      if (platform === "facebook") {
+        window.open(
+          `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
+          "_blank",
+          "noopener,noreferrer,width=720,height=560",
+        );
+      } else if (platform === "whatsapp") {
+        window.open(
+          `https://wa.me/?text=${encodedText}`,
+          "_blank",
+          "noopener,noreferrer",
+        );
+      } else if (platform === "instagram") {
+        try {
+          await navigator.clipboard.writeText(url);
+          showToast(
+            "Link copied. Paste it into your Instagram story or message.",
+          );
+        } catch {
+          showToast("Copy this page link and share it on Instagram.");
+        }
+        window.open(
+          "https://www.instagram.com/",
+          "_blank",
+          "noopener,noreferrer",
+        );
+      } else if (platform === "native" && navigator.share) {
+        try {
+          await navigator.share({ title, text: title, url });
+        } catch (error) {
+          if (error.name !== "AbortError")
+            showToast("Sharing is not available in this browser.");
+        }
+      } else {
+        try {
+          await navigator.clipboard.writeText(url);
+          showToast("Link copied.");
+        } catch {
+          showToast("Copy the link from your browser address bar.");
+        }
+      }
+    });
+  });
+
+  document.querySelectorAll("[data-share-menu]").forEach((menu) => {
+    const toggle = menu.querySelector("[data-share-toggle]");
+    const popover = menu.querySelector("[data-share-popover]");
+    if (!toggle || !popover) return;
+    toggle.addEventListener("click", (event) => {
+      event.stopPropagation();
+      const willOpen = popover.hidden;
+      document.querySelectorAll("[data-share-popover]").forEach((item) => {
+        item.hidden = true;
+      });
+      document
+        .querySelectorAll("[data-share-toggle]")
+        .forEach((item) => item.setAttribute("aria-expanded", "false"));
+      popover.hidden = !willOpen;
+      toggle.setAttribute("aria-expanded", String(willOpen));
+    });
+    popover.addEventListener("click", (event) => event.stopPropagation());
+  });
+  document.addEventListener("click", () => {
+    document.querySelectorAll("[data-share-popover]").forEach((item) => {
+      item.hidden = true;
+    });
+    document
+      .querySelectorAll("[data-share-toggle]")
+      .forEach((item) => item.setAttribute("aria-expanded", "false"));
+  });
+
+  document.querySelectorAll("[data-hero-slider]").forEach((slider) => {
+    const slides = [...slider.querySelectorAll(".hero-slide")];
+    const dots = [...slider.querySelectorAll("[data-hero-dot]")];
+    if (slides.length < 2) return;
+    let current = 0;
+    let timer;
+    const showSlide = (index) => {
+      current = (index + slides.length) % slides.length;
+      slides.forEach((slide, position) =>
+        slide.classList.toggle("active", position === current),
+      );
+      dots.forEach((dot, position) =>
+        dot.classList.toggle("active", position === current),
+      );
+    };
+    const start = () => {
+      timer = window.setInterval(() => showSlide(current + 1), 5000);
+    };
+    const restart = () => {
+      window.clearInterval(timer);
+      start();
+    };
+    dots.forEach((dot, index) =>
+      dot.addEventListener("click", () => {
+        showSlide(index);
+        restart();
+      }),
+    );
+    slider.addEventListener("mouseenter", () => window.clearInterval(timer));
+    slider.addEventListener("mouseleave", start);
+    start();
+  });
+
+  document.querySelectorAll("[data-featured-slider]").forEach((slider) => {
+    const cards = [...slider.querySelectorAll(".product-card")];
+    if (cards.length < 2) return;
+    let timer;
+    const next = () => {
+      const card = cards[0];
+      const gap = parseFloat(getComputedStyle(slider).gap) || 0;
+      const step = card.getBoundingClientRect().width + gap;
+      const atEnd =
+        slider.scrollLeft + slider.clientWidth >= slider.scrollWidth - step / 2;
+      slider.scrollTo({
+        left: atEnd ? 0 : slider.scrollLeft + step,
+        behavior: "smooth",
+      });
+    };
+    const start = () => {
+      timer = window.setInterval(next, 3200);
+    };
+    slider.addEventListener("mouseenter", () => window.clearInterval(timer));
+    slider.addEventListener("mouseleave", start);
+    slider.addEventListener("touchstart", () => window.clearInterval(timer), {
+      passive: true,
+    });
+    slider.addEventListener("touchend", start, { passive: true });
+    start();
+  });
+
+  document.querySelectorAll("[data-copy]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(button.dataset.copy);
+        showToast("Payment detail copied.");
+      } catch {
+        showToast("Please select and copy this detail manually.");
+      }
+    });
+  });
+
+  document.querySelectorAll("[data-payment-slip]").forEach((form) => {
+    const input = form.querySelector("[data-slip-file]");
+    const name = form.querySelector("[data-slip-name]");
+    input?.addEventListener("change", () => {
+      const file = input.files?.[0];
+      name.textContent = file ? file.name : "No file selected";
+    });
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      if (!form.reportValidity()) return;
+      const data = new FormData(form);
+      const file = input.files?.[0];
+      if (!file) return;
+      if (file.size > 10 * 1024 * 1024) {
+        showToast("Please select a file smaller than 10 MB.");
+        return;
+      }
+      const message = `PakMarket payment slip\nCustomer: ${data.get("customer")}\nAmount: Rs. ${data.get("amount")}\nMethod: ${data.get("method")}`;
+      if(window.PakMarketDB?.configured){try{const session=await window.PakMarketDB.session();if(session){const path=`${session.user.id}/${crypto.randomUUID()}-${file.name.replace(/[^a-z0-9.]+/gi,"-")}`;await window.PakMarketDB.upload("payment-slips",file,path);await window.PakMarketDB.save("payment_confirmations",{customer_id:session.user.id,customer_name:data.get("customer"),amount:Number(data.get("amount")),method:data.get("method"),slip_path:path,status:"pending_verification"});showToast("Payment slip securely submitted for verification.");form.reset();name.textContent="No file selected";return}}catch(error){showToast(error.message||"Secure upload failed; opening WhatsApp instead.")}}
+      if (navigator.share && navigator.canShare?.({ files: [file] })) {
+        try {
+          await navigator.share({
+            title: "PakMarket Payment Slip",
+            text: message,
+            files: [file],
+          });
+          showToast("Payment slip shared.");
+          return;
+        } catch (error) {
+          if (error.name === "AbortError") return;
+        }
+      }
+      window.open(
+        whatsappUrl(
+          `${message}\nI will attach the selected payment slip here.`,
+        ),
+        "_blank",
+        "noopener,noreferrer",
+      );
+      showToast(
+        "WhatsApp opened—please attach your selected slip before sending.",
+      );
+    });
+  });
+  document.addEventListener("click",event=>{const whatsapp=event.target.closest("[data-whatsapp]"),share=event.target.closest("[data-share-platform]");if(whatsapp)window.PakMarketDB?.track("whatsapp_order_click",{label:whatsapp.dataset.item||whatsapp.textContent.trim()},"page",location.pathname).catch(()=>{});if(share)window.PakMarketDB?.track("share_click",{platform:share.dataset.sharePlatform},"page",location.pathname).catch(()=>{})});
+  if(location.pathname.endsWith("product.html")){
+    const product=(()=>{try{const slug=new URLSearchParams(location.search).get("product");return (JSON.parse(localStorage.getItem("pakmarket_inventory_v1"))||[]).find(item=>item.slug===slug)||null}catch{return null}})();
+    if(product){const actions=document.querySelector(".detail-primary-actions");if(actions&&!actions.querySelector("[data-wishlist]")){const button=document.createElement("button");button.type="button";button.className="btn wishlist-button";button.dataset.wishlist=product.id;button.innerHTML='<span class="material-symbols-outlined">favorite</span><span>Save</span>';actions.append(button);button.addEventListener("click",async()=>{if(!window.PakMarketDB?.configured){showToast("Wishlist will be available after the live account system is connected.");return}const session=await window.PakMarketDB.session();if(!session){location.href="auth.html?next=product";return}const {error}=await window.PakMarketDB.client.from("wishlists").upsert({user_id:session.user.id,product_id:product.id});showToast(error?error.message:"Saved to your wishlist.")})}if(window.PakMarketDB?.configured){const reviewSection=document.createElement("section");reviewSection.className="container section product-reviews";reviewSection.innerHTML='<div><span class="eyebrow">Customer feedback</span><h2>Product Reviews</h2></div><div data-review-list><p>Loading reviews…</p></div><form data-review-form><div class="form-row"><label>Rating<select class="field" name="rating"><option value="5">5 — Excellent</option><option value="4">4 — Good</option><option value="3">3 — Average</option><option value="2">2 — Fair</option><option value="1">1 — Poor</option></select></label><label>Review title<input class="field" name="title" maxlength="80"></label></div><label>Your review<textarea class="field" name="body" rows="4" required maxlength="600"></textarea></label><button class="btn btn-primary">Submit review</button><small>Reviews appear after approval.</small></form>';document.querySelector(".product-detail")?.after(reviewSection);window.PakMarketDB.client.from("product_reviews").select("*").eq("product_id",product.id).eq("approved",true).then(({data})=>{reviewSection.querySelector("[data-review-list]").innerHTML=data?.length?data.map(review=>`<article class="review-item"><strong>${"★".repeat(review.rating)} ${contentEscape(review.title||"")}</strong><p>${contentEscape(review.body||"")}</p></article>`).join(""):"<p>No approved reviews yet.</p>"});reviewSection.querySelector("[data-review-form]").addEventListener("submit",async event=>{event.preventDefault();const session=await window.PakMarketDB.session();if(!session){location.href="auth.html?next=product";return}const values=new FormData(event.currentTarget),{error}=await window.PakMarketDB.client.from("product_reviews").upsert({product_id:product.id,user_id:session.user.id,rating:Number(values.get("rating")),title:values.get("title"),body:values.get("body"),approved:false});showToast(error?error.message:"Review submitted for approval.");if(!error)event.currentTarget.reset()})}const schema={"@context":"https://schema.org","@type":"Product",name:product.name,image:[product.image],description:product.description,sku:product.sku,offers:{"@type":"Offer",priceCurrency:"PKR",price:product.price,availability:product.stock>0?"https://schema.org/InStock":"https://schema.org/OutOfStock",url:location.href}};const node=document.createElement("script");node.type="application/ld+json";node.textContent=JSON.stringify(schema);document.head.append(node)}
+  }
 });

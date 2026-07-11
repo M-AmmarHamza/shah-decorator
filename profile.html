@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>My Account | PakMarket</title>
+    <meta name="robots" content="noindex,nofollow" />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="profile.css" />
+  </head>
+  <body>
+    <main class="account-shell container">
+      <header class="account-header">
+        <a href="index.html">PakMarket</a
+        ><button class="btn btn-primary" type="button" data-account-logout>
+          Sign out
+        </button>
+      </header>
+      <section class="account-welcome">
+        <span class="eyebrow">My account</span>
+        <h1 data-account-name>Welcome</h1>
+        <p>Manage your profile, saved products and order updates.</p>
+      </section>
+      <nav class="account-tabs">
+        <button class="active" data-account-tab="orders">Orders</button
+        ><button data-account-tab="wishlist">Wishlist</button
+        ><button data-account-tab="profile">Profile</button>
+      </nav>
+      <section class="account-panel active" data-account-panel="orders">
+        <div class="account-list" data-account-orders>
+          <p>Loading orders…</p>
+        </div>
+      </section>
+      <section class="account-panel" data-account-panel="wishlist">
+        <div class="account-list" data-account-wishlist>
+          <p>Loading saved products…</p>
+        </div>
+      </section>
+      <section class="account-panel" data-account-panel="profile">
+        <form class="account-form" data-account-form>
+          <label
+            >Full name<input class="field" name="fullName" required /></label
+          ><label>Phone number<input class="field" name="phone" /></label
+          ><label
+            >Avatar URL<input
+              class="field"
+              type="url"
+              name="avatarUrl" /></label
+          ><button class="btn btn-primary" type="submit">Save profile</button>
+        </form>
+      </section>
+    </main>
+    <script type="module" src="supabase-client.js"></script>
+    <script type="module" src="profile.js"></script>
+  </body>
+</html>

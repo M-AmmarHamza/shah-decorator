@@ -1,0 +1,2 @@
+.product-flags{grid-template-columns:repeat(2,minmax(0,180px));gap:8px}.product-flags label:has(input[name="verified"]){display:none}.product-flags label>span,.seo-index-control>span{border-radius:8px;padding:8px 10px}.product-flags small,.seo-index-control small{font-size:8px}.table-switch{width:30px;height:17px;padding:2px}.table-switch i{width:13px;height:13px}.table-switch.on i{transform:translateX(13px)}.admin-table td:nth-child(6){display:none}
+.admin-table td:nth-child(6){display:table-cell!important}

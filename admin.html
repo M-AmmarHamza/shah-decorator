@@ -1,0 +1,596 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PakMarket Admin</title>
+    <meta name="robots" content="noindex,nofollow" />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="admin.css" />
+    <link rel="stylesheet" href="admin-auth.css" />
+    <link rel="stylesheet" href="admin-product.css" />
+    <link rel="stylesheet" href="admin-compact.css" />
+    <link rel="stylesheet" href="admin-pages.css" />
+  </head>
+  <body class="admin-body">
+    <div class="admin-shell">
+      <aside class="admin-sidebar">
+        <a class="admin-brand" href="index.html"
+          >PakMarket <span>Admin</span></a
+        >
+        <nav>
+          <button class="active" data-admin-view="dashboard">
+            <span class="material-symbols-outlined">dashboard</span
+            >Dashboard</button
+          ><button data-admin-view="inventory">
+            <span class="material-symbols-outlined">inventory_2</span
+            >Inventory</button
+          ><button data-admin-view="seo">
+            <span class="material-symbols-outlined">travel_explore</span>SEO
+            Manager</button
+          ><button data-admin-view="pages">
+            <span class="material-symbols-outlined">web</span>Pages Control</button
+          ><button data-admin-view="requests" data-super-only>
+            <span class="material-symbols-outlined">group_add</span>Admin
+            Requests <b data-request-count>0</b>
+          </button>
+        </nav>
+        <div class="admin-sidebar-foot">
+          <a href="products.html" target="_blank"
+            ><span class="material-symbols-outlined">storefront</span>View
+            Storefront</a
+          ><button type="button" data-logout>
+            <span class="material-symbols-outlined">logout</span>Sign out
+          </button>
+          <p data-admin-role>Admin workspace</p>
+        </div>
+      </aside>
+      <div class="admin-main">
+        <header class="admin-topbar">
+          <button class="admin-menu" type="button" data-admin-menu>
+            <span class="material-symbols-outlined">menu</span>
+          </button>
+          <div>
+            <small>Inventory workspace</small>
+            <h1 data-view-title>Dashboard</h1>
+          </div>
+          <div class="admin-actions">
+            <span class="save-state" data-save-state>All changes saved</span
+            ><button class="admin-btn secondary" type="button" data-export>
+              <span class="material-symbols-outlined">download</span
+              >Export</button
+            ><label class="admin-btn secondary import-btn"
+              ><span class="material-symbols-outlined">upload</span>Import<input
+                type="file"
+                accept="application/json"
+                data-import /></label
+            ><button class="admin-btn primary" type="button" data-add-product>
+              <span class="material-symbols-outlined">add</span>Add Product
+            </button>
+            <div class="admin-user">
+              <span data-admin-initials>MA</span>
+              <div>
+                <strong data-admin-name>Admin</strong
+                ><small data-admin-role-label>Administrator</small>
+              </div>
+            </div>
+          </div>
+        </header>
+        <main class="admin-content">
+          <section class="admin-view active" data-view="dashboard">
+            <div class="metric-grid">
+              <article>
+                <span class="metric-icon green"
+                  ><span class="material-symbols-outlined"
+                    >inventory_2</span
+                  ></span
+                >
+                <div>
+                  <small>Total products</small
+                  ><strong data-metric-total>0</strong>
+                </div>
+              </article>
+              <article>
+                <span class="metric-icon blue"
+                  ><span class="material-symbols-outlined"
+                    >check_circle</span
+                  ></span
+                >
+                <div>
+                  <small>Active</small><strong data-metric-active>0</strong>
+                </div>
+              </article>
+              <article>
+                <span class="metric-icon amber"
+                  ><span class="material-symbols-outlined">warning</span></span
+                >
+                <div>
+                  <small>Low stock</small><strong data-metric-low>0</strong>
+                </div>
+              </article>
+              <article>
+                <span class="metric-icon red"
+                  ><span class="material-symbols-outlined"
+                    >remove_shopping_cart</span
+                  ></span
+                >
+                <div>
+                  <small>Out of stock</small><strong data-metric-out>0</strong>
+                </div>
+              </article>
+            </div>
+            <div class="dashboard-grid">
+              <section class="admin-card">
+                <div class="card-heading">
+                  <div>
+                    <h2>Stock overview</h2>
+                    <p>Products that need attention</p>
+                  </div>
+                  <button data-go-inventory>View inventory</button>
+                </div>
+                <div class="attention-list" data-attention-list></div>
+              </section>
+              <section class="admin-card">
+                <div class="card-heading">
+                  <div>
+                    <h2>SEO health</h2>
+                    <p>Store catalog optimization</p>
+                  </div>
+                </div>
+                <div class="seo-health">
+                  <div class="score-ring" data-seo-ring>
+                    <strong data-seo-average>0</strong><span>/100</span>
+                  </div>
+                  <div>
+                    <strong data-seo-good>0 products optimized</strong>
+                    <p>
+                      Complete titles, descriptions, keywords and image alt text
+                      to improve product discoverability.
+                    </p>
+                    <button data-go-seo>Review SEO</button>
+                  </div>
+                </div>
+              </section>
+            </div>
+          </section>
+          <section class="admin-view" data-view="inventory">
+            <div class="inventory-toolbar">
+              <div class="admin-search">
+                <span class="material-symbols-outlined">search</span
+                ><input
+                  type="search"
+                  placeholder="Search products, SKU or category"
+                  data-admin-search
+                />
+              </div>
+              <select data-status-filter>
+                <option value="all">All products</option>
+                <option value="enabled">Enabled</option>
+                <option value="disabled">Disabled</option>
+                <option value="out">Out of stock</option></select
+              ><select data-category-filter>
+                <option value="all">All categories</option>
+              </select>
+            </div>
+            <div class="admin-table-wrap">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Product</th>
+                    <th>SKU</th>
+                    <th>Price / Stock</th>
+                    <th>Enabled</th>
+                    <th>SEO Index</th>
+                    <th>Featured</th>
+                    <th>SEO Score</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody data-inventory-body></tbody>
+              </table>
+              <div class="admin-empty" data-empty-state>
+                <span class="material-symbols-outlined">inventory_2</span>
+                <h3>No products found</h3>
+                <p>Try changing your search or filters.</p>
+              </div>
+            </div>
+          </section>
+          <section class="admin-view" data-view="seo">
+            <div class="seo-toolbar">
+              <div>
+                <h2>Product SEO</h2>
+                <p>Review metadata quality across your catalog.</p>
+              </div>
+              <div class="seo-legend">
+                <span><i class="good"></i>Good</span
+                ><span><i class="fair"></i>Needs work</span
+                ><span><i class="poor"></i>Poor</span>
+              </div>
+            </div>
+            <div class="seo-list" data-seo-list></div>
+          </section>
+          <section class="admin-view" data-view="pages">
+            <div class="seo-toolbar">
+              <div>
+                <h2>Pages Control</h2>
+                <p>Edit public page content, visibility and search metadata.</p>
+              </div>
+            </div>
+            <div class="pages-grid" data-pages-grid></div>
+          </section>
+          <section class="admin-view" data-view="requests">
+            <div class="seo-toolbar">
+              <div>
+                <h2>Admin access requests</h2>
+                <p>
+                  Only approved administrators can open the management panel.
+                </p>
+              </div>
+            </div>
+            <div class="request-list" data-request-list></div>
+          </section>
+        </main>
+      </div>
+    </div>
+    <dialog class="product-dialog" data-product-dialog>
+      <form method="dialog" data-product-form>
+        <header>
+          <div>
+            <small>Inventory item</small>
+            <h2 data-dialog-title>Add Product</h2>
+          </div>
+          <button type="button" data-close-dialog aria-label="Close">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </header>
+        <div class="dialog-tabs">
+          <button class="active" type="button" data-form-tab="details">
+            Product details</button
+          ><button type="button" data-form-tab="seo">SEO settings</button>
+        </div>
+        <div class="dialog-body">
+          <section class="form-panel active" data-form-panel="details">
+            <input type="hidden" name="id" />
+            <div class="form-row">
+              <label
+                >Product name<input
+                  type="text"
+                  name="name"
+                  required
+                  maxlength="80" /></label
+              ><label
+                >SKU<input type="text" name="sku" required maxlength="30"
+              /></label>
+            </div>
+            <label
+              >Category<input
+                type="text"
+                name="category"
+                required
+                placeholder="e.g. Home Decor"
+            /></label>
+            <div class="form-row three">
+              <label
+                >Price (Rs.)<input
+                  type="number"
+                  name="price"
+                  required
+                  min="0" /></label
+              ><label
+                >Compare price<input
+                  type="number"
+                  name="comparePrice"
+                  min="0" /></label
+              ><label
+                >Stock quantity<input
+                  type="number"
+                  name="stock"
+                  required
+                  min="0"
+              /></label>
+            </div>
+            <div class="product-flags">
+              <label
+                ><input type="checkbox" name="enabled" checked /><span
+                  ><b>Enabled</b
+                  ><small>Product can appear on storefront</small></span
+                ></label
+              ><label
+                ><input type="checkbox" name="featured" /><span
+                  ><b>Featured</b
+                  ><small>Highlight in featured collections</small></span
+                ></label
+              ><label
+                ><input type="checkbox" name="newArrival" /><span
+                  ><b>New arrival</b
+                  ><small>Show in the new arrivals collection</small></span
+                ></label
+              >
+            </div>
+            <label
+              >Product image URL<input
+                type="url"
+                name="image"
+                required
+                placeholder="https://..." /></label
+            ><label
+              >Short description<textarea
+                name="description"
+                rows="4"
+                required
+                maxlength="300"
+              ></textarea
+              ><span class="field-count" data-desc-count>0/300</span></label
+            >
+            <details class="product-advanced">
+              <summary>More product options</summary>
+              <div class="form-row">
+                <label>Brand<input type="text" name="brand" maxlength="60" /></label>
+                <label>Low-stock alert<input type="number" name="lowStockThreshold" min="0" value="5" /></label>
+              </div>
+              <label>Additional image URLs<textarea name="gallery" rows="3" placeholder="One image URL per line"></textarea></label>
+              <div class="form-row">
+                <label>Sizes<input type="text" name="sizes" placeholder="S, M, L" /></label>
+                <label>Colors<input type="text" name="colors" placeholder="Black, Green" /></label>
+              </div>
+              <div class="form-row">
+                <label>Sale starts<input type="datetime-local" name="saleStartsAt" /></label>
+                <label>Sale ends<input type="datetime-local" name="saleEndsAt" /></label>
+              </div>
+            </details>
+          </section>
+          <section class="form-panel" data-form-panel="seo">
+            <div class="seo-editor-score">
+              <span>SEO score</span><strong data-form-seo-score>0/100</strong>
+            </div>
+            <label class="seo-index-control"
+              ><input type="checkbox" name="seoIndex" checked /><span
+                ><b>Allow search engine indexing</b
+                ><small
+                  >Disable to output noindex for this product.</small
+                ></span
+              ></label
+            ><label
+              >URL slug<input
+                type="text"
+                name="slug"
+                required
+                placeholder="premium-almond-biscotti"
+              /><span>Use lowercase words separated by hyphens.</span></label
+            ><label
+              >SEO title<input
+                type="text"
+                name="seoTitle"
+                required
+                maxlength="60"
+              /><span class="field-count" data-title-count>0/60</span></label
+            ><label
+              >Meta description<textarea
+                name="metaDescription"
+                rows="4"
+                required
+                maxlength="160"
+              ></textarea
+              ><span class="field-count" data-meta-count>0/160</span></label
+            ><label
+              >Focus keywords<input
+                type="text"
+                name="keywords"
+                required
+                placeholder="almond biscotti, local bakery, Pakistan"
+              /><span>Separate keywords with commas.</span></label
+            ><label
+              >Image alt text<input
+                type="text"
+                name="imageAlt"
+                required
+                maxlength="125"
+            /></label>
+            <div class="search-preview">
+              <small>Search preview</small>
+              <h3 data-preview-title>Product title</h3>
+              <p class="preview-url">
+                pakmarket.pk/products/<span data-preview-slug
+                  >product-slug</span
+                >
+              </p>
+              <p data-preview-description>
+                Meta description preview will appear here.
+              </p>
+            </div>
+          </section>
+        </div>
+        <footer>
+          <button class="admin-btn danger" type="button" data-delete-product>
+            Delete
+          </button>
+          <div>
+            <button
+              class="admin-btn secondary"
+              type="button"
+              data-preview-current
+            >
+              Preview</button
+            ><button
+              class="admin-btn secondary"
+              type="button"
+              data-close-dialog
+            >
+              Cancel</button
+            ><button class="admin-btn primary" type="submit">
+              Save Product
+            </button>
+          </div>
+        </footer>
+      </form>
+    </dialog>
+    <dialog class="preview-dialog" data-preview-dialog>
+      <button type="button" data-close-preview aria-label="Close preview">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+      <div data-preview-content></div>
+    </dialog>
+    <dialog class="page-dialog" data-page-dialog>
+      <form data-page-form>
+        <header>
+          <div>
+            <small>Website page</small>
+            <h2 data-page-dialog-title>Edit Page</h2>
+          </div>
+          <button type="button" data-close-page aria-label="Close">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </header>
+        <div class="page-form-body">
+          <input type="hidden" name="key" />
+          <div class="page-controls">
+            <label
+              ><input type="checkbox" name="enabled" /><span
+                ><b>Page enabled</b
+                ><small>Allow visitors to access this page</small></span
+              ></label
+            ><label
+              ><input type="checkbox" name="seoIndex" /><span
+                ><b>SEO Index</b
+                ><small>Protected: confirmation is required</small></span
+              ></label
+            >
+          </div>
+          <label
+            >Page heading<input
+              type="text"
+              name="heading"
+              required
+              maxlength="100"
+            /><span class="page-count" data-page-heading-count
+              >0/100</span
+            ></label
+          ><label
+            >Intro paragraph<textarea
+              name="paragraph"
+              rows="5"
+              required
+              maxlength="400"
+            ></textarea
+            ><span class="page-count" data-page-paragraph-count
+              >0/400</span
+            ></label
+          >
+          <div class="page-form-row">
+            <label
+              >Meta title<input
+                type="text"
+                name="metaTitle"
+                required
+                maxlength="60"
+              /><span class="page-count" data-page-title-count
+                >0/60</span
+              ></label
+            ><label
+              >Canonical URL<input type="url" name="canonical" required
+            /></label>
+          </div>
+          <label
+            >Meta description<textarea
+              name="metaDescription"
+              rows="4"
+              required
+              maxlength="160"
+            ></textarea
+            ><span class="page-count" data-page-meta-count>0/160</span></label
+          ><label
+            >Focus keywords<input
+              type="text"
+              name="keywords"
+              placeholder="local products, Pakistan, marketplace"
+          /></label>
+          <div class="page-search-preview">
+            <small>Google preview</small>
+            <h3 data-page-preview-title>Page title</h3>
+            <p data-page-preview-url>https://pakmarket.pk/page</p>
+            <span data-page-preview-description>Meta description preview</span>
+          </div>
+        </div>
+        <footer>
+          <a class="admin-btn secondary" href="#" target="_blank" data-view-page
+            >View page</a
+          >
+          <div>
+            <button class="admin-btn secondary" type="button" data-close-page>
+              Cancel</button
+            ><button class="admin-btn primary" type="submit">Save Page</button>
+          </div>
+        </footer>
+      </form>
+    </dialog>
+    <dialog class="seo-confirm-dialog" data-seo-confirm-dialog>
+      <form data-seo-confirm-form>
+        <header>
+          <span class="seo-warning-icon material-symbols-outlined"
+            >warning</span
+          >
+          <div>
+            <small>Protected SEO action</small>
+            <h2 data-seo-confirm-title>Confirm indexing change</h2>
+          </div>
+        </header>
+        <div class="seo-confirm-body">
+          <p data-seo-confirm-message></p>
+          <div class="seo-impact">
+            <span class="material-symbols-outlined">info</span>
+            <p data-seo-confirm-impact></p>
+          </div>
+          <label
+            >To confirm, type <strong data-seo-confirm-phrase></strong
+            ><input
+              type="text"
+              data-seo-confirm-input
+              autocomplete="off"
+              spellcheck="false"
+          /></label>
+        </div>
+        <footer>
+          <button
+            class="admin-btn secondary"
+            type="button"
+            data-cancel-seo-confirm
+          >
+            Cancel</button
+          ><button
+            class="admin-btn danger"
+            type="submit"
+            data-approve-seo-confirm
+            disabled
+          >
+            Confirm change
+          </button>
+        </footer>
+      </form>
+    </dialog>
+    <dialog class="delete-dialog" data-delete-dialog>
+      <form method="dialog" data-delete-form>
+        <span class="delete-icon material-symbols-outlined">warning</span>
+        <h2>Delete product permanently?</h2>
+        <p>
+          This action cannot be undone. Type
+          <strong data-delete-name></strong> to confirm.
+        </p>
+        <input type="text" data-delete-confirm autocomplete="off" />
+        <div>
+          <button class="admin-btn secondary" type="button" data-cancel-delete>
+            Cancel</button
+          ><button
+            class="admin-btn danger"
+            type="submit"
+            disabled
+            data-confirm-delete
+          >
+            Delete permanently
+          </button>
+        </div>
+      </form>
+    </dialog>
+    <div class="admin-toast" data-admin-toast></div>
+    <script type="module" src="admin-entry.js"></script>
+  </body>
+</html>
