@@ -353,6 +353,45 @@ function sanitizeRichHtml(value) {
           managedProduct.seoIndex && managedProduct.enabled
             ? "index, follow, max-image-preview:large"
             : "noindex, nofollow";
+        const galleryItems = Array.isArray(managedProduct.galleryMeta)
+          ? managedProduct.galleryMeta
+          : (() => {
+              try {
+                return JSON.parse(managedProduct.galleryMeta || "[]");
+              } catch {
+                return [];
+              }
+            })();
+        const images = galleryItems.length
+          ? galleryItems
+          : [
+              {
+                url: managedProduct.image,
+                alt: managedProduct.imageAlt || managedProduct.name,
+                slug: managedProduct.imageSlug || `${managedProduct.slug}-main`,
+              },
+              ...String(managedProduct.gallery || "")
+                .split(/\r?\n/)
+                .filter(Boolean)
+                .map((url, index) => ({
+                  url,
+                  alt: `${managedProduct.name} image ${index + 2}`,
+                  slug: `${managedProduct.slug}-${index + 2}`,
+                })),
+            ];
+        const mainImage = document.querySelector("[data-gallery-main]");
+        const thumbs = document.querySelector(".gallery-thumbs");
+        if (mainImage && images[0]) {
+          mainImage.src = images[0].url;
+          mainImage.alt = images[0].alt;
+        }
+        if (thumbs && images.length)
+          thumbs.innerHTML = images
+            .map(
+              (image, index) =>
+                `<button class="thumb ${index ? "" : "active"}" type="button" data-gallery-thumb data-image-slug="${contentEscape(image.slug || "")}"><img src="${contentEscape(image.url)}" alt="${contentEscape(image.alt || managedProduct.name)}"></button>`,
+            )
+            .join("");
       }
     } catch {}
   }

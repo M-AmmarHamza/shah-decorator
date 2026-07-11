@@ -174,10 +174,10 @@ function saveProducts() {
   renderAll();
 }
 function toDatabaseProduct(product) {
-  return {id:product.id,name:product.name,slug:product.slug,sku:product.sku,brand:product.brand||null,category_name:product.category||null,image_url:product.image||null,description:product.description||"",price:Number(product.price||0),compare_price:Number(product.comparePrice||0),stock:Number(product.stock||0),low_stock_threshold:Number(product.lowStockThreshold||5),status:product.enabled?"published":"draft",featured:Boolean(product.featured),new_arrival:Boolean(product.newArrival),sale_starts_at:product.saleStartsAt||null,sale_ends_at:product.saleEndsAt||null,seo_index:Boolean(product.seoIndex),seo_title:product.seoTitle||null,meta_description:product.metaDescription||null,keywords:String(product.keywords||"").split(",").map(item=>item.trim()).filter(Boolean),image_alt:product.imageAlt||null,variants:{sizes:String(product.sizes||"").split(",").map(item=>item.trim()).filter(Boolean),colors:String(product.colors||"").split(",").map(item=>item.trim()).filter(Boolean),gallery:String(product.gallery||"").split(/\r?\n/).filter(Boolean)}};
+  return {id:product.id,name:product.name,slug:product.slug,sku:product.sku,brand:product.brand||null,category_name:product.category||null,image_url:product.image||null,image_slug:product.imageSlug||null,description:product.description||"",price:Number(product.price||0),compare_price:Number(product.comparePrice||0),stock:Number(product.stock||0),low_stock_threshold:Number(product.lowStockThreshold||5),status:product.enabled?"published":"draft",featured:Boolean(product.featured),new_arrival:Boolean(product.newArrival),sale_starts_at:product.saleStartsAt||null,sale_ends_at:product.saleEndsAt||null,seo_index:Boolean(product.seoIndex),seo_title:product.seoTitle||null,meta_description:product.metaDescription||null,keywords:String(product.keywords||"").split(",").map(item=>item.trim()).filter(Boolean),image_alt:product.imageAlt||null,variants:{sizes:String(product.sizes||"").split(",").map(item=>item.trim()).filter(Boolean),colors:String(product.colors||"").split(",").map(item=>item.trim()).filter(Boolean),gallery:String(product.gallery||"").split(/\r?\n/).filter(Boolean),galleryMeta:JSON.parse(product.galleryMeta||"[]")}};
 }
 function fromDatabaseProduct(product) {
-  return normalizeProduct({id:product.id,name:product.name,slug:product.slug,sku:product.sku,brand:product.brand,category:product.category_name||"Uncategorized",image:product.image_url,description:product.description,price:Number(product.price),comparePrice:Number(product.compare_price||0),stock:Number(product.stock),lowStockThreshold:Number(product.low_stock_threshold||5),enabled:product.status==="published",status:product.status==="published"?"active":"draft",featured:product.featured,newArrival:product.new_arrival,saleStartsAt:product.sale_starts_at||"",saleEndsAt:product.sale_ends_at||"",seoIndex:product.seo_index,seoTitle:product.seo_title||"",metaDescription:product.meta_description||"",keywords:(product.keywords||[]).join(", "),imageAlt:product.image_alt||"",sizes:(product.variants?.sizes||[]).join(", "),colors:(product.variants?.colors||[]).join(", "),gallery:(product.variants?.gallery||[]).join("\n")});
+  return normalizeProduct({id:product.id,name:product.name,slug:product.slug,sku:product.sku,brand:product.brand,category:product.category_name||"Uncategorized",image:product.image_url,imageSlug:product.image_slug||"",description:product.description,price:Number(product.price),comparePrice:Number(product.compare_price||0),stock:Number(product.stock),lowStockThreshold:Number(product.low_stock_threshold||5),enabled:product.status==="published",status:product.status==="published"?"active":"draft",featured:product.featured,newArrival:product.new_arrival,saleStartsAt:product.sale_starts_at||"",saleEndsAt:product.sale_ends_at||"",seoIndex:product.seo_index,seoTitle:product.seo_title||"",metaDescription:product.meta_description||"",keywords:(product.keywords||[]).join(", "),imageAlt:product.image_alt||"",sizes:(product.variants?.sizes||[]).join(", "),colors:(product.variants?.colors||[]).join(", "),gallery:(product.variants?.gallery||[]).join("\n"),galleryMeta:JSON.stringify(product.variants?.galleryMeta||[])});
 }
 function esc(value = "") {
   return String(value).replace(
@@ -362,6 +362,7 @@ function openProduct(id = null, seoTab = false) {
     if (el.type === "checkbox") el.checked = Boolean(p[el.name]);
     else el.value = p[el.name] ?? "";
   }
+  window.PakMarketImageStudio.mountProduct(form, p);
   form.elements.id.value = p?.id || "";
   $("[data-dialog-title]").textContent = p ? "Edit Product" : "Add Product";
   $("[data-delete-product]").style.visibility = p ? "visible" : "hidden";
@@ -431,6 +432,10 @@ form.addEventListener("submit", (event) => {
   event.preventDefault();
   if (!form.reportValidity()) return;
   const data = formData();
+  if (!data.image) {
+    toast("Upload at least one 1080 × 1080 product image.");
+    return;
+  }
   data.price = Number(data.price);
   data.comparePrice = Number(data.comparePrice || 0);
   data.stock = Number(data.stock);

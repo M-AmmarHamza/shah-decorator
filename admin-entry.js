@@ -39,6 +39,7 @@ window.PAKMARKET_SESSION = session;
 await import("./admin-safe-delete.js");
 await import("./admin-blog-editor.js");
 await import("./admin-categories.js");
+await import("./admin-image-studio.js");
 await import("./admin.js");
 await import("./admin-pages.js");
 await import("./admin-content.js");

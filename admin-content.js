@@ -31,7 +31,7 @@
       .trim()
       .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "");
-  const toDatabaseContent = (type, item) => type === "events" ? {id:item.id,name:item.title,message:item.message,secondary_message:item.secondary||null,discount_code:item.code||null,starts_at:item.start,ends_at:item.end,enabled:item.enabled} : type === "coming" ? {id:item.id,name:item.name,category_name:item.category||null,image_url:item.image,description:item.description,starts_at:item.start,launches_at:item.end,enabled:item.enabled} : {id:item.id,title:item.title,slug:item.slug,category:item.category,author_name:item.author,cover_url:item.image,excerpt:item.excerpt,content:item.content,status:item.enabled?"published":"draft",featured:item.featured,published_at:item.publishDate?`${item.publishDate}T00:00:00+05:00`:null,seo_index:item.seoIndex,seo_title:item.seoTitle,meta_description:item.metaDescription,keywords:String(item.keywords||"").split(",").map(value=>value.trim()).filter(Boolean)};
+  const toDatabaseContent = (type, item) => type === "events" ? {id:item.id,name:item.title,message:item.message,secondary_message:item.secondary||null,discount_code:item.code||null,starts_at:item.start,ends_at:item.end,enabled:item.enabled} : type === "coming" ? {id:item.id,name:item.name,category_name:item.category||null,image_url:item.image,image_alt:item.imageAlt||null,image_slug:item.imageSlug||null,description:item.description,starts_at:item.start,launches_at:item.end,enabled:item.enabled} : {id:item.id,title:item.title,slug:item.slug,category:item.category,author_name:item.author,cover_url:item.image,excerpt:item.excerpt,content:item.content,status:item.enabled?"published":"draft",featured:item.featured,published_at:item.publishDate?`${item.publishDate}T00:00:00+05:00`:null,seo_index:item.seoIndex,seo_title:item.seoTitle,meta_description:item.metaDescription,keywords:String(item.keywords||"").split(",").map(value=>value.trim()).filter(Boolean)};
   const nav = document.querySelector(".admin-sidebar nav"),
     requestNav = nav.querySelector('[data-admin-view="requests"]');
   [
@@ -190,6 +190,8 @@
       );
     if (type === "blogs")
       window.PakMarketBlogEditor.mount(form.elements.content);
+    if (type === "coming")
+      window.PakMarketImageStudio.mountUpcoming(form, item);
     dialog.showModal();
   }
   document.addEventListener("click", async (event) => {
@@ -258,6 +260,10 @@
       if (!form.reportValidity()) return;
       const data = Object.fromEntries(new FormData(form).entries()),
         type = editing.type;
+      if (type === "coming" && !data.image) {
+        toast("Upload a 1080 × 1080 upcoming image before saving.");
+        return;
+      }
       if (
         type === "blogs" &&
         !String(data.content || "")
