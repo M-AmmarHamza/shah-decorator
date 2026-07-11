@@ -183,7 +183,7 @@
     });
     dialog.showModal();
   }
-  document.addEventListener("click", (event) => {
+  document.addEventListener("click", async (event) => {
     const target = event.target.closest("button,a");
     if (!target) return;
     if (target.dataset.addContent) openEditor(target.dataset.addContent);
@@ -207,7 +207,18 @@
       const type = target.dataset.removeContent,
         list = { events, coming, blogs }[type],
         item = list.find((entry) => entry.id === target.dataset.id);
-      if (item && confirm(`Delete “${item.title || item.name}”?`)) {
+      if (
+        item &&
+        (await window.requestAdminDelete({
+          name: item.title || item.name,
+          subject:
+            type === "events"
+              ? "event"
+              : type === "blogs"
+                ? "blog"
+                : "upcoming product",
+        }))
+      ) {
         const next = list.filter((entry) => entry.id !== item.id);
         if (type === "events") events = next;
         if (type === "coming") coming = next;

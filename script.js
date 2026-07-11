@@ -1,4 +1,5 @@
 import "./supabase-client.js";
+import "./social-normalize.css";
 
 const WHATSAPP_NUMBER = "923161013991";
 

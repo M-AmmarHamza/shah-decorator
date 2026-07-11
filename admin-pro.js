@@ -253,7 +253,18 @@
       });
       await load();
     }
-    if (remove && confirm("Delete this category?")) {
+    if (remove) {
+      const category = state.categories.find(
+        (item) => item.id === remove.dataset.categoryDelete,
+      );
+      if (
+        !category ||
+        !(await window.requestAdminDelete({
+          name: category.name,
+          subject: "category",
+        }))
+      )
+        return;
       if (db?.configured)
         await db.remove("categories", remove.dataset.categoryDelete);
       else {
@@ -263,6 +274,7 @@
         saveLocal("pakmarket_categories_v1", state.categories);
       }
       render();
+      toast("Category permanently deleted.");
     }
   });
   view.addEventListener("submit", async (event) => {

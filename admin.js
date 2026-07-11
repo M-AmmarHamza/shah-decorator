@@ -499,16 +499,6 @@ document.addEventListener("click", async (event) => {
   }
   if (button.dataset.formTab) setFormTab(button.dataset.formTab);
   if (button.hasAttribute("data-close-dialog")) dialog.close();
-  if (button.hasAttribute("data-delete-product")) {
-    const id = form.elements.id.value;
-    if (id && confirm("Delete this product?")) {
-      products = products.filter((p) => p.id !== id);
-      window.PakMarketDB?.remove("products", id).catch(()=>{});
-      saveProducts();
-      dialog.close();
-      toast("Product deleted.");
-    }
-  }
   if (button.hasAttribute("data-go-inventory")) setView("inventory");
   if (button.hasAttribute("data-go-seo")) setView("seo");
   if (button.hasAttribute("data-admin-menu"))
