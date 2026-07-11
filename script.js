@@ -1,6 +1,7 @@
 import "./supabase-client.js";
 import "./social-normalize.css";
 import "./promotions.css";
+import "./product-gallery.css";
 
 const WHATSAPP_NUMBER = "923161013991";
 
@@ -152,6 +153,105 @@ function sanitizeRichHtml(value) {
           .join("");
     }
   } catch {}
+
+  const gallerySection = document.querySelector("[data-product-gallery]");
+  if (gallerySection) {
+    const grid = gallerySection.querySelector("[data-gallery-grid]");
+    const empty = gallerySection.querySelector("[data-gallery-empty]");
+    const previous = gallerySection.querySelector("[data-gallery-prev]");
+    const next = gallerySection.querySelector("[data-gallery-next]");
+    const pageLabel = gallerySection.querySelector("[data-gallery-page]");
+    const safeJson = (value, fallback = []) => {
+      try {
+        return JSON.parse(value) || fallback;
+      } catch {
+        return fallback;
+      }
+    };
+    const inventory = safeJson(
+      localStorage.getItem("pakmarket_inventory_v1"),
+      [],
+    ).filter((product) => product.enabled ?? product.status === "active");
+    let galleryImages = inventory.flatMap((product) => {
+      const metadata = Array.isArray(product.galleryMeta)
+        ? product.galleryMeta
+        : safeJson(product.galleryMeta, []);
+      const images = metadata.length
+        ? metadata
+        : [
+            product.image && {
+              url: product.image,
+              alt: product.imageAlt || product.name,
+              slug: product.imageSlug || `${product.slug}-main`,
+            },
+            ...String(product.gallery || "")
+              .split(/\r?\n/)
+              .filter(Boolean)
+              .map((url, index) => ({
+                url,
+                alt: `${product.name} image ${index + 2}`,
+                slug: `${product.slug}-${index + 2}`,
+              })),
+          ].filter(Boolean);
+      return images.map((image) => ({
+        ...image,
+        productName: product.name,
+        productSlug: product.slug || product.id,
+      }));
+    });
+    if (!galleryImages.length)
+      galleryImages = [
+        ...document.querySelectorAll(".product-card .image-link img"),
+      ].map((image, index) => ({
+        url: image.currentSrc || image.src,
+        alt: image.alt,
+        slug: `catalog-image-${index + 1}`,
+        productName:
+          image.closest(".product-card")?.querySelector("h3")?.textContent ||
+          "PakMarket product",
+        productSlug: "",
+      }));
+    const seen = new Set();
+    galleryImages = galleryImages.filter((image) => {
+      if (!image.url || seen.has(image.url)) return false;
+      seen.add(image.url);
+      return true;
+    });
+    let galleryPage = 0;
+    const pageSize = () => (innerWidth <= 700 ? 6 : innerWidth <= 1050 ? 6 : 8);
+    const renderGallery = () => {
+      const size = pageSize();
+      const pages = Math.max(1, Math.ceil(galleryImages.length / size));
+      galleryPage = Math.min(galleryPage, pages - 1);
+      const items = galleryImages.slice(galleryPage * size, (galleryPage + 1) * size);
+      grid.innerHTML = items
+        .map(
+          (image) => `<a class="product-gallery-item" href="${image.productSlug ? `product.html?product=${encodeURIComponent(image.productSlug)}` : "products.html"}" data-image-slug="${contentEscape(image.slug || "")}"><img src="${contentEscape(image.url)}" alt="${contentEscape(image.alt || image.productName)}" loading="lazy"><span>${contentEscape(image.productName)}</span></a>`,
+        )
+        .join("");
+      empty.hidden = galleryImages.length > 0;
+      grid.hidden = !galleryImages.length;
+      pageLabel.textContent = `${galleryPage + 1} / ${pages}`;
+      previous.disabled = galleryPage === 0;
+      next.disabled = galleryPage >= pages - 1;
+      gallerySection.classList.toggle("single-page", pages === 1);
+    };
+    previous.addEventListener("click", () => {
+      galleryPage = Math.max(0, galleryPage - 1);
+      renderGallery();
+    });
+    next.addEventListener("click", () => {
+      const pages = Math.max(1, Math.ceil(galleryImages.length / pageSize()));
+      galleryPage = Math.min(pages - 1, galleryPage + 1);
+      renderGallery();
+    });
+    let galleryResizeTimer;
+    addEventListener("resize", () => {
+      clearTimeout(galleryResizeTimer);
+      galleryResizeTimer = setTimeout(renderGallery, 120);
+    });
+    renderGallery();
+  }
 
   try {
     const storedBlogs = localStorage.getItem("pakmarket_blogs_v1"),
