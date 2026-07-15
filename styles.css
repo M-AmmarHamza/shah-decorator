@@ -1118,6 +1118,13 @@ button {
   min-width: 0;
 }
 
+.detail-copy > *,
+.info-stack,
+.info-card {
+  min-width: 0;
+  max-width: 100%;
+}
+
 .detail-title-row {
   display: flex;
   align-items: start;
