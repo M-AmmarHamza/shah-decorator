@@ -24,6 +24,11 @@ function showToast(message) {
 
 document.addEventListener("DOMContentLoaded", () => {
   const page = document.body.dataset.page || "";
+  const routeName =
+    (window.location.pathname.split("/").filter(Boolean).pop() || "index")
+      .replace(/\.html$/i, "")
+      .toLowerCase();
+  const isRoute = (name) => routeName === name;
   const globalSettings=(()=>{try{return JSON.parse(localStorage.getItem("pakmarket_global_settings_v1")||"{}")}catch{return{}}})();
   document.querySelectorAll(".footer-links").forEach(group=>{if(!group.querySelector('a[href="privacy-policy.html"]')&&/return|payment|contact/i.test(group.textContent+group.parentElement?.textContent))group.insertAdjacentHTML("beforeend",'<a href="privacy-policy.html">Privacy Policy</a><a href="terms.html">Terms & Conditions</a><a href="shipping-policy.html">Shipping Policy</a>')});
   const socialMap={facebook:globalSettings.facebook,instagram:globalSettings.instagram};Object.entries(socialMap).forEach(([name,url])=>{if(url)document.querySelectorAll(`.socials a[aria-label="${name[0].toUpperCase()+name.slice(1)}"]`).forEach(link=>link.href=url)});
@@ -255,10 +260,8 @@ function sanitizeRichHtml(value) {
 
   try {
     const storedBlogs = localStorage.getItem("pakmarket_blogs_v1"),
-      isBlogList = location.pathname.toLowerCase().endsWith("blog.html"),
-      isBlogDetail = location.pathname
-        .toLowerCase()
-        .endsWith("blog-detail.html");
+      isBlogList = isRoute("blog"),
+      isBlogDetail = isRoute("blog-detail");
     if (storedBlogs !== null && (isBlogList || isBlogDetail)) {
       const allBlogs = JSON.parse(storedBlogs) || [],
         session = JSON.parse(
@@ -474,7 +477,7 @@ function sanitizeRichHtml(value) {
   const managedSlug = new URLSearchParams(window.location.search).get(
     "product",
   );
-  if (managedSlug && window.location.pathname.endsWith("product.html")) {
+  if (managedSlug && isRoute("product")) {
     try {
       const inventory =
         JSON.parse(localStorage.getItem("pakmarket_inventory_v1")) || [];
@@ -502,6 +505,71 @@ function sanitizeRichHtml(value) {
           managedProduct.seoIndex && managedProduct.enabled
             ? "index, follow, max-image-preview:large"
             : "noindex, nofollow";
+        const breadcrumb = document.querySelector(".breadcrumb");
+        const breadcrumbLinks = breadcrumb?.querySelectorAll("a");
+        const breadcrumbCurrent = breadcrumb?.querySelector(":scope > span:last-child");
+        if (breadcrumbLinks?.[1]) {
+          breadcrumbLinks[1].textContent = "Products";
+          breadcrumbLinks[1].href = "products.html";
+        }
+        if (breadcrumbCurrent) breadcrumbCurrent.textContent = managedProduct.name;
+
+        const productHeading = document.querySelector(".detail-copy h1");
+        const productDescription = document.querySelector(".detail-description");
+        const productPrice = document.querySelector(".detail-price .price");
+        const comparePrice = document.querySelector(".detail-price .old-price");
+        const discountBadge = document.querySelector(".detail-price .badge-light");
+        if (productHeading) productHeading.textContent = managedProduct.name;
+        if (productDescription)
+          productDescription.textContent = managedProduct.description || "Product details will be added soon.";
+        if (productPrice)
+          productPrice.textContent = `Rs. ${Number(managedProduct.price || 0).toLocaleString("en-PK")}`;
+        const hasDiscount =
+          Number(managedProduct.comparePrice) > Number(managedProduct.price);
+        if (comparePrice) {
+          comparePrice.hidden = !hasDiscount;
+          comparePrice.textContent = hasDiscount
+            ? `Rs. ${Number(managedProduct.comparePrice).toLocaleString("en-PK")}`
+            : "";
+        }
+        if (discountBadge) {
+          discountBadge.hidden = !hasDiscount;
+          discountBadge.textContent = hasDiscount
+            ? `-${Math.round((1 - Number(managedProduct.price) / Number(managedProduct.comparePrice)) * 100)}% Off`
+            : "";
+        }
+
+        const stockCard = document.querySelector(".stock-card");
+        const stock = Number(managedProduct.stock || 0);
+        if (stockCard) {
+          stockCard.classList.toggle("out-of-stock", stock <= 0);
+          const stockIcon = stockCard.querySelector(".material-symbols-outlined");
+          const stockTitle = stockCard.querySelector("strong");
+          const stockCopy = stockCard.querySelector("div span");
+          if (stockIcon) stockIcon.textContent = stock > 0 ? "check_circle" : "cancel";
+          if (stockTitle) stockTitle.textContent = stock > 0 ? "Available in Stock" : "Out of Stock";
+          if (stockCopy)
+            stockCopy.textContent = stock > 0
+              ? `${stock} item${stock === 1 ? "" : "s"} currently available`
+              : "Please contact us for restock information";
+        }
+
+        document
+          .querySelectorAll(
+            ".site-header [data-whatsapp], .detail-primary-actions [data-whatsapp], .detail-mobile-bar [data-whatsapp]",
+          )
+          .forEach((link) => (link.dataset.item = managedProduct.name));
+        document.querySelectorAll("[data-share-title]").forEach((element) => {
+          element.dataset.shareTitle = managedProduct.name;
+        });
+        const detailsPanel = document.querySelector(".accordion-item:first-child .accordion-panel");
+        if (detailsPanel)
+          detailsPanel.innerHTML = `<p>${contentEscape(managedProduct.description || "Product details will be added soon.")}</p>`;
+        const recommendationCopy = document.querySelector(".recommend-row")
+          ?.closest("section")
+          ?.querySelector(".section-heading p");
+        if (recommendationCopy)
+          recommendationCopy.textContent = `More products from ${managedProduct.category || "PakMarket"}`;
         const galleryItems = Array.isArray(managedProduct.galleryMeta)
           ? managedProduct.galleryMeta
           : (() => {
@@ -587,6 +655,29 @@ function sanitizeRichHtml(value) {
       console.warn("Could not load managed inventory", error);
     }
   }
+
+  document.querySelectorAll(".product-card").forEach((card) => {
+    const title = card.querySelector("h3")?.textContent.trim();
+    const productLink = card.querySelector(".image-link");
+    if (!title || !productLink) return;
+    const inventory = (() => {
+      try {
+        return JSON.parse(localStorage.getItem("pakmarket_inventory_v1") || "[]");
+      } catch {
+        return [];
+      }
+    })();
+    const managed = inventory.find(
+      (item) => item.name?.trim().toLowerCase() === title.toLowerCase(),
+    );
+    const slug =
+      managed?.slug ||
+      title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "");
+    productLink.href = `product.html?product=${encodeURIComponent(slug)}`;
+  });
 
   document.querySelectorAll("[data-page-link]").forEach((link) => {
     if (link.dataset.pageLink === page) link.classList.add("active");
@@ -1027,8 +1118,8 @@ function sanitizeRichHtml(value) {
     });
   });
   document.addEventListener("click",event=>{const whatsapp=event.target.closest("[data-whatsapp]"),share=event.target.closest("[data-share-platform]");if(whatsapp)window.PakMarketDB?.track("whatsapp_order_click",{label:whatsapp.dataset.item||whatsapp.textContent.trim()},"page",location.pathname).catch(()=>{});if(share)window.PakMarketDB?.track("share_click",{platform:share.dataset.sharePlatform},"page",location.pathname).catch(()=>{})});
-  if(location.pathname.endsWith("product.html")){
-    const product=(()=>{try{const slug=new URLSearchParams(location.search).get("product");return (JSON.parse(localStorage.getItem("pakmarket_inventory_v1"))||[]).find(item=>item.slug===slug)||null}catch{return null}})();
+  if(isRoute("product")){
+    const product=(()=>{try{const slug=new URLSearchParams(location.search).get("product");return (JSON.parse(localStorage.getItem("pakmarket_inventory_v1"))||[]).find(item=>item.slug===slug||item.id===slug)||null}catch{return null}})();
     if(product){const actions=document.querySelector(".detail-primary-actions");if(actions&&!actions.querySelector("[data-wishlist]")){const button=document.createElement("button");button.type="button";button.className="btn wishlist-button";button.dataset.wishlist=product.id;button.innerHTML='<span class="material-symbols-outlined">favorite</span><span>Save</span>';actions.append(button);button.addEventListener("click",async()=>{if(!window.PakMarketDB?.configured){showToast("Wishlist will be available after the live account system is connected.");return}const session=await window.PakMarketDB.session();if(!session){location.href="auth.html?next=product";return}const {error}=await window.PakMarketDB.client.from("wishlists").upsert({user_id:session.user.id,product_id:product.id});showToast(error?error.message:"Saved to your wishlist.")})}if(window.PakMarketDB?.configured){const reviewSection=document.createElement("section");reviewSection.className="container section product-reviews";reviewSection.innerHTML='<div><span class="eyebrow">Customer feedback</span><h2>Product Reviews</h2></div><div data-review-list><p>Loading reviews…</p></div><form data-review-form><div class="form-row"><label>Rating<select class="field" name="rating"><option value="5">5 — Excellent</option><option value="4">4 — Good</option><option value="3">3 — Average</option><option value="2">2 — Fair</option><option value="1">1 — Poor</option></select></label><label>Review title<input class="field" name="title" maxlength="80"></label></div><label>Your review<textarea class="field" name="body" rows="4" required maxlength="600"></textarea></label><button class="btn btn-primary">Submit review</button><small>Reviews appear after approval.</small></form>';document.querySelector(".product-detail")?.after(reviewSection);window.PakMarketDB.client.from("product_reviews").select("*").eq("product_id",product.id).eq("approved",true).then(({data})=>{reviewSection.querySelector("[data-review-list]").innerHTML=data?.length?data.map(review=>`<article class="review-item"><strong>${"★".repeat(review.rating)} ${contentEscape(review.title||"")}</strong><p>${contentEscape(review.body||"")}</p></article>`).join(""):"<p>No approved reviews yet.</p>"});reviewSection.querySelector("[data-review-form]").addEventListener("submit",async event=>{event.preventDefault();const session=await window.PakMarketDB.session();if(!session){location.href="auth.html?next=product";return}const values=new FormData(event.currentTarget),{error}=await window.PakMarketDB.client.from("product_reviews").upsert({product_id:product.id,user_id:session.user.id,rating:Number(values.get("rating")),title:values.get("title"),body:values.get("body"),approved:false});showToast(error?error.message:"Review submitted for approval.");if(!error)event.currentTarget.reset()})}const schema={"@context":"https://schema.org","@type":"Product",name:product.name,image:[product.image],description:product.description,sku:product.sku,offers:{"@type":"Offer",priceCurrency:"PKR",price:product.price,availability:product.stock>0?"https://schema.org/InStock":"https://schema.org/OutOfStock",url:location.href}};const node=document.createElement("script");node.type="application/ld+json";node.textContent=JSON.stringify(schema);document.head.append(node)}
     if (product) {
       const details = offerDetails(product);
