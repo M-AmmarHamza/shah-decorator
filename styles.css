@@ -842,6 +842,19 @@ button {
   gap: 12px;
 }
 
+.home-testimonials-section {
+  padding-bottom: 30px;
+}
+
+.home-faq-section {
+  padding-block: 22px 34px;
+}
+
+.home-faq-section .section-title {
+  margin: 0 0 18px;
+  text-align: center;
+}
+
 .faq-item {
   border: 1px solid rgba(188, 202, 192, 0.5);
   border-radius: var(--radius-sm);
