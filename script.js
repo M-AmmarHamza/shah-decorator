@@ -2,6 +2,7 @@ import "./supabase-client.js";
 import "./social-normalize.css";
 import "./promotions.css";
 import "./product-gallery.css";
+import "./floating-actions.js";
 import { DEFAULT_PRODUCTS } from "./catalog.js";
 
 const WHATSAPP_NUMBER = "923161013991";

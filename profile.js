@@ -1,3 +1,5 @@
+import "./floating-actions.js";
+
 const waitForDB = () =>
   window.PakMarketDB
     ? Promise.resolve(window.PakMarketDB)

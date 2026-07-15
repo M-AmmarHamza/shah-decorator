@@ -1496,6 +1496,55 @@ button {
   display: block;
 }
 
+.floating-actions {
+  position: fixed;
+  right: 22px;
+  bottom: 24px;
+  z-index: 85;
+  display: grid;
+  gap: 12px;
+}
+
+.floating-action {
+  display: grid;
+  width: 52px;
+  height: 52px;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: #3fbd82;
+  color: white;
+  box-shadow: 0 9px 22px rgba(12, 85, 57, 0.2);
+  transition: transform 180ms ease, opacity 180ms ease, box-shadow 180ms ease;
+}
+
+.floating-action:hover {
+  color: white;
+  box-shadow: 0 12px 28px rgba(12, 85, 57, 0.28);
+  transform: translateY(-2px);
+}
+
+.floating-action svg {
+  width: 22px;
+  height: 22px;
+}
+
+.floating-whatsapp {
+  background: #319f6d;
+}
+
+.floating-top {
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+.floating-top.show {
+  pointer-events: auto;
+  opacity: 1;
+  transform: translateY(0);
+}
+
 /* About and contact pages */
 .about-hero { padding-block: 72px; }
 .about-hero-grid { display:grid; grid-template-columns:1.15fr .85fr; align-items:center; gap:64px; }
@@ -2033,6 +2082,22 @@ button {
 @media (prefers-reduced-motion: reduce){.announcement-track{animation:none}.hero-slide,.product-grid.featured{scroll-behavior:auto}}
 
 @media (max-width: 760px) {
+  .floating-actions {
+    right: 16px;
+    bottom: 18px;
+    gap: 10px;
+  }
+
+  body:has(.bottom-nav) .floating-actions,
+  body:has(.detail-mobile-bar) .floating-actions {
+    bottom: 82px;
+  }
+
+  .floating-action {
+    width: 50px;
+    height: 50px;
+  }
+
   .site-footer .footer-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
