@@ -1062,8 +1062,8 @@ button {
 
 .product-detail {
   display: grid;
-  grid-template-columns: minmax(0, 7fr) minmax(360px, 5fr);
-  gap: 32px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 40px;
   align-items: start;
 }
 
@@ -1115,6 +1115,7 @@ button {
 .detail-copy {
   display: grid;
   gap: 20px;
+  min-width: 0;
 }
 
 .detail-title-row {
@@ -1180,6 +1181,29 @@ button {
   color: var(--primary);
 }
 
+.stock-card > div {
+  min-width: 0;
+}
+
+.stock-card strong,
+.stock-card > div > span {
+  font-family: inherit;
+  font-style: normal;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.stock-card strong {
+  font-size: 16px;
+  line-height: 1.35;
+}
+
+.stock-card > div > span {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
 .detail-description {
   color: var(--muted);
   margin: 0;
@@ -1206,6 +1230,11 @@ button {
 
 .info-card .material-symbols-outlined {
   color: var(--primary);
+  flex: 0 0 auto;
+}
+
+.info-card > div {
+  min-width: 0;
 }
 
 .info-card h4 {
@@ -1215,6 +1244,8 @@ button {
 .info-card p {
   margin: 0;
   color: var(--muted);
+  line-height: 1.55;
+  overflow-wrap: anywhere;
 }
 
 .swatches {

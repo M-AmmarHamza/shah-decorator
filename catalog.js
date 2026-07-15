@@ -10,7 +10,7 @@ export const DEFAULT_PRODUCTS = [
     stock: 14,
     enabled: true,
     seoIndex: true,
-    image: "https://lh3.googleusercontent.com/aida-public/AB6AXuCVUqhdvP9hb7V5HfcU_Lg8z0B1QmYNk3a_ihBXM3vi8GOdNUmuN3mGrIImboj7C3hvds6vagJWQcesDxXEZdP0ZFudeyYVxvT7txC4_nkakXu_FChQy9snR44svK19TmEJMcJ0Pqa_z0XHoZzjHyh7c62jddeR3jrD2-w1WLJAgzTVFNl3pKajTZvx6ppPH43btNkqUW-lorSu_Ml9oX9LQLMFg7f44_Gm1TA_zx0yYjYvzOSayKFSu7zLKFZ9FKcXrdss-WLrPRo",
+    image: "https://lh3.googleusercontent.com/aida-public/AB6AXuDEnJcw27yqpwlpvv0CQrU-eh2amN6a_STX9AuW9cgXJq-2eUdIFlH11x2GF28_1SJx-VlCy0CQdjtwlSrrOlkXOKQSy_p3-HJ6JYC0uPwvPdO-WnQHNQsCnaUvGuVMp2jW_WtC7h2GdsnUEKhCLZ2a93apKwCK_CAtXh0KApDteHht0WtdcSIwDn8vaLc4H_a7tRjAi1R_CihbpUUlcO_T23p06vocmxpHhQqibFSGuYf3lcP4V6oWkgPulKdXpssFUXX3vFp-4DU",
     imageAlt: "Hand-painted blue Pakistani pottery vase",
     description: "Hand-painted blue pottery created by skilled Pakistani artisans.",
     seoTitle: "Hand-Painted Blue Pottery | PakMarket",
