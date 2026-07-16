@@ -715,12 +715,24 @@ button {
 
 .benefit {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 14px;
   border-radius: var(--radius);
   background: var(--card);
   padding: 22px;
   box-shadow: var(--shadow);
+}
+
+.benefit > .material-symbols-outlined {
+  display: grid;
+  width: 52px;
+  height: 52px;
+  flex: 0 0 52px;
+  place-items: center;
+  border-radius: 50%;
+  background: #dff8ed;
+  color: var(--primary);
+  font-size: 25px;
 }
 
 .steps {
@@ -1868,6 +1880,13 @@ button {
 
   .benefit {
     padding: 16px;
+  }
+
+  .benefit > .material-symbols-outlined {
+    width: 46px;
+    height: 46px;
+    flex-basis: 46px;
+    font-size: 23px;
   }
 
   .steps {
