@@ -532,13 +532,18 @@ button {
 
 .trust-icon {
   display: grid;
-  width: 46px;
-  height: 46px;
-  flex: 0 0 46px;
+  width: 56px;
+  height: 56px;
+  flex: 0 0 56px;
   place-items: center;
   border-radius: 50%;
   background: #dff8ed;
   color: var(--primary);
+}
+
+.trust-icon .material-symbols-outlined {
+  color: var(--primary);
+  font-size: 27px;
 }
 
 .trust-item strong,
@@ -548,10 +553,10 @@ button {
   font-size: 14px;
 }
 
-.trust-item span,
-.benefit span {
+.trust-item > div:last-child > span,
+.benefit > div > span {
   color: var(--muted);
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .section-heading {
@@ -1790,12 +1795,17 @@ button {
   }
 
   .trust-icon {
-    width: 34px;
-    height: 34px;
-    flex-basis: 34px;
+    width: 44px;
+    height: 44px;
+    flex-basis: 44px;
   }
 
-  .trust-item span {
+  .trust-icon .material-symbols-outlined {
+    display: inline-block;
+    font-size: 23px;
+  }
+
+  .trust-item > div:last-child > span {
     display: none;
   }
 
