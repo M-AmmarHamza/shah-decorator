@@ -4,7 +4,8 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [
-    {"source":"/products/:slug","destination":"/product?product=:slug"}
+    {"source":"/products/:slug","destination":"/product?product=:slug"},
+    {"source":"/blog/:slug","destination":"/blog-detail?blog=:slug"}
   ],
   "headers": [
     {"source":"/(.*)","headers":[

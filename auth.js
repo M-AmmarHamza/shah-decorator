@@ -1,17 +1,8 @@
 const AUTH_USERS_KEY = "pakmarket_users_v1",
   AUTH_SESSION_KEY = "pakmarket_session_v1";
-const SUPER_ADMIN = {
-  id: "super-admin-001",
-  name: "Muhammad Ammar",
-  email: "ammarshami979@gmail.com",
-  phone: "03161013991",
-  role: "super_admin",
-  status: "approved",
-  salt: "32c828a5100f7c0146c1351f0524a7c8",
-  passwordHash:
-    "d7a55375c36a53501a25d33e68f970ed8f8ab23f5403aae1b83c4d3fcd860e0b",
-  createdAt: "2026-07-11T00:00:00.000Z",
-};
+const IS_LOCAL_PREVIEW = ["localhost", "127.0.0.1", "::1"].includes(
+  location.hostname,
+);
 const $ = (s, r = document) => r.querySelector(s),
   $$ = (s, r = document) => [...r.querySelectorAll(s)];
 function users() {
@@ -24,11 +15,6 @@ function users() {
 }
 function saveUsers(data) {
   localStorage.setItem(AUTH_USERS_KEY, JSON.stringify(data));
-}
-function seedSuperAdmin() {
-  const list = users();
-  if (!list.some((u) => u.email.toLowerCase() === SUPER_ADMIN.email))
-    saveUsers([SUPER_ADMIN, ...list]);
 }
 function bytesToHex(bytes) {
   return [...new Uint8Array(bytes)]
@@ -79,7 +65,15 @@ function setBusy(form, busy) {
       ? "Sign in "
       : "Create account ";
 }
-seedSuperAdmin();
+if (!window.PakMarketDB?.configured && !IS_LOCAL_PREVIEW) {
+  document.querySelectorAll('[data-auth-form] button[type="submit"]').forEach(
+    (button) => (button.disabled = true),
+  );
+  message(
+    "Account access is temporarily unavailable while the secure database connection is being completed.",
+    "pending",
+  );
+}
 $$("[data-auth-tab]").forEach((button) =>
   button.addEventListener("click", () => {
     $$("[data-auth-tab]").forEach((b) =>
@@ -91,7 +85,14 @@ $$("[data-auth-tab]").forEach((button) =>
         f.dataset.authForm === button.dataset.authTab,
       ),
     );
-    $("[data-auth-message]").hidden = true;
+    if (window.PakMarketDB?.configured || IS_LOCAL_PREVIEW) {
+      $("[data-auth-message]").hidden = true;
+    } else {
+      message(
+        "Account access is temporarily unavailable while the secure database connection is being completed.",
+        "pending",
+      );
+    }
   }),
 );
 $$("[data-toggle-password]").forEach((button) =>
@@ -106,6 +107,13 @@ $$("[data-toggle-password]").forEach((button) =>
 );
 $("[data-auth-form=signin]").addEventListener("submit", async (event) => {
   event.preventDefault();
+  if (!window.PakMarketDB?.configured && !IS_LOCAL_PREVIEW) {
+    message(
+      "Secure account access is not available yet. Please contact PakMarket support.",
+      "pending",
+    );
+    return;
+  }
   const form = event.currentTarget,
     data = new FormData(form),
     email = String(data.get("email")).trim().toLowerCase(),
@@ -170,6 +178,13 @@ $("[data-auth-form=signin]").addEventListener("submit", async (event) => {
 });
 $("[data-auth-form=signup]").addEventListener("submit", async (event) => {
   event.preventDefault();
+  if (!window.PakMarketDB?.configured && !IS_LOCAL_PREVIEW) {
+    message(
+      "Secure account creation is not available yet. Please contact PakMarket support.",
+      "pending",
+    );
+    return;
+  }
   const form = event.currentTarget,
     data = new FormData(form),
     email = String(data.get("email")).trim().toLowerCase(),

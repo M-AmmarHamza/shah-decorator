@@ -1,6 +1,9 @@
 import "./supabase-client.js";
 
 const db = window.PakMarketDB;
+const isLocalPreview = ["localhost", "127.0.0.1", "::1"].includes(
+  location.hostname,
+);
 let session = null;
 if (db.configured) {
   const authSession = await db.session();
@@ -26,7 +29,7 @@ if (db.configured) {
         };
     } catch {}
   }
-} else {
+} else if (isLocalPreview) {
   try {
     session = JSON.parse(localStorage.getItem("pakmarket_session_v1"));
   } catch {}

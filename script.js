@@ -4,6 +4,7 @@ import "./promotions.css";
 import "./product-gallery.css";
 import "./floating-actions.js";
 import { DEFAULT_PRODUCTS } from "./catalog.js";
+import { DEFAULT_BLOGS } from "./blog-catalog.js";
 
 const WHATSAPP_NUMBER = "923161013991";
 
@@ -27,18 +28,31 @@ function showToast(message) {
 document.addEventListener("DOMContentLoaded", () => {
   const page = document.body.dataset.page || "";
   const pathParts = window.location.pathname.split("/").filter(Boolean);
+  const isPrettyProduct =
+    pathParts[0]?.toLowerCase() === "products" && Boolean(pathParts[1]);
+  const isPrettyBlog =
+    pathParts[0]?.toLowerCase() === "blog" && Boolean(pathParts[1]);
   const routeName =
-    (pathParts[0]?.toLowerCase() === "products" && pathParts[1]
+    (isPrettyProduct
       ? "product"
-      : pathParts.pop() || "index")
+      : isPrettyBlog
+        ? "blog-detail"
+        : pathParts.at(-1) || "index")
       .replace(/\.html$/i, "")
       .toLowerCase();
   const isRoute = (name) => routeName === name;
   const productSlug =
-    pathParts[0]?.toLowerCase() === "products" && pathParts[1]
+    isPrettyProduct
       ? decodeURIComponent(pathParts[1])
       : new URLSearchParams(window.location.search).get("product");
   const productUrl = (slug) => `/products/${encodeURIComponent(slug)}`;
+  const blogSlug = isPrettyBlog
+    ? decodeURIComponent(pathParts[1])
+    : new URLSearchParams(window.location.search).get("blog");
+  const blogUrl = (slug) => `/blog/${encodeURIComponent(slug)}`;
+  const isLocalPreview = ["localhost", "127.0.0.1", "::1"].includes(
+    location.hostname,
+  );
   const managedInventory = (() => {
     try {
       const stored = JSON.parse(
@@ -56,7 +70,49 @@ document.addEventListener("DOMContentLoaded", () => {
   })();
   const globalSettings=(()=>{try{return JSON.parse(localStorage.getItem("pakmarket_global_settings_v1")||"{}")}catch{return{}}})();
   document.querySelectorAll(".footer-links").forEach(group=>{if(!group.querySelector('a[href="privacy-policy.html"]')&&/return|payment|contact/i.test(group.textContent+group.parentElement?.textContent))group.insertAdjacentHTML("beforeend",'<a href="privacy-policy.html">Privacy Policy</a><a href="terms.html">Terms & Conditions</a><a href="shipping-policy.html">Shipping Policy</a>')});
-  const socialMap={facebook:globalSettings.facebook,instagram:globalSettings.instagram};Object.entries(socialMap).forEach(([name,url])=>{if(url)document.querySelectorAll(`.socials a[aria-label="${name[0].toUpperCase()+name.slice(1)}"]`).forEach(link=>link.href=url)});
+  const socialMap = {
+    Facebook: globalSettings.facebook,
+    Instagram: globalSettings.instagram,
+    YouTube: globalSettings.youtube,
+    TikTok: globalSettings.tiktok,
+  };
+  Object.entries(socialMap).forEach(([name, url]) => {
+    document
+      .querySelectorAll(`.socials a[aria-label="${name}"]`)
+      .forEach((link) => {
+        if (url) {
+          link.href = url;
+          return;
+        }
+        link.removeAttribute("href");
+        link.removeAttribute("target");
+        link.setAttribute("aria-disabled", "true");
+        link.title = `${name} profile coming soon`;
+      });
+  });
+  if (!document.querySelector(".skip-link")) {
+    const skipLink = document.createElement("a");
+    skipLink.className = "skip-link";
+    skipLink.href = "#main-content";
+    skipLink.textContent = "Skip to main content";
+    document.body.prepend(skipLink);
+  }
+  const main = document.querySelector("main");
+  if (main && !main.id) main.id = "main-content";
+  document.querySelectorAll('.search input[type="search"]').forEach((input) => {
+    if (!input.getAttribute("aria-label"))
+      input.setAttribute("aria-label", "Search products");
+  });
+  document.querySelectorAll("img").forEach((image) => {
+    image.decoding = "async";
+    if (image.getAttribute("fetchpriority") !== "high") image.loading = "lazy";
+  });
+  document.querySelectorAll(".footer-bottom span").forEach((item) => {
+    item.textContent = item.textContent.replace(
+      /\(c\)\s*20\d{2}/i,
+      `\u00A9 ${new Date().getFullYear()}`,
+    );
+  });
 const contentEscape = (value) =>
     String(value ?? "").replace(
       /[&<>'"]/g,
@@ -287,8 +343,11 @@ function sanitizeRichHtml(value) {
     const storedBlogs = localStorage.getItem("pakmarket_blogs_v1"),
       isBlogList = isRoute("blog"),
       isBlogDetail = isRoute("blog-detail");
-    if (storedBlogs !== null && (isBlogList || isBlogDetail)) {
-      const allBlogs = JSON.parse(storedBlogs) || [],
+    if (isBlogList || isBlogDetail) {
+      const savedBlogs = JSON.parse(storedBlogs || "[]") || [],
+        allBlogs = Array.isArray(savedBlogs) && savedBlogs.length
+          ? savedBlogs
+          : DEFAULT_BLOGS,
         session = JSON.parse(
           localStorage.getItem("pakmarket_session_v1") || "null",
         ),
@@ -305,33 +364,38 @@ function sanitizeRichHtml(value) {
             top = document.querySelector(".blog-top-row"),
             grid = document.querySelector(".editorial-grid");
           if (lead) {
-            lead.href = `blog-detail.html?blog=${encodeURIComponent(featured.slug)}`;
-            lead.innerHTML = `<div class="blog-lead-image"><img src="${contentEscape(featured.image)}" alt="${contentEscape(featured.coverAlt || featured.title)}" data-image-slug="${contentEscape(featured.coverSlug || "")}"></div><div class="blog-lead-copy"><span>Featured story</span><h2>${contentEscape(featured.title)}</h2><p>${contentEscape(featured.excerpt)}</p><small>By ${contentEscape(featured.author)} · ${Number(featured.readTime) || 5} min read</small></div>`;
+            lead.href = blogUrl(featured.slug);
+            lead.innerHTML = `<div class="blog-lead-image"><img src="${contentEscape(featured.image)}" alt="${contentEscape(featured.coverAlt || featured.title)}" data-image-slug="${contentEscape(featured.coverSlug || "")}" fetchpriority="high" decoding="async"></div><div class="blog-lead-copy"><span>Featured story</span><h2>${contentEscape(featured.title)}</h2><p>${contentEscape(featured.excerpt)}</p><small>By ${contentEscape(featured.author)} · ${Number(featured.readTime) || 5} min read</small></div>`;
           }
           if (top)
             top.innerHTML = others
               .slice(0, 3)
               .map(
                 (item) =>
-                  `<a href="blog-detail.html?blog=${encodeURIComponent(item.slug)}"><img src="${contentEscape(item.image)}" alt="${contentEscape(item.coverAlt || item.title)}" data-image-slug="${contentEscape(item.coverSlug || "")}"><h3>${contentEscape(item.title)}</h3><small>${contentEscape(item.category)} · ${Number(item.readTime) || 5} min read</small></a>`,
+                  `<a href="${blogUrl(item.slug)}"><img src="${contentEscape(item.image)}" alt="${contentEscape(item.coverAlt || item.title)}" data-image-slug="${contentEscape(item.coverSlug || "")}" loading="lazy" decoding="async"><h3>${contentEscape(item.title)}</h3><small>${contentEscape(item.category)} · ${Number(item.readTime) || 5} min read</small></a>`,
               )
               .join("");
           if (grid)
             grid.innerHTML = published
               .map(
                 (item) =>
-                  `<article class="blog-card"><a href="blog-detail.html?blog=${encodeURIComponent(item.slug)}"><div class="blog-media"><img src="${contentEscape(item.image)}" alt="${contentEscape(item.coverAlt || item.title)}" data-image-slug="${contentEscape(item.coverSlug || "")}"><span class="badge-light">${contentEscape(item.category)}</span></div><div class="blog-body"><h3>${contentEscape(item.title)}</h3><p>${contentEscape(item.excerpt)}</p><span class="blog-meta">${Number(item.readTime) || 5} min read</span><span class="inline-link">Read More <span class="material-symbols-outlined">arrow_forward</span></span></div></a></article>`,
+                  `<article class="blog-card"><a href="${blogUrl(item.slug)}"><div class="blog-media"><img src="${contentEscape(item.image)}" alt="${contentEscape(item.coverAlt || item.title)}" data-image-slug="${contentEscape(item.coverSlug || "")}" loading="lazy" decoding="async"><span class="badge-light">${contentEscape(item.category)}</span></div><div class="blog-body"><h3>${contentEscape(item.title)}</h3><p>${contentEscape(item.excerpt)}</p><span class="blog-meta">${Number(item.readTime) || 5} min read</span><span class="inline-link">Read More <span class="material-symbols-outlined">arrow_forward</span></span></div></a></article>`,
               )
               .join("");
         }
       }
       if (isBlogDetail) {
-        const slug = new URLSearchParams(location.search).get("blog"),
+        const slug = blogSlug,
           item = allBlogs.find(
             (blog) => blog.slug === slug && (blog.enabled || canPreview),
           );
+        if (!item && slug) {
+          location.replace("/blog");
+          return;
+        }
         if (item) {
-          document.title = item.seoTitle || item.title;
+          if (!isPrettyBlog) history.replaceState({}, "", blogUrl(item.slug));
+          document.title = item.seoTitle || `${item.title} | PakMarket`;
           const setMeta = (name, value) => {
             let meta = document.querySelector(`meta[name="${name}"]`);
             if (!meta) {
@@ -346,15 +410,58 @@ function sanitizeRichHtml(value) {
           setMeta(
             "robots",
             item.seoIndex && item.enabled
-              ? "index, follow"
+              ? "index, follow, max-image-preview:large"
               : "noindex, nofollow",
           );
+          setMeta("author", item.author);
+          const setPropertyMeta = (property, value) => {
+            let meta = document.querySelector(`meta[property="${property}"]`);
+            if (!meta) {
+              meta = document.createElement("meta");
+              meta.setAttribute("property", property);
+              document.head.append(meta);
+            }
+            meta.content = value || "";
+          };
+          const existingCanonical = document.querySelector(
+            'link[rel="canonical"]',
+          )?.href;
+          const canonicalOrigin = existingCanonical
+            ? new URL(existingCanonical).origin
+            : location.origin;
+          const canonicalUrl = `${canonicalOrigin}${blogUrl(item.slug)}`;
+          setPropertyMeta("og:title", item.title);
+          setPropertyMeta("og:description", item.metaDescription);
+          setPropertyMeta("og:url", canonicalUrl);
+          setPropertyMeta("og:image", item.image);
+          setMeta("twitter:title", item.title);
+          setMeta("twitter:description", item.metaDescription);
+          setMeta("twitter:image", item.image);
+          let canonical = document.querySelector('link[rel="canonical"]');
+          if (!canonical) {
+            canonical = document.createElement("link");
+            canonical.rel = "canonical";
+            document.head.append(canonical);
+          }
+          canonical.href = canonicalUrl;
           const heading = document.querySelector(".article-heading");
           heading.querySelector("h1").textContent = item.title;
           heading.querySelector(".article-intro").textContent = item.excerpt;
           heading.querySelector(".eyebrow").textContent = item.category;
+          const breadcrumbCurrent = heading.querySelector(
+            ".breadcrumb span:last-child",
+          );
+          if (breadcrumbCurrent) breadcrumbCurrent.textContent = item.category;
           const strong = heading.querySelector(".article-meta strong");
           if (strong) strong.textContent = item.author;
+          const initials = heading.querySelector(".author-avatar");
+          if (initials)
+            initials.textContent = item.author
+              .split(/\s+/)
+              .map((part) => part[0])
+              .join("")
+              .slice(0, 2)
+              .toUpperCase();
           const time = heading.querySelector("time");
           if (time) {
             time.dateTime = item.publishDate;
@@ -383,6 +490,34 @@ function sanitizeRichHtml(value) {
                   )
                   .join("");
           }
+          document
+            .querySelectorAll("[data-share-title]")
+            .forEach((box) => (box.dataset.shareTitle = item.title));
+          const related = document.querySelector(".related-articles");
+          if (related)
+            related.innerHTML = allBlogs
+              .filter((blog) => blog.enabled && blog.id !== item.id)
+              .slice(0, 3)
+              .map(
+                (blog) =>
+                  `<a class="related-story" href="${blogUrl(blog.slug)}"><span class="material-symbols-outlined">menu_book</span><div><small>${contentEscape(blog.category)} · ${Number(blog.readTime) || 5} min read</small><h3>${contentEscape(blog.title)}</h3></div></a>`,
+              )
+              .join("");
+          const schema = document.querySelector(
+            'script[type="application/ld+json"]',
+          );
+          if (schema)
+            schema.textContent = JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "BlogPosting",
+              headline: item.title,
+              description: item.metaDescription,
+              image: [item.image],
+              datePublished: item.publishDate,
+              author: { "@type": "Person", name: item.author },
+              mainEntityOfPage: canonicalUrl,
+              publisher: { "@type": "Organization", name: "PakMarket" },
+            });
         }
       }
     }
@@ -908,8 +1043,17 @@ function sanitizeRichHtml(value) {
   document.querySelectorAll("[data-subscribe-form]").forEach((form) => {
     form.addEventListener("submit", (event) => {
       event.preventDefault();
+      if (!form.reportValidity()) return;
+      const email = new FormData(form).get("email");
+      window.open(
+        whatsappUrl(
+          `Assalam o Alaikum, please add ${email} to PakMarket updates.`,
+        ),
+        "_blank",
+        "noopener,noreferrer",
+      );
       form.reset();
-      showToast("Thanks. You are on the PakMarket updates list.");
+      showToast("WhatsApp opened to confirm your updates request.");
     });
   });
 
@@ -1167,7 +1311,7 @@ function sanitizeRichHtml(value) {
   document.addEventListener("click",event=>{const whatsapp=event.target.closest("[data-whatsapp]"),share=event.target.closest("[data-share-platform]");if(whatsapp)window.PakMarketDB?.track("whatsapp_order_click",{label:whatsapp.dataset.item||whatsapp.textContent.trim()},"page",location.pathname).catch(()=>{});if(share)window.PakMarketDB?.track("share_click",{platform:share.dataset.sharePlatform},"page",location.pathname).catch(()=>{})});
   if(isRoute("product")){
     const product=(()=>{try{return managedInventory.find(item=>item.slug===productSlug||item.id===productSlug)||null}catch{return null}})();
-    if(product){const actions=document.querySelector(".detail-primary-actions");if(actions&&!document.querySelector("[data-wishlist]")){const button=document.createElement("button");button.type="button";button.className="btn wishlist-button";button.dataset.wishlist=product.id;button.innerHTML='<span class="material-symbols-outlined">favorite</span><span>Save</span>';actions.append(button);button.addEventListener("click",async()=>{if(!window.PakMarketDB?.configured){showToast("Wishlist will be available after the live account system is connected.");return}const session=await window.PakMarketDB.session();if(!session){location.href="auth.html?next=product";return}const {error}=await window.PakMarketDB.client.from("wishlists").upsert({user_id:session.user.id,product_id:product.id});showToast(error?error.message:"Saved to your wishlist.")})}if(window.PakMarketDB?.configured){const reviewSection=document.createElement("section");reviewSection.className="container section product-reviews";reviewSection.innerHTML='<div><span class="eyebrow">Customer feedback</span><h2>Product Reviews</h2></div><div data-review-list><p>Loading reviews…</p></div><form data-review-form><div class="form-row"><label>Rating<select class="field" name="rating"><option value="5">5 — Excellent</option><option value="4">4 — Good</option><option value="3">3 — Average</option><option value="2">2 — Fair</option><option value="1">1 — Poor</option></select></label><label>Review title<input class="field" name="title" maxlength="80"></label></div><label>Your review<textarea class="field" name="body" rows="4" required maxlength="600"></textarea></label><button class="btn btn-primary">Submit review</button><small>Reviews appear after approval.</small></form>';document.querySelector(".product-detail")?.after(reviewSection);window.PakMarketDB.client.from("product_reviews").select("*").eq("product_id",product.id).eq("approved",true).then(({data})=>{reviewSection.querySelector("[data-review-list]").innerHTML=data?.length?data.map(review=>`<article class="review-item"><strong>${"★".repeat(review.rating)} ${contentEscape(review.title||"")}</strong><p>${contentEscape(review.body||"")}</p></article>`).join(""):"<p>No approved reviews yet.</p>"});reviewSection.querySelector("[data-review-form]").addEventListener("submit",async event=>{event.preventDefault();const session=await window.PakMarketDB.session();if(!session){location.href="auth.html?next=product";return}const values=new FormData(event.currentTarget),{error}=await window.PakMarketDB.client.from("product_reviews").upsert({product_id:product.id,user_id:session.user.id,rating:Number(values.get("rating")),title:values.get("title"),body:values.get("body"),approved:false});showToast(error?error.message:"Review submitted for approval.");if(!error)event.currentTarget.reset()})}const schema={"@context":"https://schema.org","@type":"Product",name:product.name,image:[product.image],description:product.description,sku:product.sku,offers:{"@type":"Offer",priceCurrency:"PKR",price:product.price,availability:product.stock>0?"https://schema.org/InStock":"https://schema.org/OutOfStock",url:location.href}};const node=document.createElement("script");node.type="application/ld+json";node.textContent=JSON.stringify(schema);document.head.append(node)}
+    if(product){const actions=document.querySelector(".detail-primary-actions");if(window.PakMarketDB?.configured&&actions&&!document.querySelector("[data-wishlist]")){const button=document.createElement("button");button.type="button";button.className="btn wishlist-button";button.dataset.wishlist=product.id;button.innerHTML='<span class="material-symbols-outlined">favorite</span><span>Save</span>';actions.append(button);button.addEventListener("click",async()=>{const session=await window.PakMarketDB.session();if(!session){location.href="auth.html?next=product";return}const {error}=await window.PakMarketDB.client.from("wishlists").upsert({user_id:session.user.id,product_id:product.id});showToast(error?error.message:"Saved to your wishlist.")})}if(window.PakMarketDB?.configured){const reviewSection=document.createElement("section");reviewSection.className="container section product-reviews";reviewSection.innerHTML='<div><span class="eyebrow">Customer feedback</span><h2>Product Reviews</h2></div><div data-review-list><p>Loading reviews…</p></div><form data-review-form><div class="form-row"><label>Rating<select class="field" name="rating"><option value="5">5 — Excellent</option><option value="4">4 — Good</option><option value="3">3 — Average</option><option value="2">2 — Fair</option><option value="1">1 — Poor</option></select></label><label>Review title<input class="field" name="title" maxlength="80"></label></div><label>Your review<textarea class="field" name="body" rows="4" required maxlength="600"></textarea></label><button class="btn btn-primary">Submit review</button><small>Reviews appear after approval.</small></form>';document.querySelector(".product-detail")?.after(reviewSection);window.PakMarketDB.client.from("product_reviews").select("*").eq("product_id",product.id).eq("approved",true).then(({data})=>{reviewSection.querySelector("[data-review-list]").innerHTML=data?.length?data.map(review=>`<article class="review-item"><strong>${"★".repeat(review.rating)} ${contentEscape(review.title||"")}</strong><p>${contentEscape(review.body||"")}</p></article>`).join(""):"<p>No approved reviews yet.</p>"});reviewSection.querySelector("[data-review-form]").addEventListener("submit",async event=>{event.preventDefault();const session=await window.PakMarketDB.session();if(!session){location.href="auth.html?next=product";return}const values=new FormData(event.currentTarget),{error}=await window.PakMarketDB.client.from("product_reviews").upsert({product_id:product.id,user_id:session.user.id,rating:Number(values.get("rating")),title:values.get("title"),body:values.get("body"),approved:false});showToast(error?error.message:"Review submitted for approval.");if(!error)event.currentTarget.reset()})}const schema={"@context":"https://schema.org","@type":"Product",name:product.name,image:[product.image],description:product.description,sku:product.sku,offers:{"@type":"Offer",priceCurrency:"PKR",price:product.price,availability:product.stock>0?"https://schema.org/InStock":"https://schema.org/OutOfStock",url:location.href}};const node=document.createElement("script");node.type="application/ld+json";node.textContent=JSON.stringify(schema);document.head.append(node)}
     if (product) {
       const details = offerDetails(product);
       document.querySelectorAll('.detail-primary-actions a[href*="wa.me"]').forEach(
@@ -1182,7 +1326,7 @@ function sanitizeRichHtml(value) {
         offerCard.innerHTML = `<strong>${contentEscape(details.offer.title)}</strong><span>${details.offer.code ? `Use code ${contentEscape(details.offer.code)} · ` : ""}${details.mode === "free" ? "Free delivery" : details.mode === "included" ? "Delivery included" : "Delivery charged separately"}</span>`;
         document.querySelector(".detail-primary-actions")?.before(offerCard);
       }
-      if (!window.PakMarketDB?.configured && !document.querySelector(".product-reviews")) {
+      if (isLocalPreview && !window.PakMarketDB?.configured && !document.querySelector(".product-reviews")) {
         const reviewSection = document.createElement("section");
         reviewSection.className = "container section product-reviews";
         const key = `pakmarket_local_reviews_${product.id}`;
