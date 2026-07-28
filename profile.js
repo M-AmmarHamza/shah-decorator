@@ -13,7 +13,7 @@ const waitForDB = () =>
 const db = await waitForDB(),
   session = await db.session();
 if (!session) {
-  location.replace("auth.html?next=profile");
+  location.replace("/auth?next=profile");
   throw new Error("Authentication required");
 }
 const profile = await db.profile();
@@ -42,7 +42,7 @@ document
   .querySelector("[data-account-logout]")
   .addEventListener("click", async () => {
     await db.signOut();
-    location.replace("index.html");
+    location.replace("/");
   });
 form.addEventListener("submit", async (event) => {
   event.preventDefault();

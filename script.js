@@ -5,6 +5,7 @@ import "./product-gallery.css";
 import "./floating-actions.js";
 import { DEFAULT_PRODUCTS } from "./catalog.js";
 import { DEFAULT_BLOGS } from "./blog-catalog.js";
+import { SITE_CONFIG, absoluteUrl } from "./seo.config.js";
 
 const WHATSAPP_NUMBER = "923161013991";
 
@@ -69,7 +70,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   })();
   const globalSettings=(()=>{try{return JSON.parse(localStorage.getItem("pakmarket_global_settings_v1")||"{}")}catch{return{}}})();
-  document.querySelectorAll(".footer-links").forEach(group=>{if(!group.querySelector('a[href="privacy-policy.html"]')&&/return|payment|contact/i.test(group.textContent+group.parentElement?.textContent))group.insertAdjacentHTML("beforeend",'<a href="privacy-policy.html">Privacy Policy</a><a href="terms.html">Terms & Conditions</a><a href="shipping-policy.html">Shipping Policy</a>')});
+  document.querySelectorAll(".footer-links").forEach(group=>{if(!group.querySelector('a[href="/privacy-policy"]')&&!group.querySelector('a[href="privacy-policy.html"]')&&/return|payment|contact/i.test(group.textContent+group.parentElement?.textContent))group.insertAdjacentHTML("beforeend",'<a href="/privacy-policy">Privacy Policy</a><a href="/terms">Terms & Conditions</a><a href="/shipping-policy">Shipping Policy</a>')});
   const socialMap = {
     Facebook: globalSettings.facebook,
     Instagram: globalSettings.instagram,
@@ -423,13 +424,7 @@ function sanitizeRichHtml(value) {
             }
             meta.content = value || "";
           };
-          const existingCanonical = document.querySelector(
-            'link[rel="canonical"]',
-          )?.href;
-          const canonicalOrigin = existingCanonical
-            ? new URL(existingCanonical).origin
-            : location.origin;
-          const canonicalUrl = `${canonicalOrigin}${blogUrl(item.slug)}`;
+          const canonicalUrl = absoluteUrl(blogUrl(item.slug));
           setPropertyMeta("og:title", item.title);
           setPropertyMeta("og:description", item.metaDescription);
           setPropertyMeta("og:url", canonicalUrl);
@@ -509,14 +504,41 @@ function sanitizeRichHtml(value) {
           if (schema)
             schema.textContent = JSON.stringify({
               "@context": "https://schema.org",
-              "@type": "BlogPosting",
-              headline: item.title,
-              description: item.metaDescription,
-              image: [item.image],
-              datePublished: item.publishDate,
-              author: { "@type": "Person", name: item.author },
-              mainEntityOfPage: canonicalUrl,
-              publisher: { "@type": "Organization", name: "PakMarket" },
+              "@graph": [
+                {
+                  "@type": "BlogPosting",
+                  headline: item.title,
+                  description: item.metaDescription,
+                  image: [item.image],
+                  datePublished: item.publishDate,
+                  dateModified: item.publishDate,
+                  author: { "@type": "Person", name: item.author },
+                  mainEntityOfPage: canonicalUrl,
+                  publisher: {
+                    "@type": "Organization",
+                    name: SITE_CONFIG.name,
+                    url: SITE_CONFIG.url,
+                  },
+                },
+                {
+                  "@type": "BreadcrumbList",
+                  itemListElement: [
+                    {
+                      "@type": "ListItem",
+                      position: 1,
+                      name: "Home",
+                      item: `${SITE_CONFIG.url}/`,
+                    },
+                    {
+                      "@type": "ListItem",
+                      position: 2,
+                      name: "Blog",
+                      item: absoluteUrl("/blog"),
+                    },
+                    { "@type": "ListItem", position: 3, name: item.title },
+                  ],
+                },
+              ],
             });
         }
       }
@@ -525,18 +547,20 @@ function sanitizeRichHtml(value) {
 
   try {
     const filename = (
-      window.location.pathname.split("/").pop() || "index.html"
-    ).toLowerCase();
+      window.location.pathname.split("/").filter(Boolean).pop() || "index"
+    )
+      .replace(/\.html$/i, "")
+      .toLowerCase();
     const pageKey = {
-      "index.html": "home",
-      "products.html": "products",
-      "product.html": "product",
-      "blog.html": "blog",
-      "blog-detail.html": "blog-detail",
-      "about.html": "about",
-      "contact.html": "contact",
-      "payment.html": "payment",
-      "return-policy.html": "return-policy",
+      index: "home",
+      products: "products",
+      product: "product",
+      blog: "blog",
+      "blog-detail": "blog-detail",
+      about: "about",
+      contact: "contact",
+      payment: "payment",
+      "return-policy": "return-policy",
     }[filename];
     const pageSettings = (
       JSON.parse(localStorage.getItem("pakmarket_pages_v1")) || []
@@ -566,7 +590,10 @@ function sanitizeRichHtml(value) {
         canonical.rel = "canonical";
         document.head.appendChild(canonical);
       }
-      canonical.href = pageSettings.canonical;
+      const configuredCanonical = pageSettings.canonical || location.pathname;
+      canonical.href = absoluteUrl(
+        new URL(configuredCanonical, `${SITE_CONFIG.url}/`).pathname,
+      );
       const selectors = {
         home: [".hero-content h1", ".hero-content > p"],
         products: [".page-hero h1", ".page-hero p"],
@@ -629,7 +656,7 @@ function sanitizeRichHtml(value) {
         const main = document.querySelector("main");
         if (main)
           main.innerHTML =
-            '<section class="page-unavailable"><span class="material-symbols-outlined">construction</span><h1>Page temporarily unavailable</h1><p>This page is currently disabled. Please return to the homepage.</p><a class="btn btn-primary" href="index.html">Back to Home</a></section>';
+            '<section class="page-unavailable"><span class="material-symbols-outlined">construction</span><h1>Page temporarily unavailable</h1><p>This page is currently disabled. Please return to the homepage.</p><a class="btn btn-primary" href="/">Back to Home</a></section>';
       }
     }
   } catch {}
@@ -670,13 +697,45 @@ function sanitizeRichHtml(value) {
           canonical.rel = "canonical";
           document.head.appendChild(canonical);
         }
-        canonical.href = new URL(productUrl(managedProduct.slug), location.origin).href;
+        const canonicalUrl = absoluteUrl(productUrl(managedProduct.slug));
+        canonical.href = canonicalUrl;
+        const setPropertyMeta = (property, content) => {
+          let meta = document.querySelector(`meta[property="${property}"]`);
+          if (!meta) {
+            meta = document.createElement("meta");
+            meta.setAttribute("property", property);
+            document.head.appendChild(meta);
+          }
+          meta.content = content || "";
+        };
+        const setNamedMeta = (name, content) => {
+          let meta = document.querySelector(`meta[name="${name}"]`);
+          if (!meta) {
+            meta = document.createElement("meta");
+            meta.name = name;
+            document.head.appendChild(meta);
+          }
+          meta.content = content || "";
+        };
+        setPropertyMeta("og:type", "product");
+        setPropertyMeta("og:title", managedProduct.name);
+        setPropertyMeta("og:description", description.content);
+        setPropertyMeta("og:url", canonicalUrl);
+        setPropertyMeta("og:image", managedProduct.image);
+        setPropertyMeta(
+          "og:image:alt",
+          managedProduct.imageAlt || managedProduct.name,
+        );
+        setNamedMeta("twitter:card", "summary_large_image");
+        setNamedMeta("twitter:title", managedProduct.name);
+        setNamedMeta("twitter:description", description.content);
+        setNamedMeta("twitter:image", managedProduct.image);
         const breadcrumb = document.querySelector(".breadcrumb");
         const breadcrumbLinks = breadcrumb?.querySelectorAll("a");
         const breadcrumbCurrent = breadcrumb?.querySelector(":scope > span:last-child");
         if (breadcrumbLinks?.[1]) {
           breadcrumbLinks[1].textContent = "Products";
-          breadcrumbLinks[1].href = "products.html";
+          breadcrumbLinks[1].href = "/products";
         }
         if (breadcrumbCurrent) breadcrumbCurrent.textContent = managedProduct.name;
 
@@ -788,7 +847,7 @@ function sanitizeRichHtml(value) {
           favorite.addEventListener("click", async () => {
             const session = await window.PakMarketDB.session();
             if (!session) {
-              location.href = "auth.html?next=product";
+              location.href = "/auth?next=product";
               return;
             }
             const { error } = await window.PakMarketDB.client
@@ -871,8 +930,8 @@ function sanitizeRichHtml(value) {
   } catch {}
   const accountHref =
     currentSession && ["admin", "super_admin"].includes(currentSession.role)
-      ? "admin.html"
-      : "auth.html";
+      ? "/admin"
+      : "/auth";
   const navActions = document.querySelector(".nav-actions");
   if (navActions && !navActions.querySelector("[data-account-link]")) {
     const accountLink = document.createElement("a");
@@ -1313,6 +1372,65 @@ function sanitizeRichHtml(value) {
     const product=(()=>{try{return managedInventory.find(item=>item.slug===productSlug||item.id===productSlug)||null}catch{return null}})();
     if(product){const actions=document.querySelector(".detail-primary-actions");if(window.PakMarketDB?.configured&&actions&&!document.querySelector("[data-wishlist]")){const button=document.createElement("button");button.type="button";button.className="btn wishlist-button";button.dataset.wishlist=product.id;button.innerHTML='<span class="material-symbols-outlined">favorite</span><span>Save</span>';actions.append(button);button.addEventListener("click",async()=>{const session=await window.PakMarketDB.session();if(!session){location.href="auth.html?next=product";return}const {error}=await window.PakMarketDB.client.from("wishlists").upsert({user_id:session.user.id,product_id:product.id});showToast(error?error.message:"Saved to your wishlist.")})}if(window.PakMarketDB?.configured){const reviewSection=document.createElement("section");reviewSection.className="container section product-reviews";reviewSection.innerHTML='<div><span class="eyebrow">Customer feedback</span><h2>Product Reviews</h2></div><div data-review-list><p>Loading reviews…</p></div><form data-review-form><div class="form-row"><label>Rating<select class="field" name="rating"><option value="5">5 — Excellent</option><option value="4">4 — Good</option><option value="3">3 — Average</option><option value="2">2 — Fair</option><option value="1">1 — Poor</option></select></label><label>Review title<input class="field" name="title" maxlength="80"></label></div><label>Your review<textarea class="field" name="body" rows="4" required maxlength="600"></textarea></label><button class="btn btn-primary">Submit review</button><small>Reviews appear after approval.</small></form>';document.querySelector(".product-detail")?.after(reviewSection);window.PakMarketDB.client.from("product_reviews").select("*").eq("product_id",product.id).eq("approved",true).then(({data})=>{reviewSection.querySelector("[data-review-list]").innerHTML=data?.length?data.map(review=>`<article class="review-item"><strong>${"★".repeat(review.rating)} ${contentEscape(review.title||"")}</strong><p>${contentEscape(review.body||"")}</p></article>`).join(""):"<p>No approved reviews yet.</p>"});reviewSection.querySelector("[data-review-form]").addEventListener("submit",async event=>{event.preventDefault();const session=await window.PakMarketDB.session();if(!session){location.href="auth.html?next=product";return}const values=new FormData(event.currentTarget),{error}=await window.PakMarketDB.client.from("product_reviews").upsert({product_id:product.id,user_id:session.user.id,rating:Number(values.get("rating")),title:values.get("title"),body:values.get("body"),approved:false});showToast(error?error.message:"Review submitted for approval.");if(!error)event.currentTarget.reset()})}const schema={"@context":"https://schema.org","@type":"Product",name:product.name,image:[product.image],description:product.description,sku:product.sku,offers:{"@type":"Offer",priceCurrency:"PKR",price:product.price,availability:product.stock>0?"https://schema.org/InStock":"https://schema.org/OutOfStock",url:location.href}};const node=document.createElement("script");node.type="application/ld+json";node.textContent=JSON.stringify(schema);document.head.append(node)}
     if (product) {
+      const canonicalUrl = absoluteUrl(productUrl(product.slug));
+      const schemaNodes = [
+        ...document.querySelectorAll('script[type="application/ld+json"]'),
+      ];
+      const schemaNode =
+        document.querySelector("[data-seo-schema]") || schemaNodes[0];
+      schemaNodes
+        .filter((node) => node !== schemaNode)
+        .forEach((node) => node.remove());
+      if (schemaNode) {
+        schemaNode.dataset.seoSchema = "product";
+        schemaNode.textContent = JSON.stringify({
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Product",
+              name: product.name,
+              image: [product.image],
+              description: product.description,
+              sku: product.sku,
+              category: product.category,
+              offers: {
+                "@type": "Offer",
+                priceCurrency: SITE_CONFIG.currency,
+                price: Number(product.price),
+                availability:
+                  Number(product.stock) > 0
+                    ? "https://schema.org/InStock"
+                    : "https://schema.org/OutOfStock",
+                itemCondition: "https://schema.org/NewCondition",
+                url: canonicalUrl,
+                seller: {
+                  "@type": "Organization",
+                  name: SITE_CONFIG.name,
+                  url: SITE_CONFIG.url,
+                },
+              },
+            },
+            {
+              "@type": "BreadcrumbList",
+              itemListElement: [
+                {
+                  "@type": "ListItem",
+                  position: 1,
+                  name: "Home",
+                  item: `${SITE_CONFIG.url}/`,
+                },
+                {
+                  "@type": "ListItem",
+                  position: 2,
+                  name: "Products",
+                  item: absoluteUrl("/products"),
+                },
+                { "@type": "ListItem", position: 3, name: product.name },
+              ],
+            },
+          ],
+        });
+      }
       const details = offerDetails(product);
       document.querySelectorAll('.detail-primary-actions a[href*="wa.me"]').forEach(
         (link) => (link.href = whatsappUrl(orderMessage(product))),

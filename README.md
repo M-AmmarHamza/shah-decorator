@@ -21,7 +21,7 @@ PakMarket is a responsive mini-commerce storefront and an easy-to-use admin syst
 3. Copy `.env.example` to `.env` and add the new PakMarket Supabase URL and publishable key.
 4. Run `npm run dev`.
 
-Without Supabase environment variables, the interface uses its browser-storage demo fallback. This is useful for previewing only and must not be treated as production authentication.
+Without Supabase environment variables, browser-storage data is available only on localhost for previewing. Production account and admin access remain disabled.
 
 ## Admin
 
@@ -44,4 +44,26 @@ Never commit `.env`, database passwords, service-role keys, or user passwords.
 - Confirm email redirects and allowed origins in Supabase Auth.
 - Confirm RLS remains enabled on every exposed table.
 - Test administrator approval, inventory updates, checkout/WhatsApp messages, private payment slips, and mobile navigation.
-- Replace placeholder social URLs, legal text, and the assumed `pakmarket.pk` sitemap domain before public launch.
+- Replace placeholder social URLs and review the legal text before public launch.
+
+## Domain and SEO configuration
+
+All canonical URLs, Open Graph URLs, `robots.txt`, the XML sitemap and
+pre-rendered product/blog pages use one environment variable:
+
+```bash
+VITE_SITE_URL=https://pakmarket.pk
+```
+
+Copy `.env.example` to `.env` for local builds. When moving to the permanent
+domain, change `VITE_SITE_URL` in the hosting environment and redeploy. Do not
+include a trailing slash.
+
+`npm run build` automatically:
+
+- adds page-specific titles, descriptions, canonical URLs and social metadata;
+- adds Organization, Website, Product, Article and Breadcrumb structured data;
+- creates crawlable HTML files for the default product and blog detail URLs;
+- regenerates `dist/sitemap.xml` and `dist/robots.txt` for the configured domain.
+
+Do not manually edit generated files inside `dist/`.

@@ -1,6 +1,5 @@
 User-agent: *
 Allow: /
-Disallow: /admin
-Disallow: /auth
-Disallow: /profile
+
+# This fallback file is replaced during `npm run build` using VITE_SITE_URL.
 Sitemap: https://pakmarket.pk/sitemap.xml

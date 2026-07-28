@@ -129,7 +129,7 @@ $("[data-auth-form=signin]").addEventListener("submit", async (event) => {
         return;
       }
       message("Signed in successfully. Redirecting…", "success");
-      setTimeout(() => location.href = profile.role === "customer" ? "profile.html" : "admin.html", 450);
+      setTimeout(() => location.href = profile.role === "customer" ? "/profile" : "/admin", 450);
       return;
     }
     const user = users().find((u) => u.email.toLowerCase() === email);
@@ -167,7 +167,7 @@ $("[data-auth-form=signin]").addEventListener("submit", async (event) => {
     setTimeout(
       () =>
         (location.href =
-          user.role === "customer" ? "index.html" : "admin.html"),
+          user.role === "customer" ? "/" : "/admin"),
       450,
     );
   } catch (error) {

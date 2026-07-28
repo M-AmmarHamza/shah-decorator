@@ -3,6 +3,18 @@
   "outputDirectory": "dist",
   "cleanUrls": true,
   "trailingSlash": false,
+  "redirects": [
+    {"source":"/index.html","destination":"/","permanent":true},
+    {"source":"/products.html","destination":"/products","permanent":true},
+    {"source":"/blog.html","destination":"/blog","permanent":true},
+    {"source":"/about.html","destination":"/about","permanent":true},
+    {"source":"/contact.html","destination":"/contact","permanent":true},
+    {"source":"/payment.html","destination":"/payment","permanent":true},
+    {"source":"/return-policy.html","destination":"/return-policy","permanent":true},
+    {"source":"/privacy-policy.html","destination":"/privacy-policy","permanent":true},
+    {"source":"/terms.html","destination":"/terms","permanent":true},
+    {"source":"/shipping-policy.html","destination":"/shipping-policy","permanent":true}
+  ],
   "rewrites": [
     {"source":"/products/:slug","destination":"/product?product=:slug"},
     {"source":"/blog/:slug","destination":"/blog-detail?blog=:slug"}
@@ -13,6 +25,12 @@
       {"key":"Referrer-Policy","value":"strict-origin-when-cross-origin"},
       {"key":"Permissions-Policy","value":"camera=(), microphone=(), geolocation=()"},
       {"key":"X-Frame-Options","value":"SAMEORIGIN"}
-    ]}
+    ]},
+    {"source":"/admin","headers":[{"key":"X-Robots-Tag","value":"noindex, nofollow, noarchive"}]},
+    {"source":"/auth","headers":[{"key":"X-Robots-Tag","value":"noindex, nofollow"}]},
+    {"source":"/profile","headers":[{"key":"X-Robots-Tag","value":"noindex, nofollow"}]},
+    {"source":"/assets/(.*)","headers":[{"key":"Cache-Control","value":"public, max-age=31536000, immutable"}]},
+    {"source":"/sitemap.xml","headers":[{"key":"Content-Type","value":"application/xml; charset=utf-8"},{"key":"Cache-Control","value":"public, max-age=3600"}]},
+    {"source":"/robots.txt","headers":[{"key":"Content-Type","value":"text/plain; charset=utf-8"},{"key":"Cache-Control","value":"public, max-age=3600"}]}
   ]
 }
