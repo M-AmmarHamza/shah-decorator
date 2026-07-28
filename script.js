@@ -781,12 +781,11 @@ function sanitizeRichHtml(value) {
         if (swatches && !managedProduct.colors?.length) swatches.hidden = true;
         const favorite = document.querySelector(".favorite");
         if (favorite) {
+          if (!window.PakMarketDB?.configured) {
+            favorite.remove();
+          } else {
           favorite.dataset.wishlist = managedProduct.id;
           favorite.addEventListener("click", async () => {
-            if (!window.PakMarketDB?.configured) {
-              showToast("Wishlist will be available after the live account system is connected.");
-              return;
-            }
             const session = await window.PakMarketDB.session();
             if (!session) {
               location.href = "auth.html?next=product";
@@ -797,6 +796,7 @@ function sanitizeRichHtml(value) {
               .upsert({ user_id: session.user.id, product_id: managedProduct.id });
             showToast(error ? error.message : "Saved to your wishlist.");
           });
+          }
         }
       }
     } catch {}
