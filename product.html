@@ -83,13 +83,37 @@
             <div><strong>Available in Stock</strong><br><span>Ready for immediate dispatch from Karachi</span></div>
           </div>
           <p class="detail-description">Elevate your daily ensemble with our signature Handcrafted Leather Tote. Made from 100% genuine top-grain Pakistani leather, this bag combines traditional artisanal techniques with a modern minimalist aesthetic. Features reinforced handles, a spacious interior, and polished brass hardware.</p>
-          <div class="swatches" aria-label="Select color">
-            <button class="swatch active" type="button" style="background:#006948;" aria-label="Emerald"></button>
-            <button class="swatch" type="button" style="background:#282828;" aria-label="Black"></button>
-            <button class="swatch" type="button" style="background:#8b3f12;" aria-label="Tan"></button>
-          </div>
-          <div class="detail-divider"></div>
-          <div class="detail-primary-actions" data-share-menu><a class="btn btn-whatsapp" href="#" data-whatsapp data-item="Handcrafted Leather Tote"><span class="material-symbols-outlined">chat</span>Place Order on WhatsApp</a><div class="share-menu-wrap"><button class="btn btn-outline share-toggle" type="button" data-share-toggle aria-expanded="false"><span class="material-symbols-outlined">share</span>Share</button><div class="share-popover content-share" data-share-title="Handcrafted Leather Tote" data-share-popover hidden><span>Share product</span><div><button class="share-facebook" type="button" data-share-platform="facebook" aria-label="Share product on Facebook"></button><button class="share-whatsapp" type="button" data-share-platform="whatsapp" aria-label="Share product on WhatsApp"><span class="material-symbols-outlined">chat</span></button><button class="share-instagram" type="button" data-share-platform="instagram" aria-label="Share product on Instagram"></button><button class="share-native" type="button" data-share-platform="native" aria-label="More sharing options"><span class="material-symbols-outlined">share</span></button><button class="share-copy" type="button" data-share-platform="copy" aria-label="Copy product link"><span class="material-symbols-outlined">link</span></button></div></div></div></div>
+          <form class="structured-order" data-structured-order novalidate>
+            <div class="order-options" data-order-options></div>
+            <div class="quantity-control">
+              <div><strong>Quantity</strong><small data-stock-limit></small></div>
+              <div class="quantity-stepper">
+                <button type="button" data-quantity-minus aria-label="Decrease quantity">−</button>
+                <input type="number" name="quantity" value="1" min="1" inputmode="numeric" aria-label="Quantity">
+                <button type="button" data-quantity-plus aria-label="Increase quantity">+</button>
+              </div>
+            </div>
+            <fieldset class="customer-fields">
+              <legend>Delivery details</legend>
+              <div class="order-field-grid">
+                <label>Full name <input class="field" name="name" autocomplete="name" maxlength="80" required><small data-error="name"></small></label>
+                <label>Mobile number <input class="field" name="mobile" type="tel" autocomplete="tel" placeholder="03xx xxxxxxx" maxlength="30" required><small data-error="mobile"></small></label>
+                <label>City <input class="field" name="city" autocomplete="address-level2" maxlength="80" required><small data-error="city"></small></label>
+                <label>Payment <select class="field" name="payment" required><option value="">Select payment</option><option>Cash on Delivery</option><option>JazzCash</option><option>Easypaisa</option><option>Bank Transfer</option></select><small data-error="payment"></small></label>
+              </div>
+              <label>Delivery address <textarea class="field" name="address" autocomplete="street-address" rows="3" maxlength="300" required></textarea><small data-error="address"></small></label>
+              <label>Order note <textarea class="field" name="note" rows="2" maxlength="300" placeholder="Optional"></textarea></label>
+            </fieldset>
+            <div class="order-summary" aria-live="polite">
+              <div><span>Product total</span><strong data-order-subtotal>—</strong></div>
+              <div data-discount-row hidden><span>Discount</span><strong data-order-discount>—</strong></div>
+              <div><span>Delivery</span><strong data-order-delivery>Owner will confirm</strong></div>
+              <div class="order-total"><span>Grand total</span><strong data-order-total>Owner will confirm</strong></div>
+            </div>
+            <p class="order-form-status" data-order-status role="alert"></p>
+            <div class="detail-primary-actions" data-share-menu><button class="btn btn-whatsapp" type="submit" data-submit-whatsapp-order><span class="material-symbols-outlined">chat</span>WhatsApp Par Order Karein</button><div class="share-menu-wrap"><button class="btn btn-outline share-toggle" type="button" data-share-toggle aria-expanded="false"><span class="material-symbols-outlined">share</span>Share</button><div class="share-popover content-share" data-share-title="Handcrafted Leather Tote" data-share-popover hidden><span>Share product</span><div><button class="share-facebook" type="button" data-share-platform="facebook" aria-label="Share product on Facebook"></button><button class="share-whatsapp" type="button" data-share-platform="whatsapp" aria-label="Share product on WhatsApp"><span class="material-symbols-outlined">chat</span></button><button class="share-instagram" type="button" data-share-platform="instagram" aria-label="Share product on Instagram"></button><button class="share-native" type="button" data-share-platform="native" aria-label="More sharing options"><span class="material-symbols-outlined">share</span></button><button class="share-copy" type="button" data-share-platform="copy" aria-label="Copy product link"><span class="material-symbols-outlined">link</span></button></div></div></div></div>
+            <button class="copy-order-fallback" type="button" data-copy-order hidden>Copy order details</button>
+          </form>
           <p style="margin: -8px 0 0; text-align:center; color:var(--muted);">Typical response time: <strong style="color:var(--text);">Under 5 minutes</strong></p>
           <div class="info-stack">
             <div class="info-card"><span class="material-symbols-outlined">local_shipping</span><div><h4>Delivery Everywhere</h4><p>Flat rate shipping within Karachi. Express nationwide delivery available via Leopards or TCS.</p></div></div>
@@ -113,8 +137,8 @@
               </ul>
             </div>
           </div>
-          <div class="accordion-item" data-accordion-item>
-            <button class="accordion-trigger" type="button" data-accordion-trigger>Shipping &amp; Returns <span class="material-symbols-outlined">expand_more</span></button>
+            <div class="accordion-item" data-accordion-item>
+            <button class="accordion-trigger" type="button" data-accordion-trigger>Delivery aur Wapsi <span class="material-symbols-outlined">expand_more</span></button>
             <div class="accordion-panel">Nationwide delivery usually takes 3-5 working days. Returns are accepted within 7 days if the product is unused and in original packaging.</div>
           </div>
         </div>
@@ -123,7 +147,7 @@
       <section class="section-tight">
         <div class="section-heading">
           <div><h2>Recommended for You</h2><p>Based on your interest in handcrafted leather goods</p></div>
-          <a class="inline-link" href="products.html">View All Collection</a>
+          <a class="inline-link" href="products.html">Sab Products Dekhein</a>
         </div>
         <div class="recommend-row">
           <a class="mini-product" href="product.html"><img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBMRsQfbHLxMMmjvjNqiFXATZA_Jy_9sopRmWG5MArLpb5p8vvuMo4zf4os-wsDhLIZQQzkc-Pi8XMPFL_JvY3cateRFCnhLzfMK3P5TdE5VopXkB47h3WyzP_97ckC9-J0PmItQNm6ur5PSq0YBLA-SWnsfCMR2B-R-wtJfexa8Rs17kbt_RdIzMM8MAXDTyQMUcQvUfdVOnsFevy8c7rMDQI1GB2fxXM9_uWf7fyk5tQUEIe8a_YZQffVLv6T0Zymho1Lsmjj0OE" alt="Slim bifold wallet."><h3>Slim Bifold Wallet</h3><span class="price">Rs. 2,800</span></a>
@@ -145,7 +169,7 @@
     </footer>
 
     <div class="detail-mobile-bar">
-      <a class="btn btn-whatsapp" href="#" data-whatsapp data-item="Handcrafted Leather Tote"><span class="material-symbols-outlined">chat</span>Place Order on WhatsApp</a>
+      <button class="btn btn-whatsapp" type="button" data-mobile-order><span class="material-symbols-outlined">chat</span>WhatsApp Par Order Karein</button>
     </div>
   </div>
   <script type="module" src="script.js"></script>

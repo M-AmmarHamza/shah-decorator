@@ -356,6 +356,14 @@ const dialog = $("[data-product-dialog]"),
   form = $("[data-product-form]");
 function openProduct(id = null, seoTab = false) {
   const p = id ? products.find((item) => item.id === id) : null;
+  if (!p) {
+    let settings = {};
+    try { settings = JSON.parse(localStorage.getItem("pakmarket_global_settings_v1") || "{}"); } catch {}
+    if (settings.demoMode && products.length >= 3) {
+      toast("Demo stores can publish up to 3 products. Activate the store to add more.");
+      return;
+    }
+  }
   form.reset();
   window.PakMarketCategories.populate(form.elements.category, p?.category || "");
   for (const el of form.elements) {

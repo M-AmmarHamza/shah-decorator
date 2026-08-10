@@ -201,7 +201,16 @@
     );
     panel(
       "settings",
-      `<form class="pro-settings" data-settings-form><div class="content-form-row"><label>WhatsApp number<input class="field" name="whatsapp" value="${esc(settings.whatsapp || "923161013991")}"></label><label>Support email<input class="field" type="email" name="email" value="${esc(settings.email || "")}"></label></div><div class="content-form-row"><label>Default delivery treatment<select class="field" name="deliveryMode"><option value="separate" ${settings.deliveryMode==="separate"?"selected":""}>Charge separately</option><option value="included" ${settings.deliveryMode==="included"?"selected":""}>Included in product price</option><option value="free" ${settings.deliveryMode==="free"?"selected":""}>Free delivery</option></select></label><label>Default delivery charge (Rs.)<input class="field" type="number" min="0" name="deliveryFee" value="${esc(settings.deliveryFee || "0")}"></label></div><div class="content-form-row"><label>Facebook URL<input class="field" type="url" name="facebook" value="${esc(settings.facebook || "")}"></label><label>Instagram URL<input class="field" type="url" name="instagram" value="${esc(settings.instagram || "")}"></label></div><details><summary>Payment and advanced settings</summary><div class="content-form-row"><label>Easypaisa/JazzCash<input class="field" name="wallet" value="${esc(settings.wallet || "03161013991")}"></label><label>Account title<input class="field" name="accountTitle" value="${esc(settings.accountTitle || "Muhammad Ammar")}"></label></div></details><button class="admin-btn primary">Save settings</button></form>`,
+      `<form class="pro-settings" data-settings-form>
+        <div class="content-form-row"><label>Business name<input class="field" name="businessName" value="${esc(settings.businessName || "PakMarket")}"></label><label>Store tagline<input class="field" name="tagline" value="${esc(settings.tagline || "Orders seedha WhatsApp par")}"></label></div>
+        <div class="content-form-row"><label>WhatsApp number<input class="field" name="whatsapp" inputmode="numeric" placeholder="923001234567" value="${esc(settings.whatsapp || "")}"></label><label>Support email<input class="field" type="email" name="email" value="${esc(settings.email || "")}"></label></div>
+        <div class="content-form-row"><label>Primary colour<input class="field" type="color" name="primaryColor" value="${esc(settings.primaryColor || "#007a55")}"></label><label>Default delivery charge (Rs.)<input class="field" type="number" min="0" name="deliveryFee" value="${esc(settings.deliveryFee || "0")}"></label></div>
+        <div class="content-form-row"><label>Default delivery treatment<select class="field" name="deliveryMode"><option value="separate" ${settings.deliveryMode==="separate"?"selected":""}>Charge separately</option><option value="included" ${settings.deliveryMode==="included"?"selected":""}>Included in product price</option><option value="free" ${settings.deliveryMode==="free"?"selected":""}>Free delivery</option></select></label><label>Demo expiry<input class="field" type="datetime-local" name="demoExpiresAt" value="${esc(settings.demoExpiresAt || "")}"></label></div>
+        <label class="product-flags"><span><input type="checkbox" name="demoMode" ${settings.demoMode ? "checked" : ""}> <b>3-product demo mode</b> — noindex, watermark and expiry protection</span></label>
+        <div class="content-form-row"><label>Facebook URL<input class="field" type="url" name="facebook" value="${esc(settings.facebook || "")}"></label><label>Instagram URL<input class="field" type="url" name="instagram" value="${esc(settings.instagram || "")}"></label></div>
+        <details><summary>Payment and advanced settings</summary><div class="content-form-row"><label>Easypaisa/JazzCash<input class="field" name="wallet" placeholder="Account number" value="${esc(settings.wallet || "")}"></label><label>Account title<input class="field" name="accountTitle" value="${esc(settings.accountTitle || "")}"></label></div></details>
+        <button class="admin-btn primary">Save settings</button>
+      </form>`,
     );
     panel(
       "media",
@@ -311,6 +320,7 @@
     }
     if (event.target.matches("[data-settings-form]")) {
       const values = Object.fromEntries(new FormData(event.target));
+      values.demoMode = event.target.elements.demoMode.checked;
       localStorage.setItem(
         "pakmarket_global_settings_v1",
         JSON.stringify(values),

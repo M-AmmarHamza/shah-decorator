@@ -1,8 +1,10 @@
+import { SITE_CONFIG } from "./seo.config.js";
+
 const mountFloatingActions = () => {
   document.querySelectorAll(".sticky-whatsapp").forEach((item) => item.remove());
   if (document.querySelector(".floating-actions")) return;
 
-  let whatsappNumber = "923161013991";
+  let whatsappNumber = SITE_CONFIG.whatsapp;
   try {
     whatsappNumber =
       JSON.parse(localStorage.getItem("pakmarket_global_settings_v1") || "{}").whatsapp ||
@@ -20,6 +22,7 @@ const mountFloatingActions = () => {
       <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4" d="m7 14 5-5 5 5"/></svg>
     </button>`;
   document.body.appendChild(actions);
+  if (!whatsappNumber) actions.querySelector(".floating-whatsapp")?.remove();
 
   const topButton = actions.querySelector(".floating-top");
   const updateTopButton = () =>

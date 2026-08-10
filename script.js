@@ -6,11 +6,20 @@ import "./floating-actions.js";
 import { DEFAULT_PRODUCTS } from "./catalog.js";
 import { DEFAULT_BLOGS } from "./blog-catalog.js";
 import { SITE_CONFIG, absoluteUrl } from "./seo.config.js";
-
-const WHATSAPP_NUMBER = "923161013991";
+import {
+  buildOrderMessage,
+  calculateOrder,
+  configuredWhatsApp,
+  createOrderId,
+  money,
+  productOptions,
+  validateOrder,
+} from "./order-engine.js";
 
 function whatsappUrl(message) {
-  let number=WHATSAPP_NUMBER;try{number=JSON.parse(localStorage.getItem("pakmarket_global_settings_v1")||"{}").whatsapp||number}catch{}
+  let settings={};try{settings=JSON.parse(localStorage.getItem("pakmarket_global_settings_v1")||"{}")}catch{}
+  const number=configuredWhatsApp(settings,SITE_CONFIG.whatsapp);
+  if(!number) return "#whatsapp-not-configured";
   return `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
 }
 
@@ -60,9 +69,11 @@ document.addEventListener("DOMContentLoaded", () => {
         localStorage.getItem("pakmarket_inventory_v1") || "[]",
       );
       if (!Array.isArray(stored)) return DEFAULT_PRODUCTS;
-      const storedIds = new Set(stored.map((item) => item.id));
+      const defaultsById = new Map(DEFAULT_PRODUCTS.map((item) => [item.id, item]));
+      const mergedStored = stored.map((item) => ({ ...(defaultsById.get(item.id) || {}), ...item }));
+      const storedIds = new Set(mergedStored.map((item) => item.id));
       return [
-        ...stored,
+        ...mergedStored,
         ...DEFAULT_PRODUCTS.filter((item) => !storedIds.has(item.id)),
       ];
     } catch {
@@ -70,6 +81,21 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   })();
   const globalSettings=(()=>{try{return JSON.parse(localStorage.getItem("pakmarket_global_settings_v1")||"{}")}catch{return{}}})();
+  const demoRequested = new URLSearchParams(location.search).get("demo") === "1";
+  const demoActive = Boolean(globalSettings.demoMode || demoRequested);
+  const demoExpired = demoActive && globalSettings.demoExpiresAt && Date.now() > new Date(globalSettings.demoExpiresAt).getTime();
+  if (globalSettings.primaryColor) document.documentElement.style.setProperty("--primary", globalSettings.primaryColor);
+  if (globalSettings.businessName) document.querySelectorAll(".logo, .footer-grid h3:first-child").forEach((node) => node.textContent = globalSettings.businessName);
+  if (demoActive) {
+    let robots = document.querySelector('meta[name="robots"]');
+    if (!robots) { robots = document.createElement("meta"); robots.name = "robots"; document.head.appendChild(robots); }
+    robots.content = "noindex, nofollow, noarchive";
+    const watermark = document.createElement("div");
+    watermark.className = "demo-watermark";
+    watermark.textContent = demoExpired ? "Demo expired" : "Demo preview";
+    document.body.appendChild(watermark);
+    if (demoExpired) document.querySelectorAll("[data-whatsapp], [data-submit-whatsapp-order]").forEach((control) => { control.setAttribute("aria-disabled", "true"); control.addEventListener("click", (event) => { event.preventDefault(); showToast("This demo has expired. Contact PakMarket to activate it."); }, true); });
+  }
   document.querySelectorAll(".footer-links").forEach(group=>{if(!group.querySelector('a[href="/privacy-policy"]')&&!group.querySelector('a[href="privacy-policy.html"]')&&/return|payment|contact/i.test(group.textContent+group.parentElement?.textContent))group.insertAdjacentHTML("beforeend",'<a href="/privacy-policy">Privacy Policy</a><a href="/terms">Terms & Conditions</a><a href="/shipping-policy">Shipping Policy</a>')});
   const socialMap = {
     Facebook: globalSettings.facebook,
@@ -243,6 +269,9 @@ function sanitizeRichHtml(value) {
 
   const gallerySection = document.querySelector("[data-product-gallery]");
   if (gallerySection) {
+    gallerySection.id = "product-gallery";
+    const homeFaq = document.querySelector(".home-faq-section");
+    if (homeFaq) homeFaq.after(gallerySection);
     const grid = gallerySection.querySelector("[data-gallery-grid]");
     const empty = gallerySection.querySelector("[data-gallery-empty]");
     const previous = gallerySection.querySelector("[data-gallery-prev]");
@@ -772,7 +801,7 @@ function sanitizeRichHtml(value) {
           const stockTitle = stockCard.querySelector("strong");
           const stockCopy = stockCard.querySelector(":scope > div > span");
           if (stockIcon) stockIcon.textContent = stock > 0 ? "check_circle" : "cancel";
-          if (stockTitle) stockTitle.textContent = stock > 0 ? "Available in Stock" : "Out of Stock";
+          if (stockTitle) stockTitle.textContent = stock > 0 ? "Stock Mein Mojood" : "Out of Stock";
           if (stockCopy)
             stockCopy.textContent = stock > 0
               ? `${stock} item${stock === 1 ? "" : "s"} currently available`
@@ -970,6 +999,12 @@ function sanitizeRichHtml(value) {
     link.setAttribute("target", "_blank");
     link.setAttribute("rel", "noreferrer");
   });
+
+  if (isRoute("index")) {
+    document.querySelectorAll(".product-card .card-button").forEach((button) => {
+      button.lastChild.textContent = "WhatsApp Par Order Karein";
+    });
+  }
 
   const menuButton = document.querySelector("[data-menu-button]");
   const mobilePanel = document.querySelector("[data-mobile-panel]");
@@ -1372,6 +1407,119 @@ function sanitizeRichHtml(value) {
     const product=(()=>{try{return managedInventory.find(item=>item.slug===productSlug||item.id===productSlug)||null}catch{return null}})();
     if(product){const actions=document.querySelector(".detail-primary-actions");if(window.PakMarketDB?.configured&&actions&&!document.querySelector("[data-wishlist]")){const button=document.createElement("button");button.type="button";button.className="btn wishlist-button";button.dataset.wishlist=product.id;button.innerHTML='<span class="material-symbols-outlined">favorite</span><span>Save</span>';actions.append(button);button.addEventListener("click",async()=>{const session=await window.PakMarketDB.session();if(!session){location.href="auth.html?next=product";return}const {error}=await window.PakMarketDB.client.from("wishlists").upsert({user_id:session.user.id,product_id:product.id});showToast(error?error.message:"Saved to your wishlist.")})}if(window.PakMarketDB?.configured){const reviewSection=document.createElement("section");reviewSection.className="container section product-reviews";reviewSection.innerHTML='<div><span class="eyebrow">Customer feedback</span><h2>Product Reviews</h2></div><div data-review-list><p>Loading reviews…</p></div><form data-review-form><div class="form-row"><label>Rating<select class="field" name="rating"><option value="5">5 — Excellent</option><option value="4">4 — Good</option><option value="3">3 — Average</option><option value="2">2 — Fair</option><option value="1">1 — Poor</option></select></label><label>Review title<input class="field" name="title" maxlength="80"></label></div><label>Your review<textarea class="field" name="body" rows="4" required maxlength="600"></textarea></label><button class="btn btn-primary">Submit review</button><small>Reviews appear after approval.</small></form>';document.querySelector(".product-detail")?.after(reviewSection);window.PakMarketDB.client.from("product_reviews").select("*").eq("product_id",product.id).eq("approved",true).then(({data})=>{reviewSection.querySelector("[data-review-list]").innerHTML=data?.length?data.map(review=>`<article class="review-item"><strong>${"★".repeat(review.rating)} ${contentEscape(review.title||"")}</strong><p>${contentEscape(review.body||"")}</p></article>`).join(""):"<p>No approved reviews yet.</p>"});reviewSection.querySelector("[data-review-form]").addEventListener("submit",async event=>{event.preventDefault();const session=await window.PakMarketDB.session();if(!session){location.href="auth.html?next=product";return}const values=new FormData(event.currentTarget),{error}=await window.PakMarketDB.client.from("product_reviews").upsert({product_id:product.id,user_id:session.user.id,rating:Number(values.get("rating")),title:values.get("title"),body:values.get("body"),approved:false});showToast(error?error.message:"Review submitted for approval.");if(!error)event.currentTarget.reset()})}const schema={"@context":"https://schema.org","@type":"Product",name:product.name,image:[product.image],description:product.description,sku:product.sku,offers:{"@type":"Offer",priceCurrency:"PKR",price:product.price,availability:product.stock>0?"https://schema.org/InStock":"https://schema.org/OutOfStock",url:location.href}};const node=document.createElement("script");node.type="application/ld+json";node.textContent=JSON.stringify(schema);document.head.append(node)}
     if (product) {
+      const orderForm = document.querySelector("[data-structured-order]");
+      if (orderForm) {
+        const optionsHost = orderForm.querySelector("[data-order-options]");
+        const quantityInput = orderForm.elements.quantity;
+        const submitButton = orderForm.querySelector("[data-submit-whatsapp-order]");
+        const copyFallback = orderForm.querySelector("[data-copy-order]");
+        const statusNode = orderForm.querySelector("[data-order-status]");
+        const selected = {};
+        let lastMessage = "";
+        const options = productOptions(product);
+        optionsHost.innerHTML = options.map((option) => `
+          <fieldset class="order-option" data-option-name="${contentEscape(option.name)}">
+            <legend>${contentEscape(option.name)}${option.required ? " *" : ""}</legend>
+            <div>${option.values.map((value) => `<button type="button" aria-pressed="false" data-option-value="${contentEscape(value)}">${contentEscape(value)}</button>`).join("")}</div>
+            <small data-option-error></small>
+          </fieldset>`).join("");
+        orderForm.querySelector("[data-stock-limit]").textContent = `${Math.max(0, Number(product.stock || 0))} available`;
+        quantityInput.max = String(Math.max(1, Number(product.stock || 1)));
+        submitButton.disabled = Number(product.stock || 0) < 1;
+
+        const customer = () => ({
+          name: orderForm.elements.name.value,
+          mobile: orderForm.elements.mobile.value,
+          city: orderForm.elements.city.value,
+          address: orderForm.elements.address.value,
+          note: orderForm.elements.note.value,
+          payment: orderForm.elements.payment.value,
+        });
+        const currentQuote = () => calculateOrder({
+          product,
+          quantity: Number(quantityInput.value || 1),
+          selections: selected,
+          city: customer().city,
+          settings: globalSettings,
+          offer: productOffer(product),
+        });
+        const renderQuote = () => {
+          const quote = currentQuote();
+          quantityInput.value = String(quote.quantity);
+          orderForm.querySelector("[data-order-subtotal]").textContent = money(quote.subtotal);
+          const discountRow = orderForm.querySelector("[data-discount-row]");
+          discountRow.hidden = !quote.discount;
+          orderForm.querySelector("[data-order-discount]").textContent = `-${money(quote.discount)}`;
+          orderForm.querySelector("[data-order-delivery]").textContent = quote.delivery.known ? money(quote.delivery.amount) : quote.delivery.label;
+          orderForm.querySelector("[data-order-total]").textContent = quote.payable === null ? "Owner will confirm" : money(quote.payable);
+        };
+        const clearErrors = () => {
+          orderForm.querySelectorAll("[data-error], [data-option-error]").forEach((node) => node.textContent = "");
+          orderForm.querySelectorAll(".has-error").forEach((node) => node.classList.remove("has-error"));
+          statusNode.textContent = "";
+        };
+        const showErrors = (errors) => {
+          clearErrors();
+          Object.entries(errors).forEach(([key, message]) => {
+            if (key.startsWith("option:")) {
+              const name = key.slice(7);
+              const fieldset = [...orderForm.querySelectorAll("[data-option-name]")].find((node) => node.dataset.optionName === name);
+              if (fieldset) { fieldset.classList.add("has-error"); fieldset.querySelector("[data-option-error]").textContent = message; }
+            } else {
+              const field = orderForm.elements[key];
+              if (field) field.classList.add("has-error");
+              const error = orderForm.querySelector(`[data-error="${key}"]`);
+              if (error) error.textContent = message;
+            }
+          });
+          statusNode.textContent = "Please complete the highlighted order details.";
+          orderForm.querySelector(".has-error, [data-error]:not(:empty)")?.scrollIntoView({ behavior: "smooth", block: "center" });
+          window.PakMarketDB?.track("form_validation_error", { fields: Object.keys(errors) }, "product", product.id).catch(() => {});
+        };
+
+        optionsHost.addEventListener("click", (event) => {
+          const button = event.target.closest("[data-option-value]");
+          if (!button) return;
+          const fieldset = button.closest("[data-option-name]");
+          fieldset.querySelectorAll("[data-option-value]").forEach((choice) => choice.setAttribute("aria-pressed", String(choice === button)));
+          selected[fieldset.dataset.optionName] = button.dataset.optionValue;
+          fieldset.classList.remove("has-error");
+          fieldset.querySelector("[data-option-error]").textContent = "";
+          window.PakMarketDB?.track("select_variant", { product_id: product.id, option: fieldset.dataset.optionName }, "product", product.id).catch(() => {});
+          renderQuote();
+        });
+        orderForm.querySelector("[data-quantity-minus]").addEventListener("click", () => { quantityInput.value = String(Math.max(1, Number(quantityInput.value || 1) - 1)); renderQuote(); });
+        orderForm.querySelector("[data-quantity-plus]").addEventListener("click", () => { quantityInput.value = String(Math.min(Number(product.stock || 1), Number(quantityInput.value || 1) + 1)); renderQuote(); });
+        quantityInput.addEventListener("change", renderQuote);
+        orderForm.elements.city.addEventListener("input", renderQuote);
+        document.querySelector("[data-mobile-order]")?.addEventListener("click", () => orderForm.scrollIntoView({ behavior: "smooth", block: "start" }));
+        orderForm.addEventListener("submit", (event) => {
+          event.preventDefault();
+          const values = customer();
+          const errors = validateOrder({ product, quantity: Number(quantityInput.value), selections: selected, customer: values });
+          if (Object.keys(errors).length) { showErrors(errors); return; }
+          clearErrors();
+          const number = configuredWhatsApp(globalSettings, SITE_CONFIG.whatsapp);
+          if (!number) { statusNode.textContent = "Store WhatsApp number is not configured yet."; return; }
+          const quote = currentQuote();
+          const id = createOrderId();
+          lastMessage = buildOrderMessage({ id, quote, customer: values, productUrl: absoluteUrl(productUrl(product.slug)) });
+          window.PakMarketDB?.track("open_whatsapp_order", { product_id: product.id, quantity: quote.quantity, order_id: id, delivery_known: quote.delivery.known }, "product", product.id).catch(() => {});
+          const opened = window.open(`https://wa.me/${number}?text=${encodeURIComponent(lastMessage)}`, "_blank", "noopener,noreferrer");
+          if (!opened) {
+            copyFallback.hidden = false;
+            statusNode.textContent = "WhatsApp could not open. Copy the order details and send them manually.";
+          } else {
+            statusNode.textContent = `Order ${id} prepared. Complete it in WhatsApp.`;
+          }
+        });
+        copyFallback.addEventListener("click", async () => {
+          if (!lastMessage) return;
+          try { await navigator.clipboard.writeText(lastMessage); showToast("Order details copied."); }
+          catch { statusNode.textContent = "Select and copy the order details manually."; }
+        });
+        renderQuote();
+      }
       const canonicalUrl = absoluteUrl(productUrl(product.slug));
       const schemaNodes = [
         ...document.querySelectorAll('script[type="application/ld+json"]'),

@@ -5,6 +5,11 @@ const envSiteUrl =
   import.meta.env?.VITE_SITE_URL ||
   DEFAULT_SITE_URL;
 
+const envWhatsApp =
+  (typeof process !== "undefined" && process.env?.VITE_WHATSAPP_NUMBER) ||
+  import.meta.env?.VITE_WHATSAPP_NUMBER ||
+  "";
+
 export const normalizeSiteUrl = (value = DEFAULT_SITE_URL) =>
   String(value).trim().replace(/\/+$/, "");
 
@@ -14,7 +19,8 @@ export const SITE_CONFIG = Object.freeze({
   locale: "en_PK",
   language: "en-PK",
   currency: "PKR",
-  phone: "+923161013991",
+  phone: envWhatsApp ? `+${String(envWhatsApp).replace(/\D/g, "")}` : "",
+  whatsapp: String(envWhatsApp).replace(/\D/g, ""),
   defaultImage:
     "https://lh3.googleusercontent.com/aida-public/AB6AXuDEnJcw27yqpwlpvv0CQrU-eh2amN6a_STX9AuW9cgXJq-2eUdIFlH11x2GF28_1SJx-VlCy0CQdjtwlSrrOlkXOKQSy_p3-HJ6JYC0uPwvPdO-WnQHNQsCnaUvGuVMp2jW_WtC7h2GdsnUEKhCLZ2a93apKwCK_CAtXh0KApDteHht0WtdcSIwDn8vaLc4H_a7tRjAi1R_CihbpUUlcO_T23p06vocmxpHhQqibFSGuYf3lcP4V6oWkgPulKdXpssFUXX3vFp-4DU",
 });
