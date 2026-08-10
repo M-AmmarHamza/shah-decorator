@@ -1,4 +1,5 @@
 import "./supabase-client.js";
+import { mountDemoExpiryGuard, temporaryDemoSession } from "./demo-session.js";
 
 const db = window.PakMarketDB;
 const isLocalPreview = ["localhost", "127.0.0.1", "::1"].includes(
@@ -29,7 +30,7 @@ if (db.configured) {
         };
     } catch {}
   }
-} else if (isLocalPreview) {
+} else if (isLocalPreview || temporaryDemoSession()) {
   try {
     session = JSON.parse(localStorage.getItem("pakmarket_session_v1"));
   } catch {}
@@ -39,6 +40,24 @@ if (!session) {
   throw new Error("Admin authentication required");
 }
 window.PAKMARKET_SESSION = session;
+const demoSession = mountDemoExpiryGuard();
+if (demoSession) {
+  document.body.dataset.demoAdmin = "true";
+  const banner = document.createElement("div");
+  banner.className = "admin-demo-banner";
+  banner.innerHTML = `<strong>Temporary demo</strong><span data-demo-countdown></span><small>Maximum 3 products · data deletes automatically</small>`;
+  document.body.appendChild(banner);
+  const countdown = banner.querySelector("[data-demo-countdown]");
+  const updateCountdown = () => {
+    const remaining = Math.max(0, demoSession.expiresAt - Date.now());
+    const hours = Math.floor(remaining / 3_600_000);
+    const minutes = Math.floor((remaining % 3_600_000) / 60_000);
+    const seconds = Math.floor((remaining % 60_000) / 1000);
+    countdown.textContent = `${hours}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")} remaining`;
+  };
+  updateCountdown();
+  window.setInterval(updateCountdown, 1000);
+}
 await import("./admin-safe-delete.js");
 await import("./admin-blog-editor.js");
 await import("./admin-categories.js");

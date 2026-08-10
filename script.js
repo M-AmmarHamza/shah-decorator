@@ -3,6 +3,7 @@ import "./social-normalize.css";
 import "./promotions.css";
 import "./product-gallery.css";
 import "./floating-actions.js";
+import "./demo-session.js";
 import { DEFAULT_PRODUCTS } from "./catalog.js";
 import { DEFAULT_BLOGS } from "./blog-catalog.js";
 import { SITE_CONFIG, absoluteUrl } from "./seo.config.js";

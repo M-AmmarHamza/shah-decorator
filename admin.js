@@ -607,6 +607,11 @@ document.addEventListener("click", async (event) => {
   const button = event.target.closest("button");
   if (!button) return;
   if (button.hasAttribute("data-logout")) {
+    if (adminSession?.demo) {
+      window.PakMarketDemo?.clear();
+      location.replace("auth.html?demo=ended");
+      return;
+    }
     if (window.PakMarketDB?.configured) {
       await window.PakMarketDB.signOut();
     }
