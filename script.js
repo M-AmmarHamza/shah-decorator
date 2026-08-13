@@ -140,9 +140,9 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   document.querySelectorAll(".footer-links").forEach(group=>{if(!group.querySelector('a[href="/privacy-policy"]')&&!group.querySelector('a[href="privacy-policy.html"]')&&/return|payment|contact/i.test(group.textContent+group.parentElement?.textContent))group.insertAdjacentHTML("beforeend",'<a href="/privacy-policy">Privacy Policy</a><a href="/terms">Terms & Conditions</a><a href="/shipping-policy">Shipping Policy</a>')});
   const socialMap = {
-    Facebook: globalSettings.facebook,
-    Instagram: globalSettings.instagram,
-    YouTube: globalSettings.youtube,
+    Facebook: globalSettings.facebook || SITE_CONFIG.socials.facebook,
+    Instagram: globalSettings.instagram || SITE_CONFIG.socials.instagram,
+    YouTube: globalSettings.youtube || SITE_CONFIG.socials.youtube,
     TikTok: globalSettings.tiktok,
   };
   Object.entries(socialMap).forEach(([name, url]) => {
@@ -1051,10 +1051,11 @@ function sanitizeRichHtml(value) {
 
   document.querySelectorAll("[data-whatsapp]").forEach((link) => {
     const item = link.dataset.item || "PakMarket products";
+    const customMessage = link.dataset.whatsappMessage;
     link.setAttribute(
       "href",
       whatsappUrl(
-        `Assalam o Alaikum, I want to order ${item}. Please share details.`,
+        customMessage || `Assalam o Alaikum, I want to order ${item}. Please share details.`,
       ),
     );
     link.setAttribute("target", "_blank");

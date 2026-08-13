@@ -1,4 +1,5 @@
 const DEFAULT_SITE_URL = "https://pakmarket.pk";
+const DEFAULT_WHATSAPP = "923161013991";
 
 const envSiteUrl =
   (typeof process !== "undefined" && process.env?.VITE_SITE_URL) ||
@@ -19,8 +20,13 @@ export const SITE_CONFIG = Object.freeze({
   locale: "en_PK",
   language: "en-PK",
   currency: "PKR",
-  phone: envWhatsApp ? `+${String(envWhatsApp).replace(/\D/g, "")}` : "",
-  whatsapp: String(envWhatsApp).replace(/\D/g, ""),
+  phone: `+${String(envWhatsApp || DEFAULT_WHATSAPP).replace(/\D/g, "")}`,
+  whatsapp: String(envWhatsApp || DEFAULT_WHATSAPP).replace(/\D/g, ""),
+  socials: Object.freeze({
+    facebook: "https://www.facebook.com/CodifyX/",
+    instagram: "https://www.instagram.com/codify.x/",
+    youtube: "https://www.youtube.com/@CodifyXOfficial",
+  }),
   defaultImage:
     "https://lh3.googleusercontent.com/aida-public/AB6AXuDEnJcw27yqpwlpvv0CQrU-eh2amN6a_STX9AuW9cgXJq-2eUdIFlH11x2GF28_1SJx-VlCy0CQdjtwlSrrOlkXOKQSy_p3-HJ6JYC0uPwvPdO-WnQHNQsCnaUvGuVMp2jW_WtC7h2GdsnUEKhCLZ2a93apKwCK_CAtXh0KApDteHht0WtdcSIwDn8vaLc4H_a7tRjAi1R_CihbpUUlcO_T23p06vocmxpHhQqibFSGuYf3lcP4V6oWkgPulKdXpssFUXX3vFp-4DU",
 });
