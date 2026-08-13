@@ -114,7 +114,6 @@ document.addEventListener("DOMContentLoaded", () => {
     document.body.appendChild(watermark);
     document.querySelectorAll(".gallery-badge").forEach((badge) => badge.textContent = "Store Product");
     document.querySelectorAll(".home-testimonials-section").forEach((section) => section.hidden = true);
-    document.querySelectorAll(".announcement-bar").forEach((bar) => bar.hidden = true);
     const pageHeading = document.querySelector("main h1");
     if (pageHeading?.nextElementSibling?.matches("p")) pageHeading.nextElementSibling.textContent = globalSettings.tagline || "Aap ke products aur WhatsApp order details ek hi store mein.";
     const footerIntro = document.querySelector(".footer-grid > div:first-child > p");
