@@ -1,5 +1,7 @@
 import "./supabase-client.js";
 import { mountDemoExpiryGuard, temporaryDemoSession } from "./demo-session.js";
+import { DEMO_PRODUCT_LIMIT } from "./store-config.js";
+import "./admin-integrations.css";
 
 const db = window.PakMarketDB;
 const isLocalPreview = ["localhost", "127.0.0.1", "::1"].includes(
@@ -45,7 +47,7 @@ if (demoSession) {
   document.body.dataset.demoAdmin = "true";
   const banner = document.createElement("div");
   banner.className = "admin-demo-banner";
-  banner.innerHTML = `<strong>Temporary demo</strong><span data-demo-countdown></span><small>Maximum 3 products · data deletes automatically</small>`;
+  banner.innerHTML = `<strong>Temporary demo</strong><span data-demo-countdown></span><small>Maximum ${DEMO_PRODUCT_LIMIT} products · data deletes automatically</small>`;
   document.body.appendChild(banner);
   const countdown = banner.querySelector("[data-demo-countdown]");
   const updateCountdown = () => {
@@ -67,3 +69,4 @@ await import("./admin.js");
 await import("./admin-pages.js");
 await import("./admin-content.js");
 await import("./admin-pro.js");
+await import("./admin-integrations.js");

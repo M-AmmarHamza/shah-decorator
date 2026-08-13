@@ -1,9 +1,8 @@
-import { DEFAULT_PRODUCTS } from "./catalog.js";
+import { DEMO_DURATION_MS, DEMO_PRODUCT_LIMIT } from "./store-config.js";
 
 const SESSION_KEY = "pakmarket_session_v1";
 const USERS_KEY = "pakmarket_users_v1";
 const DEMO_KEY = "pakmarket_temporary_demo_v1";
-const DURATION_MS = 3 * 60 * 60 * 1000;
 const WORKSPACE_KEYS = [
   "pakmarket_inventory_v1",
   "pakmarket_global_settings_v1",
@@ -12,6 +11,7 @@ const WORKSPACE_KEYS = [
   "pakmarket_events_v1",
   "pakmarket_coming_v1",
   "pakmarket_pages_v1",
+  "pakmarket_integrations_v1",
 ];
 
 const readJson = (key, fallback = null) => {
@@ -54,27 +54,21 @@ export function startTemporaryDemo() {
   const id = crypto.randomUUID();
   const userId = `demo-${id}`;
   const now = Date.now();
-  const expiresAt = now + DURATION_MS;
+  const expiresAt = now + DEMO_DURATION_MS;
   const backup = Object.fromEntries(WORKSPACE_KEYS.map((key) => [key, localStorage.getItem(key)]));
   const record = { id, userId, createdAt: now, expiresAt, backup };
   localStorage.setItem(DEMO_KEY, JSON.stringify(record));
 
-  const demoProducts = DEFAULT_PRODUCTS.slice(0, 3).map((product) => ({
-    ...product,
-    id: `demo-${product.id}`,
-    status: "active",
-    enabled: true,
-    featured: true,
-  }));
-  localStorage.setItem("pakmarket_inventory_v1", JSON.stringify(demoProducts));
+  localStorage.setItem("pakmarket_inventory_v1", "[]");
   localStorage.setItem("pakmarket_global_settings_v1", JSON.stringify({
     businessName: "My Demo Store",
-    tagline: "Temporary 3-hour store preview",
+    tagline: "Aap ka temporary WhatsApp store preview",
     primaryColor: "#007a55",
     demoMode: true,
     demoExpiresAt: new Date(expiresAt).toISOString(),
-    deliveryMode: "separate",
-    deliveryFee: "250",
+    deliveryMode: "owner_confirm",
+    deliveryFee: "",
+    demoProductLimit: DEMO_PRODUCT_LIMIT,
   }));
   const users = readJson(USERS_KEY, []);
   users.push({ id: userId, name: "Demo Owner", role: "admin", status: "approved", demo: true, expiresAt });

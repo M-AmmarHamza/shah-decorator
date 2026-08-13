@@ -3,6 +3,8 @@ import "./social-normalize.css";
 import "./promotions.css";
 import "./product-gallery.css";
 import "./floating-actions.js";
+import "./integrations.js";
+import "./consent.css";
 import "./demo-session.js";
 import { DEFAULT_PRODUCTS } from "./catalog.js";
 import { DEFAULT_BLOGS } from "./blog-catalog.js";
@@ -70,6 +72,10 @@ document.addEventListener("DOMContentLoaded", () => {
         localStorage.getItem("pakmarket_inventory_v1") || "[]",
       );
       if (!Array.isArray(stored)) return DEFAULT_PRODUCTS;
+      const storedSettings = JSON.parse(
+        localStorage.getItem("pakmarket_global_settings_v1") || "{}",
+      );
+      if (storedSettings.demoMode) return stored;
       const defaultsById = new Map(DEFAULT_PRODUCTS.map((item) => [item.id, item]));
       const mergedStored = stored.map((item) => ({ ...(defaultsById.get(item.id) || {}), ...item }));
       const storedIds = new Set(mergedStored.map((item) => item.id));
@@ -86,7 +92,17 @@ document.addEventListener("DOMContentLoaded", () => {
   const demoActive = Boolean(globalSettings.demoMode || demoRequested);
   const demoExpired = demoActive && globalSettings.demoExpiresAt && Date.now() > new Date(globalSettings.demoExpiresAt).getTime();
   if (globalSettings.primaryColor) document.documentElement.style.setProperty("--primary", globalSettings.primaryColor);
-  if (globalSettings.businessName) document.querySelectorAll(".logo, .footer-grid h3:first-child").forEach((node) => node.textContent = globalSettings.businessName);
+  if (globalSettings.businessName) {
+    const storeName = globalSettings.businessName;
+    document.querySelectorAll(".logo, .brand, .footer-grid h3:first-child").forEach((node) => node.textContent = storeName);
+    document.querySelectorAll(".footer-bottom span").forEach((node) => { node.textContent = node.textContent.replace(/PakMarket/g, storeName); });
+    if (demoActive) {
+      document.title = `${storeName} | WhatsApp Store Demo`;
+      const description = globalSettings.tagline || `${storeName} ka WhatsApp order store demo.`;
+      document.querySelectorAll('meta[name="description"], meta[property="og:description"], meta[name="twitter:description"]').forEach((meta) => meta.content = description);
+      document.querySelectorAll('meta[property="og:title"], meta[name="twitter:title"]').forEach((meta) => meta.content = document.title);
+    }
+  }
   if (demoActive) {
     let robots = document.querySelector('meta[name="robots"]');
     if (!robots) { robots = document.createElement("meta"); robots.name = "robots"; document.head.appendChild(robots); }
@@ -95,7 +111,32 @@ document.addEventListener("DOMContentLoaded", () => {
     watermark.className = "demo-watermark";
     watermark.textContent = demoExpired ? "Demo expired" : "Demo preview";
     document.body.appendChild(watermark);
+    document.querySelectorAll(".gallery-badge").forEach((badge) => badge.textContent = "Store Product");
+    document.querySelectorAll(".home-testimonials-section").forEach((section) => section.hidden = true);
+    document.querySelectorAll(".announcement-bar").forEach((bar) => bar.hidden = true);
+    const pageHeading = document.querySelector("main h1");
+    if (pageHeading?.nextElementSibling?.matches("p")) pageHeading.nextElementSibling.textContent = globalSettings.tagline || "Aap ke products aur WhatsApp order details ek hi store mein.";
+    const footerIntro = document.querySelector(".footer-grid > div:first-child > p");
+    if (footerIntro) footerIntro.textContent = globalSettings.tagline || "Aap ka apna WhatsApp order store.";
+    const trustCards = [...document.querySelectorAll(".trust-item, .trust-card, .value-band > div")];
+    trustCards.forEach((card) => {
+      const heading = card.querySelector("h3, strong"), copy = card.querySelector("p");
+      if (/verified|vetted|seller/i.test(card.textContent)) {
+        if (heading) heading.textContent = "Clear Order Details";
+        if (copy) copy.textContent = "Customer order send karne se pehle complete details review karta hai.";
+      }
+    });
+    document.querySelectorAll(".footer-bottom span").forEach((node) => {
+      if (/empowering|brands/i.test(node.textContent)) node.textContent = `© ${new Date().getFullYear()} ${globalSettings.businessName || "Demo Store"}. WhatsApp order store.`;
+    });
     if (demoExpired) document.querySelectorAll("[data-whatsapp], [data-submit-whatsapp-order]").forEach((control) => { control.setAttribute("aria-disabled", "true"); control.addEventListener("click", (event) => { event.preventDefault(); showToast("This demo has expired. Contact PakMarket to activate it."); }, true); });
+  }
+  const deliveryCard = [...document.querySelectorAll(".info-card h4")].find((heading) => /delivery/i.test(heading.textContent))?.closest(".info-card");
+  if (deliveryCard) {
+    const heading = deliveryCard.querySelector("h4"), copy = deliveryCard.querySelector("p");
+    const mode = globalSettings.deliveryMode || "owner_confirm";
+    heading.textContent = mode === "free" ? "Free Delivery" : mode === "included" ? "Delivery Included" : mode === "separate" ? "Delivery Charges" : "Delivery Confirmation";
+    copy.textContent = mode === "free" ? "Is product par delivery free hai." : mode === "included" ? "Delivery product price mein included hai." : mode === "separate" && Number(globalSettings.deliveryFee) >= 0 ? `Delivery charges: Rs. ${Number(globalSettings.deliveryFee).toLocaleString("en-PK")}.` : "City aur address ke mutabiq store owner exact delivery charges WhatsApp par confirm karega.";
   }
   document.querySelectorAll(".footer-links").forEach(group=>{if(!group.querySelector('a[href="/privacy-policy"]')&&!group.querySelector('a[href="privacy-policy.html"]')&&/return|payment|contact/i.test(group.textContent+group.parentElement?.textContent))group.insertAdjacentHTML("beforeend",'<a href="/privacy-policy">Privacy Policy</a><a href="/terms">Terms & Conditions</a><a href="/shipping-policy">Shipping Policy</a>')});
   const socialMap = {
@@ -694,9 +735,13 @@ function sanitizeRichHtml(value) {
   const managedSlug = productSlug;
   if (managedSlug && isRoute("product")) {
     try {
-        const managedProduct = managedInventory.find(
+      const managedProduct = managedInventory.find(
         (item) => item.slug === managedSlug || item.id === managedSlug,
       );
+      if (!managedProduct && demoActive) {
+        const main = document.querySelector("main");
+        if (main) main.innerHTML = '<section class="page-unavailable"><span class="material-symbols-outlined">inventory_2</span><h1>Product demo mein available nahi</h1><p>Store owner ne yeh product add nahi kiya.</p><a class="btn btn-primary" href="/products">Demo products dekhein</a></section>';
+      }
       if (managedProduct) {
         const cleanProductPath = productUrl(managedProduct.slug);
         if (location.pathname !== cleanProductPath)
@@ -928,6 +973,10 @@ function sanitizeRichHtml(value) {
           </article>`;
           })
           .join("");
+        if (!visible.length) {
+          storefrontGrid.innerHTML = '<div class="storefront-empty"><span class="material-symbols-outlined">inventory_2</span><h2>Products abhi add nahi hue</h2><p>Store owner dashboard se products add kar raha hai.</p></div>';
+          document.querySelectorAll("[data-load-more]").forEach((button) => button.hidden = true);
+        }
       }
     } catch (error) {
       console.warn("Could not load managed inventory", error);
@@ -948,6 +997,17 @@ function sanitizeRichHtml(value) {
         .replace(/[^a-z0-9]+/g, "-")
         .replace(/^-|-$/g, "");
     productLink.href = productUrl(slug);
+    card.querySelectorAll(".quick-chat").forEach((button) => button.remove());
+    const cardButton = card.querySelector(".card-button");
+    if (cardButton) {
+      cardButton.removeAttribute("data-whatsapp");
+      cardButton.removeAttribute("data-item");
+      cardButton.removeAttribute("target");
+      cardButton.removeAttribute("rel");
+      cardButton.href = productUrl(slug);
+      const unavailable = /unavailable|notify|out of stock/i.test(cardButton.textContent);
+      cardButton.innerHTML = `<span class="material-symbols-outlined">tune</span>${unavailable ? "Availability Dekhein" : "Options Select Karke Order Karein"}`;
+    }
   });
 
   document.querySelectorAll("[data-page-link]").forEach((link) => {
@@ -1001,11 +1061,14 @@ function sanitizeRichHtml(value) {
     link.setAttribute("rel", "noreferrer");
   });
 
-  if (isRoute("index")) {
-    document.querySelectorAll(".product-card .card-button").forEach((button) => {
-      button.lastChild.textContent = "WhatsApp Par Order Karein";
-    });
-  }
+  document.querySelectorAll(".site-header [data-whatsapp], .mobile-panel [data-whatsapp]").forEach((link) => {
+    link.dataset.item = "PakMarket support";
+    link.href = whatsappUrl("Assalam o Alaikum, mujhe PakMarket support chahiye.");
+    const textNode = [...link.childNodes].find((node) => node.nodeType === Node.TEXT_NODE && node.textContent.trim());
+    if (textNode) textNode.textContent = " WhatsApp Support";
+    else link.append("WhatsApp Support");
+  });
+
 
   const menuButton = document.querySelector("[data-menu-button]");
   const mobilePanel = document.querySelector("[data-mobile-panel]");
