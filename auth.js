@@ -69,10 +69,12 @@ if (!window.PakMarketDB?.configured && !IS_LOCAL_PREVIEW) {
   document.querySelectorAll('[data-auth-form] button[type="submit"]').forEach(
     (button) => (button.disabled = true),
   );
-  message(
-    "Account access is temporarily unavailable while the secure database connection is being completed.",
-    "pending",
-  );
+  document.body.classList.add("demo-only-auth");
+  document.querySelector(".auth-tabs")?.setAttribute("hidden", "");
+  document.querySelectorAll("[data-auth-form]").forEach((form) => form.setAttribute("hidden", ""));
+  const demoCard = document.querySelector(".temporary-demo-card");
+  demoCard?.querySelector("strong")?.replaceChildren("Open the owner dashboard demo");
+  demoCard?.insertAdjacentHTML("beforeend", '<p class="demo-account-note"><span class="material-symbols-outlined">verified_user</span>Permanent accounts secure database connect hone ke baad enable honge.</p>');
 }
 $$("[data-auth-tab]").forEach((button) =>
   button.addEventListener("click", () => {
@@ -85,14 +87,7 @@ $$("[data-auth-tab]").forEach((button) =>
         f.dataset.authForm === button.dataset.authTab,
       ),
     );
-    if (window.PakMarketDB?.configured || IS_LOCAL_PREVIEW) {
-      $("[data-auth-message]").hidden = true;
-    } else {
-      message(
-        "Account access is temporarily unavailable while the secure database connection is being completed.",
-        "pending",
-      );
-    }
+    $("[data-auth-message]").hidden = true;
   }),
 );
 $$("[data-toggle-password]").forEach((button) =>

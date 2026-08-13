@@ -9,6 +9,7 @@ import "./demo-session.js";
 import { DEFAULT_PRODUCTS } from "./catalog.js";
 import { DEFAULT_BLOGS } from "./blog-catalog.js";
 import { SITE_CONFIG, absoluteUrl } from "./seo.config.js";
+import { applyStoreTheme } from "./theme-config.js";
 import {
   buildOrderMessage,
   calculateOrder,
@@ -91,7 +92,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const demoRequested = new URLSearchParams(location.search).get("demo") === "1";
   const demoActive = Boolean(globalSettings.demoMode || demoRequested);
   const demoExpired = demoActive && globalSettings.demoExpiresAt && Date.now() > new Date(globalSettings.demoExpiresAt).getTime();
-  if (globalSettings.primaryColor) document.documentElement.style.setProperty("--primary", globalSettings.primaryColor);
+  applyStoreTheme(globalSettings.theme, globalSettings.primaryColor);
   if (globalSettings.businessName) {
     const storeName = globalSettings.businessName;
     document.querySelectorAll(".logo, .brand, .footer-grid h3:first-child").forEach((node) => node.textContent = storeName);

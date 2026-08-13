@@ -2,6 +2,7 @@ import "./supabase-client.js";
 import { mountDemoExpiryGuard, temporaryDemoSession } from "./demo-session.js";
 import { DEMO_PRODUCT_LIMIT } from "./store-config.js";
 import "./admin-integrations.css";
+import "./admin-themes.css";
 
 const db = window.PakMarketDB;
 const isLocalPreview = ["localhost", "127.0.0.1", "::1"].includes(

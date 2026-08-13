@@ -64,6 +64,7 @@ export function startTemporaryDemo() {
     businessName: "My Demo Store",
     tagline: "Aap ka temporary WhatsApp store preview",
     primaryColor: "#007a55",
+    theme: "emerald",
     demoMode: true,
     demoExpiresAt: new Date(expiresAt).toISOString(),
     deliveryMode: "owner_confirm",
