@@ -1121,6 +1121,18 @@ button {
   object-fit: cover;
 }
 
+@media (min-width: 1021px) {
+  .gallery-main {
+    height: clamp(460px, 42vw, 560px);
+  }
+
+  .gallery-main img {
+    height: 100%;
+    aspect-ratio: auto;
+    object-fit: contain;
+  }
+}
+
 .gallery-badge {
   position: absolute;
   left: 18px;
