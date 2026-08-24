@@ -1,5 +1,20 @@
 import { createClient } from "@supabase/supabase-js";
 
+// randomUUID is unavailable on some non-HTTPS preview origins. Keep IDs
+// collision-resistant so the storefront and temporary demo still initialize.
+if (!globalThis.crypto?.randomUUID && globalThis.crypto?.getRandomValues) {
+  Object.defineProperty(globalThis.crypto, "randomUUID", {
+    configurable: true,
+    value: () => {
+      const bytes = globalThis.crypto.getRandomValues(new Uint8Array(16));
+      bytes[6] = (bytes[6] & 0x0f) | 0x40;
+      bytes[8] = (bytes[8] & 0x3f) | 0x80;
+      const value = [...bytes].map((byte) => byte.toString(16).padStart(2, "0"));
+      return `${value.slice(0, 4).join("")}-${value.slice(4, 6).join("")}-${value.slice(6, 8).join("")}-${value.slice(8, 10).join("")}-${value.slice(10).join("")}`;
+    },
+  });
+}
+
 const url = import.meta.env.VITE_SUPABASE_URL;
 const key = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 const configured = Boolean(

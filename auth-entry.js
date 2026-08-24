@@ -21,6 +21,10 @@ demoButton?.addEventListener("click", () => {
 });
 
 const demoStatus = new URLSearchParams(location.search).get("demo");
+const demoCard = document.querySelector("[data-temporary-demo]");
+if (demoStatus === "start" || temporaryDemoSession()) {
+  demoCard?.removeAttribute("hidden");
+}
 if (["expired", "ended"].includes(demoStatus)) {
   const message = document.querySelector("[data-auth-message]");
   message.hidden = false;

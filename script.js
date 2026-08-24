@@ -40,6 +40,19 @@ function showToast(message) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll(".site-footer").forEach((footer) => {
+    if (footer.querySelector("[data-footer-demo-link]")) return;
+    const quickLinks = footer.querySelector(".footer-links");
+    if (!quickLinks) return;
+    const demoLink = document.createElement("a");
+    demoLink.href = "/auth?demo=start";
+    demoLink.dataset.footerDemoLink = "";
+    demoLink.className = "footer-demo-link";
+    demoLink.textContent = "Add Products — 3-Hour Demo";
+    demoLink.title = "Temporary demo products and settings are deleted automatically after 3 hours.";
+    quickLinks.appendChild(demoLink);
+  });
+
   const page = document.body.dataset.page || "";
   const pathParts = window.location.pathname.split("/").filter(Boolean);
   const isPrettyProduct =
