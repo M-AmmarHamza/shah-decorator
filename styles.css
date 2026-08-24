@@ -2014,7 +2014,8 @@ button {
   }
 
   .gallery-main img {
-    aspect-ratio: 1 / 1;
+    height: min(100vw, 520px);
+    aspect-ratio: auto;
     object-fit: contain;
     background: var(--card);
   }
