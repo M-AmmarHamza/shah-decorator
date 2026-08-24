@@ -1097,6 +1097,13 @@ button {
   align-items: start;
 }
 
+.product-media {
+  position: sticky;
+  top: 126px;
+  align-self: start;
+  min-width: 0;
+}
+
 .gallery-main {
   position: relative;
   overflow: hidden;
@@ -1692,6 +1699,10 @@ button {
 
   .product-detail {
     grid-template-columns: 1fr;
+  }
+
+  .product-media {
+    position: static;
   }
 
   .recommend-row {
