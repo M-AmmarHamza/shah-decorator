@@ -112,7 +112,6 @@ document.addEventListener("DOMContentLoaded", () => {
     watermark.className = "demo-watermark";
     watermark.textContent = demoExpired ? "Demo expired" : "Demo preview";
     document.body.appendChild(watermark);
-    document.querySelectorAll(".gallery-badge").forEach((badge) => badge.textContent = "Store Product");
     document.querySelectorAll(".home-testimonials-section").forEach((section) => section.hidden = true);
     const pageHeading = document.querySelector("main h1");
     if (pageHeading?.nextElementSibling?.matches("p")) pageHeading.nextElementSibling.textContent = globalSettings.tagline || "Aap ke products aur WhatsApp order details ek hi store mein.";
@@ -851,10 +850,10 @@ function richTextToPlain(value) {
           const stockTitle = stockCard.querySelector("strong");
           const stockCopy = stockCard.querySelector(":scope > div > span");
           if (stockIcon) stockIcon.textContent = stock > 0 ? "check_circle" : "cancel";
-          if (stockTitle) stockTitle.textContent = stock > 0 ? "Stock Mein Mojood" : "Out of Stock";
+          if (stockTitle) stockTitle.textContent = stock > 0 ? "In Stock" : "Out of Stock";
           if (stockCopy)
             stockCopy.textContent = stock > 0
-              ? `${stock} item${stock === 1 ? "" : "s"} currently available`
+              ? `${stock} item${stock === 1 ? "" : "s"} available · Ready to order`
               : "Please contact us for restock information";
         }
 

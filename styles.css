@@ -1220,15 +1220,24 @@ button {
 .stock-card {
   display: flex;
   align-items: center;
-  gap: 16px;
-  border-radius: var(--radius-sm);
-  background: var(--surface-high);
+  gap: 12px;
+  border: 1px solid rgba(0, 105, 72, 0.2);
+  border-radius: 12px;
+  background: #eef9f4;
   color: var(--text);
-  padding: 18px;
+  padding: 14px;
 }
 
 .stock-card .material-symbols-outlined {
-  color: var(--primary);
+  display: grid;
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--primary);
+  color: white;
+  font-size: 19px;
 }
 
 .stock-card > div {
@@ -1243,16 +1252,34 @@ button {
   text-transform: none;
 }
 
+.stock-card.out-of-stock { border-color: rgba(186, 26, 26, 0.22); background: #fff4f2; }
+.stock-card.out-of-stock .material-symbols-outlined { background: var(--danger); }
+
 .stock-card strong {
-  font-size: 16px;
+  font-size: 14px;
   line-height: 1.35;
 }
 
 .stock-card > div > span {
   color: var(--muted);
-  font-size: 14px;
+  font-size: 12px;
   line-height: 1.45;
 }
+
+.order-response-time {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  margin: -4px 0 0;
+  color: var(--muted);
+  font-size: 12px !important;
+  line-height: 1.4 !important;
+  text-align: center;
+}
+
+.order-response-time .material-symbols-outlined { color: var(--primary); font-size: 16px; }
+.order-response-time strong { color: var(--text); }
 
 .detail-description {
   color: var(--muted);
@@ -2006,7 +2033,7 @@ button {
   }
 
   .product-detail {
-    gap: 20px;
+    gap: 14px;
   }
 
   .detail-copy > * {
@@ -2037,7 +2064,7 @@ button {
   .gallery-main img {
     height: min(100vw, 520px);
     aspect-ratio: auto;
-    object-fit: contain;
+    object-fit: cover;
     background: var(--card);
   }
 
@@ -2055,7 +2082,7 @@ button {
   }
 
   .stock-card {
-    padding: 13px;
+    padding: 11px 12px;
   }
 
   .info-stack {
@@ -2194,6 +2221,7 @@ button {
   .structured-order .share-toggle{width:48px;padding-inline:0;font-size:0}
   .structured-order .share-toggle .material-symbols-outlined{font-size:21px}
   .detail-mobile-bar{padding-bottom:calc(12px + env(safe-area-inset-bottom))}
+  .product-detail + .section-tight{padding-top:8px}
 }
 
 @media (max-width: 760px) {
