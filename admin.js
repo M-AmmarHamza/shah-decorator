@@ -189,6 +189,11 @@ function esc(value = "") {
       ],
   );
 }
+function plainText(value = "") {
+  const template = document.createElement("template");
+  template.innerHTML = String(value);
+  return (template.content.textContent || "").replace(/\s+/g, " ").trim();
+}
 function seoScore(p) {
   let score = 0;
   if (p.slug && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(p.slug)) score += 15;
@@ -197,7 +202,7 @@ function seoScore(p) {
     score += 25;
   if (p.keywords?.split(",").filter(Boolean).length >= 2) score += 15;
   if (p.imageAlt?.length >= 10) score += 10;
-  if (p.description?.length >= 50) score += 10;
+  if (plainText(p.description).length >= 50) score += 10;
   return score;
 }
 function seoClass(score) {
@@ -332,7 +337,7 @@ function renderInventory() {
   $("[data-inventory-body]").innerHTML = rows
     .map((p) => {
       const score = seoScore(p);
-      return `<tr><td><div class="table-product"><img src="${esc(p.image)}" alt=""><div><strong>${esc(p.name)}</strong><small>${esc(p.category)} · ${esc(p.description)}</small></div></div></td><td>${esc(p.sku)}</td><td><strong>${formatPrice(p.price)}</strong><small class="stock-line">${p.stock} in stock</small></td><td>${switchButton(p, "enabled", "enabled")}</td><td>${switchButton(p, "seoIndex", "SEO indexing")}</td><td>${switchButton(p, "featured", "featured")}</td><td><span class="seo-badge ${seoClass(score)}">${score}/100</span></td><td><div class="row-actions"><button data-preview="${p.id}" title="Preview"><span class="material-symbols-outlined">visibility</span></button><button data-edit="${p.id}" title="Edit"><span class="material-symbols-outlined">edit</span></button><button data-delete="${p.id}" class="delete-row" title="Delete"><span class="material-symbols-outlined">delete</span></button></div></td></tr>`;
+      return `<tr><td><div class="table-product"><img src="${esc(p.image)}" alt=""><div><strong>${esc(p.name)}</strong><small>${esc(p.category)} · ${esc(plainText(p.description))}</small></div></div></td><td>${esc(p.sku)}</td><td><strong>${formatPrice(p.price)}</strong><small class="stock-line">${p.stock} in stock</small></td><td>${switchButton(p, "enabled", "enabled")}</td><td>${switchButton(p, "seoIndex", "SEO indexing")}</td><td>${switchButton(p, "featured", "featured")}</td><td><span class="seo-badge ${seoClass(score)}">${score}/100</span></td><td><div class="row-actions"><button data-preview="${p.id}" title="Preview"><span class="material-symbols-outlined">visibility</span></button><button data-edit="${p.id}" title="Edit"><span class="material-symbols-outlined">edit</span></button><button data-delete="${p.id}" class="delete-row" title="Delete"><span class="material-symbols-outlined">delete</span></button></div></td></tr>`;
     })
     .join("");
   $("[data-empty-state]").classList.toggle("show", !rows.length);
@@ -376,6 +381,11 @@ function openProduct(id = null, seoTab = false) {
     if (el.type === "checkbox") el.checked = Boolean(p[el.name]);
     else el.value = p[el.name] ?? "";
   }
+  window.PakMarketBlogEditor.mount(form.elements.description, {
+    context: "product",
+    bucket: "product-media",
+    placeholder: "Add complete product details, headings and bullet points...",
+  });
   window.PakMarketImageStudio.mountProduct(form, p);
   form.elements.id.value = p?.id || "";
   $("[data-dialog-title]").textContent = p ? "Edit Product" : "Add Product";
@@ -409,7 +419,9 @@ function updateFormPreview() {
   $("[data-title-count]").textContent = `${(p.seoTitle || "").length}/60`;
   $("[data-meta-count]").textContent =
     `${(p.metaDescription || "").length}/160`;
-  $("[data-desc-count]").textContent = `${(p.description || "").length}/300`;
+  const descriptionCount = $("[data-desc-count]");
+  if (descriptionCount)
+    descriptionCount.textContent = `${(p.description || "").length}`;
 }
 const previewDialog = $("[data-preview-dialog]"),
   deleteDialog = $("[data-delete-dialog]");
@@ -417,7 +429,7 @@ let pendingDeleteId = null;
 function showProductPreview(product) {
   if (!product) return;
   $("[data-preview-content]").innerHTML =
-    `<div class="admin-product-preview"><div class="preview-media"><img src="${esc(product.image)}" alt="${esc(product.imageAlt || product.name)}"><span>${product.enabled ? "Public preview" : "Private preview"}</span></div><div><small>${esc(product.category || "Product")}</small><h2>${esc(product.name || "Untitled product")}</h2><p>${esc(product.description || "No description added.")}</p><strong>${formatPrice(product.price)}</strong>${Number(product.comparePrice) > Number(product.price) ? `<del>${formatPrice(product.comparePrice)}</del>` : ""}<ul><li>${product.enabled ? "Enabled" : "Disabled"}</li><li>${product.featured ? "Featured" : "Standard listing"}</li><li>${product.seoIndex ? "SEO index allowed" : "SEO noindex"}</li></ul></div></div>`;
+    `<div class="admin-product-preview"><div class="preview-media"><img src="${esc(product.image)}" alt="${esc(product.imageAlt || product.name)}"><span>${product.enabled ? "Public preview" : "Private preview"}</span></div><div><small>${esc(product.category || "Product")}</small><h2>${esc(product.name || "Untitled product")}</h2><p>${esc(plainText(product.description) || "No description added.")}</p><strong>${formatPrice(product.price)}</strong>${Number(product.comparePrice) > Number(product.price) ? `<del>${formatPrice(product.comparePrice)}</del>` : ""}<ul><li>${product.enabled ? "Enabled" : "Disabled"}</li><li>${product.featured ? "Featured" : "Standard listing"}</li><li>${product.seoIndex ? "SEO index allowed" : "SEO noindex"}</li></ul></div></div>`;
   previewDialog.showModal();
 }
 function requestDelete(id) {
@@ -446,6 +458,12 @@ form.addEventListener("submit", (event) => {
   event.preventDefault();
   if (!form.reportValidity()) return;
   const data = formData();
+  if (!plainText(data.description)) {
+    toast("Complete product description add karein.");
+    setFormTab("details");
+    form.querySelector("[data-editor-canvas]")?.focus();
+    return;
+  }
   if (!data.image) {
     toast("Upload at least one 1080 × 1080 product image.");
     return;

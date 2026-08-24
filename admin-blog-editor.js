@@ -19,8 +19,10 @@ const commandIcons = [
 const button = ([command, icon, title]) =>
   `<button type="button" data-editor-command="${command}" title="${title}" aria-label="${title}"><span class="material-symbols-outlined">${icon}</span></button>`;
 
-function editorMarkup() {
-  return `<section class="blog-editor-shell" data-blog-editor>
+function editorMarkup(options = {}) {
+  const contextClass = options.context === "product" ? " product-description-editor" : "";
+  const placeholder = options.placeholder || "Start writing your article...";
+  return `<section class="blog-editor-shell${contextClass}" data-blog-editor>
     <div class="blog-editor-menu">
       <button type="button" data-editor-action="new">File</button>
       <button type="button" data-editor-command="undo">Edit</button>
@@ -31,7 +33,7 @@ function editorMarkup() {
     </div>
     <div class="blog-editor-toolbar">
       ${commandIcons.slice(0, 2).map(button).join("")}
-      <select data-editor-block aria-label="Text style"><option value="p">Paragraph</option><option value="h2">Heading 2</option><option value="h3">Heading 3</option><option value="blockquote">Quote</option></select>
+      <select data-editor-block aria-label="Text style"><option value="p">Paragraph</option><option value="h2">Heading 2</option><option value="h3">Heading 3</option><option value="h4">Heading 4</option><option value="blockquote">Quote</option></select>
       <select data-editor-font aria-label="Font family"><option value="Arial">Arial</option><option value="Georgia">Georgia</option><option value="Tahoma">Tahoma</option><option value="'Noto Nastaliq Urdu'">Nastaliq Urdu</option></select>
       <select data-editor-size aria-label="Font size"><option value="3">16px</option><option value="4">18px</option><option value="5">24px</option></select>
       ${commandIcons.slice(2).map(button).join("")}
@@ -45,7 +47,7 @@ function editorMarkup() {
       <button type="button" data-editor-action="code" title="HTML code"><span class="material-symbols-outlined">code</span></button>
       <span data-editor-count>0 words</span>
     </div>
-    <div class="blog-editor-canvas" contenteditable="true" data-editor-canvas data-placeholder="Start writing your article..."></div>
+    <div class="blog-editor-canvas" contenteditable="true" data-editor-canvas data-placeholder="${placeholder.replace(/["<>]/g, "")}"></div>
   </section>`;
 }
 
@@ -57,23 +59,34 @@ const readFile = (file) =>
     reader.readAsDataURL(file);
   });
 
-async function uploadImage(file) {
+async function uploadImage(file, bucket = "blog-media") {
   if (!file?.type.startsWith("image/")) throw new Error("Choose an image file.");
   if (file.size > 8 * 1024 * 1024)
     throw new Error("Image must be smaller than 8MB.");
   if (!window.PakMarketDB?.configured) return readFile(file);
   const safeName = file.name.toLowerCase().replace(/[^a-z0-9.]+/g, "-");
   const path = `${new Date().toISOString().slice(0, 10)}/${crypto.randomUUID()}-${safeName}`;
-  await window.PakMarketDB.upload("blog-media", file, path);
-  return window.PakMarketDB.publicUrl("blog-media", path);
+  await window.PakMarketDB.upload(bucket, file, path);
+  return window.PakMarketDB.publicUrl(bucket, path);
 }
 
-function mount(textarea) {
-  if (!textarea || textarea.dataset.richMounted) return;
+function mount(textarea, options = {}) {
+  if (!textarea) return;
+  if (textarea.dataset.richMounted) {
+    const existingShell = textarea.previousElementSibling;
+    const existingCanvas = existingShell?.querySelector("[data-editor-canvas]");
+    const existingCounter = existingShell?.querySelector("[data-editor-count]");
+    if (existingCanvas) existingCanvas.innerHTML = textarea.value || "";
+    if (existingCounter && existingCanvas) {
+      const words = (existingCanvas.innerText.match(/\S+/g) || []).length;
+      existingCounter.textContent = `${words} word${words === 1 ? "" : "s"}`;
+    }
+    return;
+  }
   textarea.dataset.richMounted = "true";
   textarea.required = false;
   textarea.hidden = true;
-  textarea.insertAdjacentHTML("beforebegin", editorMarkup());
+  textarea.insertAdjacentHTML("beforebegin", editorMarkup(options));
   const shell = textarea.previousElementSibling;
   const canvas = shell.querySelector("[data-editor-canvas]");
   const counter = shell.querySelector("[data-editor-count]");
@@ -146,7 +159,7 @@ function mount(textarea) {
       if (!file) return;
       try {
         window.toast?.("Uploading image...");
-        const url = await uploadImage(file);
+        const url = await uploadImage(file, options.bucket || "blog-media");
         restoreRange();
         document.execCommand(
           "insertHTML",

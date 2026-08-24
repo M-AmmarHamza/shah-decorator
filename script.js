@@ -215,6 +215,11 @@ function sanitizeRichHtml(value) {
   });
   return template.innerHTML;
 }
+function richTextToPlain(value) {
+  const template = document.createElement("template");
+  template.innerHTML = sanitizeRichHtml(value);
+  return (template.content.textContent || "").replace(/\s+/g, " ").trim();
+}
   const scheduledIsLive = (item) =>
     item.enabled &&
     (!item.start || Date.now() >= new Date(item.start).getTime()) &&
@@ -668,7 +673,7 @@ function sanitizeRichHtml(value) {
       const selectors = {
         home: [".hero-content h1", ".hero-content > p"],
         products: [".page-hero h1", ".page-hero p"],
-        product: [".detail-copy h1", ".detail-description"],
+        product: [".detail-copy h1", ".product-rich-description"],
         blog: [".page-hero h1", ".page-hero p"],
         "blog-detail": [".article-heading h1", ".article-intro"],
         about: [".about-hero h1", ".about-hero p"],
@@ -755,7 +760,9 @@ function sanitizeRichHtml(value) {
           document.head.appendChild(description);
         }
         description.content =
-          managedProduct.metaDescription || managedProduct.description || "";
+          managedProduct.metaDescription ||
+          richTextToPlain(managedProduct.description) ||
+          "";
         let robots = document.querySelector('meta[name="robots"]');
         if (!robots) {
           robots = document.createElement("meta");
@@ -815,13 +822,10 @@ function sanitizeRichHtml(value) {
         if (breadcrumbCurrent) breadcrumbCurrent.textContent = managedProduct.name;
 
         const productHeading = document.querySelector(".detail-copy h1");
-        const productDescription = document.querySelector(".detail-description");
         const productPrice = document.querySelector(".detail-price .price");
         const comparePrice = document.querySelector(".detail-price .old-price");
         const discountBadge = document.querySelector(".detail-price .badge-light");
         if (productHeading) productHeading.textContent = managedProduct.name;
-        if (productDescription)
-          productDescription.textContent = managedProduct.description || "Product details will be added soon.";
         if (productPrice)
           productPrice.textContent = `Rs. ${Number(managedProduct.price || 0).toLocaleString("en-PK")}`;
         const hasDiscount =
@@ -863,8 +867,12 @@ function sanitizeRichHtml(value) {
           element.dataset.shareTitle = managedProduct.name;
         });
         const detailsPanel = document.querySelector(".accordion-item:first-child .accordion-panel");
-        if (detailsPanel)
-          detailsPanel.innerHTML = `<p>${contentEscape(managedProduct.description || "Product details will be added soon.")}</p>`;
+        if (detailsPanel) {
+          const richDescription = String(managedProduct.description || "");
+          detailsPanel.innerHTML = /<[a-z][\s\S]*>/i.test(richDescription)
+            ? sanitizeRichHtml(richDescription)
+            : `<p>${contentEscape(richDescription || "Product details will be added soon.").replaceAll("\n", "<br>")}</p>`;
+        }
         const recommendationCopy = document.querySelector(".recommend-row")
           ?.closest("section")
           ?.querySelector(".section-heading p");
@@ -1470,7 +1478,7 @@ function sanitizeRichHtml(value) {
   document.addEventListener("click",event=>{const whatsapp=event.target.closest("[data-whatsapp]"),share=event.target.closest("[data-share-platform]");if(whatsapp)window.PakMarketDB?.track("whatsapp_order_click",{label:whatsapp.dataset.item||whatsapp.textContent.trim()},"page",location.pathname).catch(()=>{});if(share)window.PakMarketDB?.track("share_click",{platform:share.dataset.sharePlatform},"page",location.pathname).catch(()=>{})});
   if(isRoute("product")){
     const product=(()=>{try{return managedInventory.find(item=>item.slug===productSlug||item.id===productSlug)||null}catch{return null}})();
-    if(product){const actions=document.querySelector(".detail-primary-actions");if(window.PakMarketDB?.configured&&actions&&!document.querySelector("[data-wishlist]")){const button=document.createElement("button");button.type="button";button.className="btn wishlist-button";button.dataset.wishlist=product.id;button.innerHTML='<span class="material-symbols-outlined">favorite</span><span>Save</span>';actions.append(button);button.addEventListener("click",async()=>{const session=await window.PakMarketDB.session();if(!session){location.href="auth.html?next=product";return}const {error}=await window.PakMarketDB.client.from("wishlists").upsert({user_id:session.user.id,product_id:product.id});showToast(error?error.message:"Saved to your wishlist.")})}if(window.PakMarketDB?.configured){const reviewSection=document.createElement("section");reviewSection.className="container section product-reviews";reviewSection.innerHTML='<div><span class="eyebrow">Customer feedback</span><h2>Product Reviews</h2></div><div data-review-list><p>Loading reviews…</p></div><form data-review-form><div class="form-row"><label>Rating<select class="field" name="rating"><option value="5">5 — Excellent</option><option value="4">4 — Good</option><option value="3">3 — Average</option><option value="2">2 — Fair</option><option value="1">1 — Poor</option></select></label><label>Review title<input class="field" name="title" maxlength="80"></label></div><label>Your review<textarea class="field" name="body" rows="4" required maxlength="600"></textarea></label><button class="btn btn-primary">Submit review</button><small>Reviews appear after approval.</small></form>';document.querySelector(".product-detail")?.after(reviewSection);window.PakMarketDB.client.from("product_reviews").select("*").eq("product_id",product.id).eq("approved",true).then(({data})=>{reviewSection.querySelector("[data-review-list]").innerHTML=data?.length?data.map(review=>`<article class="review-item"><strong>${"★".repeat(review.rating)} ${contentEscape(review.title||"")}</strong><p>${contentEscape(review.body||"")}</p></article>`).join(""):"<p>No approved reviews yet.</p>"});reviewSection.querySelector("[data-review-form]").addEventListener("submit",async event=>{event.preventDefault();const session=await window.PakMarketDB.session();if(!session){location.href="auth.html?next=product";return}const values=new FormData(event.currentTarget),{error}=await window.PakMarketDB.client.from("product_reviews").upsert({product_id:product.id,user_id:session.user.id,rating:Number(values.get("rating")),title:values.get("title"),body:values.get("body"),approved:false});showToast(error?error.message:"Review submitted for approval.");if(!error)event.currentTarget.reset()})}const schema={"@context":"https://schema.org","@type":"Product",name:product.name,image:[product.image],description:product.description,sku:product.sku,offers:{"@type":"Offer",priceCurrency:"PKR",price:product.price,availability:product.stock>0?"https://schema.org/InStock":"https://schema.org/OutOfStock",url:location.href}};const node=document.createElement("script");node.type="application/ld+json";node.textContent=JSON.stringify(schema);document.head.append(node)}
+    if(product){const actions=document.querySelector(".detail-primary-actions");if(window.PakMarketDB?.configured&&actions&&!document.querySelector("[data-wishlist]")){const button=document.createElement("button");button.type="button";button.className="btn wishlist-button";button.dataset.wishlist=product.id;button.innerHTML='<span class="material-symbols-outlined">favorite</span><span>Save</span>';actions.append(button);button.addEventListener("click",async()=>{const session=await window.PakMarketDB.session();if(!session){location.href="auth.html?next=product";return}const {error}=await window.PakMarketDB.client.from("wishlists").upsert({user_id:session.user.id,product_id:product.id});showToast(error?error.message:"Saved to your wishlist.")})}if(window.PakMarketDB?.configured){const reviewSection=document.createElement("section");reviewSection.className="container section product-reviews";reviewSection.innerHTML='<div><span class="eyebrow">Customer feedback</span><h2>Product Reviews</h2></div><div data-review-list><p>Loading reviews…</p></div><form data-review-form><div class="form-row"><label>Rating<select class="field" name="rating"><option value="5">5 — Excellent</option><option value="4">4 — Good</option><option value="3">3 — Average</option><option value="2">2 — Fair</option><option value="1">1 — Poor</option></select></label><label>Review title<input class="field" name="title" maxlength="80"></label></div><label>Your review<textarea class="field" name="body" rows="4" required maxlength="600"></textarea></label><button class="btn btn-primary">Submit review</button><small>Reviews appear after approval.</small></form>';document.querySelector(".product-detail")?.after(reviewSection);window.PakMarketDB.client.from("product_reviews").select("*").eq("product_id",product.id).eq("approved",true).then(({data})=>{reviewSection.querySelector("[data-review-list]").innerHTML=data?.length?data.map(review=>`<article class="review-item"><strong>${"★".repeat(review.rating)} ${contentEscape(review.title||"")}</strong><p>${contentEscape(review.body||"")}</p></article>`).join(""):"<p>No approved reviews yet.</p>"});reviewSection.querySelector("[data-review-form]").addEventListener("submit",async event=>{event.preventDefault();const session=await window.PakMarketDB.session();if(!session){location.href="auth.html?next=product";return}const values=new FormData(event.currentTarget),{error}=await window.PakMarketDB.client.from("product_reviews").upsert({product_id:product.id,user_id:session.user.id,rating:Number(values.get("rating")),title:values.get("title"),body:values.get("body"),approved:false});showToast(error?error.message:"Review submitted for approval.");if(!error)event.currentTarget.reset()})}const schema={"@context":"https://schema.org","@type":"Product",name:product.name,image:[product.image],description:richTextToPlain(product.description),sku:product.sku,offers:{"@type":"Offer",priceCurrency:"PKR",price:product.price,availability:product.stock>0?"https://schema.org/InStock":"https://schema.org/OutOfStock",url:location.href}};const node=document.createElement("script");node.type="application/ld+json";node.textContent=JSON.stringify(schema);document.head.append(node)}
     if (product) {
       const orderForm = document.querySelector("[data-structured-order]");
       if (orderForm) {
@@ -1603,7 +1611,7 @@ function sanitizeRichHtml(value) {
               "@type": "Product",
               name: product.name,
               image: [product.image],
-              description: product.description,
+              description: richTextToPlain(product.description),
               sku: product.sku,
               category: product.category,
               offers: {
