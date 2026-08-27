@@ -1,27 +1,39 @@
 @import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&family=Roboto:wght@400;500;600;700;800;900&display=swap");
 
 :root {
-  --surface: #f8f9ff;
-  --surface-soft: #eff4ff;
-  --surface-mid: #e5eeff;
-  --surface-high: #dce9ff;
+  --surface: #ffffff;
+  --surface-soft: #fff7f9;
+  --surface-mid: #fdf2f5;
+  --surface-high: #fae4eb;
   --card: #ffffff;
-  --text: #0b1c30;
-  --muted: #3d4a42;
-  --outline: #bccac0;
-  --outline-strong: #6d7a72;
-  --primary: #006948;
-  --primary-bright: #00855d;
-  --primary-soft: #85f8c4;
-  --secondary: #006d2f;
+  --text: #2c1a22;
+  --text-main: #2c1a22;
+  --muted: #75626b;
+  --text-muted: #75626b;
+  --outline: #f2dce2;
+  --outline-strong: #d4aab7;
+  --border: #f2dce2;
+  --border-soft: #f2dce2;
+  --primary: #d45b7a;
+  --primary-hover: #ba4867;
+  --primary-bright: #ba4867;
+  --primary-soft: #fff0f4;
+  --secondary: #ba4867;
+  --accent-gold: #d4af37;
+  --accent-gold-soft: #fbf4dc;
+  --bg-page: #ffffff;
+  --bg-soft: #fff7f9;
   --whatsapp: #25d366;
   --whatsapp-dark: #128c7e;
   --danger: #ba1a1a;
-  --amber: #f8b84e;
-  --shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-  --shadow-strong: 0 12px 30px rgba(0, 0, 0, 0.08);
+  --amber: #d4af37;
+  --shadow: 0 4px 20px rgba(212, 91, 122, 0.08);
+  --shadow-card: 0 4px 20px rgba(212, 91, 122, 0.08);
+  --shadow-strong: 0 12px 30px rgba(212, 91, 122, 0.12);
   --radius: 16px;
   --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
   --container: 1200px;
 }
 

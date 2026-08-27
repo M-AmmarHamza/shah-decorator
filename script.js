@@ -1083,11 +1083,11 @@ function richTextToPlain(value) {
   });
 
   document.querySelectorAll(".site-header [data-whatsapp], .mobile-panel [data-whatsapp]").forEach((link) => {
-    link.dataset.item = "PakMarket support";
-    link.href = whatsappUrl("Hello, I need support with PakMarket.");
+    link.dataset.item = "Shah Decorator booking";
+    link.href = whatsappUrl("Hello, I would like to consult regarding Shah Decorator packages.");
     const textNode = [...link.childNodes].find((node) => node.nodeType === Node.TEXT_NODE && node.textContent.trim());
-    if (textNode) textNode.textContent = " WhatsApp Support";
-    else link.append("WhatsApp Support");
+    if (textNode) textNode.textContent = " WhatsApp Booking";
+    else link.append("WhatsApp Booking");
   });
 
 

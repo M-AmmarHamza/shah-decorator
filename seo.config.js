@@ -34,17 +34,17 @@ export const SITE_CONFIG = Object.freeze({
 export const PAGE_SEO = Object.freeze({
   index: {
     path: "/",
-    title: "Shah Decorator | Luxury Event Decor & Wedding Planning",
+    title: "Shah Decorator | Party Supplies, Custom Bouquets & Event Decor",
     description:
-      "Transform your events with Shah Decorator. Discover premium wedding stages, birthday themes, ambient lighting, and floral setups. Book directly via WhatsApp.",
+      "Shop handcrafted chocolate bouquets, currency bouquets, party balloons, and book on-location Mayon, Mehndi, Birthday & Room Decor across Karachi on WhatsApp.",
     type: "website",
     schemaType: "WebSite",
   },
   products: {
     path: "/products",
-    title: "Decor Collections & Services | Shah Decorator",
+    title: "Party Supplies, Custom Bouquets & Event Decor | Shah Decorator",
     description:
-      "Browse our exquisite decoration packages, wedding setups, lighting decor, and party backdrops. Book and customize directly through WhatsApp.",
+      "Browse custom Ferrero Rocher & currency bouquets, DIY balloon arch kits, Mehndi essentials, and luxury room & stage decor packages.",
     type: "website",
     schemaType: "CollectionPage",
   },

@@ -31,17 +31,19 @@ const inferredNames = () => {
   return [...names];
 };
 
+const DEFAULT_CATEGORIES = [
+  { id: "cat-bouquets", name: "Custom Bouquets", slug: "custom-bouquets", enabled: true },
+  { id: "cat-party", name: "Party & Balloons", slug: "party-supplies", enabled: true },
+  { id: "cat-mehndi", name: "Mayon & Mehndi Essentials", slug: "mayon-mehndi-items", enabled: true },
+  { id: "cat-room", name: "Room Decor Services", slug: "room-decor", enabled: true },
+  { id: "cat-event", name: "Event & Stage Decor", slug: "event-decor", enabled: true },
+];
+
 let categories = read(STORAGE_KEY);
-if (!categories.length)
-  categories = inferredNames().map((name) => ({
-    id: crypto.randomUUID(),
-    name,
-    slug: String(name)
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-|-$/g, ""),
-    enabled: true,
-  }));
+if (!categories.length) {
+  categories = DEFAULT_CATEGORIES;
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(categories));
+}
 
 function normalize(items) {
   const seen = new Set();
