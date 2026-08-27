@@ -79,7 +79,7 @@ export function buildOrderMessage({ id, quote, customer, productUrl }) {
   const deliveryLine = quote.delivery.known ? money(quote.delivery.amount) : "Owner will confirm";
   const totalLine = quote.payable === null ? "Owner will confirm after delivery charge" : money(quote.payable);
   return [
-    `Naya Order #${clean(id, 30)}`,
+    `New Order #${clean(id, 30)}`,
     `Product: ${clean(quote.product.name, 120)}`,
     `SKU: ${clean(quote.product.sku || "N/A", 50)}`,
     optionLines,

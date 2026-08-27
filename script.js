@@ -127,15 +127,15 @@ document.addEventListener("DOMContentLoaded", () => {
     document.body.appendChild(watermark);
     document.querySelectorAll(".home-testimonials-section").forEach((section) => section.hidden = true);
     const pageHeading = document.querySelector("main h1");
-    if (pageHeading?.nextElementSibling?.matches("p")) pageHeading.nextElementSibling.textContent = globalSettings.tagline || "Aap ke products aur WhatsApp order details ek hi store mein.";
+    if (pageHeading?.nextElementSibling?.matches("p")) pageHeading.nextElementSibling.textContent = globalSettings.tagline || "Your products and WhatsApp orders in one store.";
     const footerIntro = document.querySelector(".footer-grid > div:first-child > p");
-    if (footerIntro) footerIntro.textContent = globalSettings.tagline || "Aap ka apna WhatsApp order store.";
+    if (footerIntro) footerIntro.textContent = globalSettings.tagline || "Your dedicated WhatsApp order store.";
     const trustCards = [...document.querySelectorAll(".trust-item, .trust-card, .value-band > div")];
     trustCards.forEach((card) => {
       const heading = card.querySelector("h3, strong"), copy = card.querySelector("p");
       if (/verified|vetted|seller/i.test(card.textContent)) {
         if (heading) heading.textContent = "Clear Order Details";
-        if (copy) copy.textContent = "Customer order send karne se pehle complete details review karta hai.";
+        if (copy) copy.textContent = "Customers review complete order details before submitting on WhatsApp.";
       }
     });
     document.querySelectorAll(".footer-bottom span").forEach((node) => {
@@ -148,7 +148,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const heading = deliveryCard.querySelector("h4"), copy = deliveryCard.querySelector("p");
     const mode = globalSettings.deliveryMode || "owner_confirm";
     heading.textContent = mode === "free" ? "Free Delivery" : mode === "included" ? "Delivery Included" : mode === "separate" ? "Delivery Charges" : "Delivery Confirmation";
-    copy.textContent = mode === "free" ? "Is product par delivery free hai." : mode === "included" ? "Delivery product price mein included hai." : mode === "separate" && Number(globalSettings.deliveryFee) >= 0 ? `Delivery charges: Rs. ${Number(globalSettings.deliveryFee).toLocaleString("en-PK")}.` : "City aur address ke mutabiq store owner exact delivery charges WhatsApp par confirm karega.";
+    copy.textContent = mode === "free" ? "Free delivery on this product." : mode === "included" ? "Delivery is included in the product price." : mode === "separate" && Number(globalSettings.deliveryFee) >= 0 ? `Delivery charges: Rs. ${Number(globalSettings.deliveryFee).toLocaleString("en-PK")}.` : "Exact delivery charges will be confirmed by the store owner based on your city and address.";
   }
   document.querySelectorAll(".footer-links").forEach(group=>{if(!group.querySelector('a[href="/privacy-policy"]')&&!group.querySelector('a[href="privacy-policy.html"]')&&/return|payment|contact/i.test(group.textContent+group.parentElement?.textContent))group.insertAdjacentHTML("beforeend",'<a href="/privacy-policy">Privacy Policy</a><a href="/terms">Terms & Conditions</a><a href="/shipping-policy">Shipping Policy</a>')});
   const socialMap = {
@@ -757,7 +757,7 @@ function richTextToPlain(value) {
       );
       if (!managedProduct && demoActive) {
         const main = document.querySelector("main");
-        if (main) main.innerHTML = '<section class="page-unavailable"><span class="material-symbols-outlined">inventory_2</span><h1>Product demo mein available nahi</h1><p>Store owner ne yeh product add nahi kiya.</p><a class="btn btn-primary" href="products.html">Demo products dekhein</a></section>';
+        if (main) main.innerHTML = '<section class="page-unavailable"><span class="material-symbols-outlined">inventory_2</span><h1>Product not available in demo</h1><p>The store owner has not added this product yet.</p><a class="btn btn-primary" href="products.html">Browse demo products</a></section>';
       }
       if (managedProduct) {
         const cleanProductPath = productUrl(managedProduct.slug);
@@ -994,7 +994,7 @@ function richTextToPlain(value) {
           })
           .join("");
         if (!visible.length) {
-          storefrontGrid.innerHTML = '<div class="storefront-empty"><span class="material-symbols-outlined">inventory_2</span><h2>Products abhi add nahi hue</h2><p>Store owner dashboard se products add kar raha hai.</p></div>';
+          storefrontGrid.innerHTML = '<div class="storefront-empty"><span class="material-symbols-outlined">inventory_2</span><h2>No products added yet</h2><p>The store owner is currently adding products from the dashboard.</p></div>';
           document.querySelectorAll("[data-load-more]").forEach((button) => button.hidden = true);
         }
       }
@@ -1026,7 +1026,7 @@ function richTextToPlain(value) {
       cardButton.removeAttribute("rel");
       cardButton.href = productUrl(slug);
       const unavailable = /unavailable|notify|out of stock/i.test(cardButton.textContent);
-      cardButton.innerHTML = `<span class="material-symbols-outlined">tune</span>${unavailable ? "Availability Dekhein" : "Options Select Karke Order Karein"}`;
+      cardButton.innerHTML = `<span class="material-symbols-outlined">tune</span>${unavailable ? "Check Availability" : "Select Options & Order"}`;
     }
   });
 
@@ -1084,7 +1084,7 @@ function richTextToPlain(value) {
 
   document.querySelectorAll(".site-header [data-whatsapp], .mobile-panel [data-whatsapp]").forEach((link) => {
     link.dataset.item = "PakMarket support";
-    link.href = whatsappUrl("Assalam o Alaikum, mujhe PakMarket support chahiye.");
+    link.href = whatsappUrl("Hello, I need support with PakMarket.");
     const textNode = [...link.childNodes].find((node) => node.nodeType === Node.TEXT_NODE && node.textContent.trim());
     if (textNode) textNode.textContent = " WhatsApp Support";
     else link.append("WhatsApp Support");

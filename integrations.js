@@ -33,7 +33,7 @@ function captureAttribution() {
 function mountConsent() {
   if (consent || document.body.dataset.page === "admin") return;
   const banner = document.createElement("aside"); banner.className = "consent-banner"; banner.setAttribute("aria-label", "Privacy choices");
-  banner.innerHTML = '<div><strong>Privacy choices</strong><p>Essential storage se website chalti hai. Analytics sirf aap ki permission ke baad load hogi.</p></div><div><button type="button" data-consent-essential>Essential only</button><button type="button" data-consent-accept>Allow analytics</button></div>';
+  banner.innerHTML = '<div><strong>Privacy choices</strong><p>Essential storage keeps the website working properly. Analytics load only with your permission.</p></div><div><button type="button" data-consent-essential>Essential only</button><button type="button" data-consent-accept>Allow analytics</button></div>';
   document.body.appendChild(banner);
   banner.addEventListener("click", (event) => { const accepted = event.target.closest("[data-consent-accept]"); const essential = event.target.closest("[data-consent-essential]"); if (!accepted && !essential) return; localStorage.setItem(CONSENT_KEY, JSON.stringify({ essential: true, analytics: Boolean(accepted), updatedAt: new Date().toISOString() })); banner.remove(); if (accepted) location.reload(); });
 }

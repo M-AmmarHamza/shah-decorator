@@ -87,7 +87,7 @@ if (!window.PakMarketDB?.configured && !IS_LOCAL_PREVIEW) {
   document.querySelectorAll("[data-auth-form]").forEach((form) => form.setAttribute("hidden", ""));
   const demoCard = document.querySelector(".temporary-demo-card");
   demoCard?.querySelector("strong")?.replaceChildren("Add products in a temporary store");
-  demoCard?.insertAdjacentHTML("beforeend", '<p class="demo-account-note"><span class="material-symbols-outlined">verified_user</span>Permanent accounts secure database connect hone ke baad enable honge.</p>');
+  demoCard?.insertAdjacentHTML("beforeend", '<p class="demo-account-note"><span class="material-symbols-outlined">verified_user</span>Permanent accounts will be enabled once a secure database is connected.</p>');
 }
 $$("[data-auth-tab]").forEach((button) =>
   button.addEventListener("click", () => {

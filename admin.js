@@ -343,8 +343,8 @@ function renderInventory() {
   $("[data-empty-state]").classList.toggle("show", !rows.length);
   if (!rows.length && products.length === 0) {
     const empty = $("[data-empty-state]");
-    empty.querySelector("h3").textContent = "Apna pehla product add karein";
-    empty.querySelector("p").textContent = "Demo mein aap 3 products tak image, price, stock, variants aur SEO ke sath add kar sakte hain.";
+    empty.querySelector("h3").textContent = "Add your first product";
+    empty.querySelector("p").textContent = "In demo mode, you can add up to 3 products with image, price, stock, variants, and SEO.";
   }
 }
 function renderSeo() {
@@ -370,7 +370,7 @@ function openProduct(id = null, seoTab = false) {
     let settings = {};
     try { settings = JSON.parse(localStorage.getItem("pakmarket_global_settings_v1") || "{}"); } catch {}
     if (settings.demoMode && products.length >= 3) {
-      toast("Demo limit 3 products hai. Kisi existing product ko edit/delete karke replace karein, ya store activate karein.");
+      toast("Demo limit is 3 products. Edit/delete an existing product to replace it, or activate your store.");
       return;
     }
   }
@@ -459,7 +459,7 @@ form.addEventListener("submit", (event) => {
   if (!form.reportValidity()) return;
   const data = formData();
   if (!plainText(data.description)) {
-    toast("Complete product description add karein.");
+    toast("Please provide a complete product description.");
     setFormTab("details");
     form.querySelector("[data-editor-canvas]")?.focus();
     return;
