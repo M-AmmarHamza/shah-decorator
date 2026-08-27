@@ -89,6 +89,7 @@ async function generateProductPages() {
   )) {
     const path = `/products/${product.slug}`;
     const canonical = absoluteUrl(path, siteUrl);
+    const isService = /service|room|stage|event|decor/i.test(product.category || "") || /service|room|stage|event|decor/i.test(product.slug || "");
     const availability =
       Number(product.stock) > 0
         ? "https://schema.org/InStock"
@@ -127,8 +128,8 @@ async function generateProductPages() {
             {
               "@type": "ListItem",
               position: 2,
-              name: "Products",
-              item: absoluteUrl("/products", siteUrl),
+              name: isService ? "Service" : "Product",
+              item: absoluteUrl(isService ? "/products.html?type=services" : "/products.html?type=products", siteUrl),
             },
             { "@type": "ListItem", position: 3, name: product.name },
           ],
@@ -146,6 +147,10 @@ async function generateProductPages() {
     };
     let html = replaceSeoHead(template, page, siteUrl)
       .replaceAll("Handcrafted Leather Tote", escapeHtml(product.name))
+      .replace(
+        /<nav class="breadcrumb" aria-label="Breadcrumb">[\s\S]*?<\/nav>/i,
+        `<nav class="breadcrumb" aria-label="Breadcrumb"><a href="index.html">Home</a><span class="material-symbols-outlined">chevron_right</span><a href="products.html?type=${isService ? "services" : "products"}">${isService ? "Service" : "Product"}</a><span class="material-symbols-outlined">chevron_right</span><span>${escapeHtml(product.name)}</span></nav>`,
+      )
       .replace(
         /<img\s+data-gallery-main[^>]*>/i,
         `<img data-gallery-main src="${escapeHtml(product.image)}" alt="${escapeHtml(product.imageAlt || product.name)}" width="1080" height="1080" fetchpriority="high">`,

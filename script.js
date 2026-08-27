@@ -832,8 +832,10 @@ function richTextToPlain(value) {
         const breadcrumbLinks = breadcrumb?.querySelectorAll("a");
         const breadcrumbCurrent = breadcrumb?.querySelector(":scope > span:last-child");
         if (breadcrumbLinks?.[1]) {
-          breadcrumbLinks[1].textContent = "Products";
-          breadcrumbLinks[1].href = "products.html";
+          const catName = String(managedProduct.category || "").toLowerCase();
+          const isService = /service|room|stage|event|decor/i.test(catName) || /service|room|stage|event|decor/i.test(managedProduct.slug || "");
+          breadcrumbLinks[1].textContent = isService ? "Service" : "Product";
+          breadcrumbLinks[1].href = isService ? "products.html?type=services" : "products.html?type=products";
         }
         if (breadcrumbCurrent) breadcrumbCurrent.textContent = managedProduct.name;
 
