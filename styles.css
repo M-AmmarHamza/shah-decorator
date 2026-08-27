@@ -1305,10 +1305,7 @@ button {
 
 .product-media {
   grid-column: 1;
-  grid-row: 1 / span 40;
-  position: sticky;
-  top: 126px;
-  align-self: start;
+  position: relative;
   min-width: 0;
 }
 
@@ -1324,17 +1321,19 @@ button {
   width: 100%;
   aspect-ratio: 1 / 1;
   object-fit: cover;
+  display: block;
 }
 
 @media (min-width: 1021px) {
   .gallery-main {
-    height: clamp(460px, 42vw, 560px);
+    max-height: 540px;
   }
 
   .gallery-main img {
+    width: 100%;
     height: 100%;
-    aspect-ratio: auto;
-    object-fit: contain;
+    max-height: 540px;
+    object-fit: cover;
   }
 }
 
