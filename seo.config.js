@@ -42,9 +42,9 @@ export const PAGE_SEO = Object.freeze({
   },
   products: {
     path: "/products",
-    title: "Party Supplies, Custom Bouquets & Event Decor | Shah Decorator",
+    title: "Party Supplies, Custom Bouquets & Event Decor in Karachi | Shah Decorator",
     description:
-      "Browse custom Ferrero Rocher & currency bouquets, DIY balloon arch kits, Mehndi essentials, and luxury room & stage decor packages.",
+      "Browse custom Ferrero Rocher & currency bouquets, DIY balloon arch kits, Mehndi essentials, and luxury room & stage decor packages across Karachi.",
     type: "website",
     schemaType: "CollectionPage",
   },
@@ -122,9 +122,9 @@ export const PAGE_SEO = Object.freeze({
   },
   "shipping-policy": {
     path: "/shipping-policy",
-    title: "Service Area & Setup Logistics | Shah Decorator",
+    title: "Karachi Delivery & Setup Logistics | Shah Decorator",
     description:
-      "Learn about our event setup zones, on-site installation timelines, transport logistics, and venue coordination.",
+      "Learn about our Karachi event setup zones, delivery timelines, transport logistics, and venue coordination.",
     type: "website",
     schemaType: "WebPage",
   },

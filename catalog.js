@@ -1,5 +1,5 @@
 ﻿export const DEFAULT_PRODUCTS = [
-  // 1. Custom Bouquets (Physical Deliverable)
+  // 1. Custom Bouquets (Physical Deliverable - Karachi Delivery)
   {
     id: "bq-ferrero-rose",
     name: "Imperial Ferrero Rocher & Artificial Rose Bouquet",
@@ -18,9 +18,9 @@
     seoIndex: true,
     image: "https://images.unsplash.com/photo-1582794543139-8ac9cb0f7b11?auto=format&fit=crop&w=800&q=80",
     imageAlt: "Luxury Ferrero Rocher chocolate bouquet with artificial roses",
-    description: "Indulge your loved ones with our signature luxury bouquet featuring original Ferrero Rocher hazelnut chocolates nestled among premium artificial silk roses. Finished with imported dual-tone Korean wrapping paper and satin ribbon. 50% advance deposit required for customized assembly.",
-    seoTitle: "Imperial Ferrero Rocher & Rose Bouquet | Shah Decorator",
-    metaDescription: "Handcrafted Ferrero Rocher chocolate bouquets with artificial roses and custom wrapping in Pakistan. Order on WhatsApp.",
+    description: "Indulge your loved ones with our signature luxury bouquet featuring original Ferrero Rocher hazelnut chocolates nestled among premium artificial silk roses. Handcrafted and delivered across Karachi with 50% advance booking deposit.",
+    seoTitle: "Imperial Ferrero Rocher & Rose Bouquet in Karachi | Shah Decorator",
+    metaDescription: "Handcrafted Ferrero Rocher chocolate bouquets with artificial roses and custom wrapping in Karachi. Order on WhatsApp.",
   },
   {
     id: "bq-currency-grand",
@@ -39,12 +39,12 @@
     seoIndex: true,
     image: "https://images.unsplash.com/photo-1549465220-1a8b9238cd48?auto=format&fit=crop&w=800&q=80",
     imageAlt: "Artisanal currency note bouquet with royal floral accents",
-    description: "A spectacular custom currency bouquet crafted with uncirculated crisp notes, artificial gold florals, and designer packaging. Ideal for weddings, Barat gifts, and grand congratulations. 50% advance deposit required.",
-    seoTitle: "Custom Currency & Money Bouquet | Shah Decorator",
-    metaDescription: "Bespoke money bouquets with fresh banknotes and luxury styling across Pakistan.",
+    description: "A spectacular custom currency bouquet crafted with uncirculated crisp notes, artificial gold florals, and designer packaging. Ideal for Karachi weddings, Barat gifts, and grand congratulations. 50% advance deposit required.",
+    seoTitle: "Custom Currency & Money Bouquet in Karachi | Shah Decorator",
+    metaDescription: "Bespoke money bouquets with fresh banknotes and luxury styling across Karachi.",
   },
 
-  // 2. Party Supplies & Balloons (Physical Deliverable)
+  // 2. Party Supplies & Balloons (Physical Deliverable - Karachi Delivery)
   {
     id: "ps-balloon-arch-kit",
     name: "Premium DIY Balloon Garland & Arch Kit (120 Pcs)",
@@ -61,9 +61,9 @@
     seoIndex: true,
     image: "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?auto=format&fit=crop&w=800&q=80",
     imageAlt: "DIY balloon garland kit with metallic and pastel balloons",
-    description: "Complete 120-piece balloon arch kit including dual-size latex balloons, metallic confetti balloons, arch decorating strip, glue dots, and ribbon. Perfect for birthdays, bridal showers, and anniversaries.",
-    seoTitle: "DIY Balloon Garland Arch Kit | Shah Decorator",
-    metaDescription: "Buy premium DIY balloon garland kits with fast delivery across Pakistan.",
+    description: "Complete 120-piece balloon arch kit including dual-size latex balloons, metallic confetti balloons, arch decorating strip, glue dots, and ribbon. Fast delivery across Karachi for birthdays, bridal showers, and celebrations.",
+    seoTitle: "DIY Balloon Garland Arch Kit Karachi | Shah Decorator",
+    metaDescription: "Buy premium DIY balloon garland kits with fast delivery across Karachi.",
   },
   {
     id: "ps-sash-popper-bundle",
@@ -81,12 +81,12 @@
     seoIndex: true,
     image: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=800&q=80",
     imageAlt: "Party poppers and metallic satin celebration sash",
-    description: "Premium glittered satin sash with matching foil crown and 4 heavy confetti party poppers. Make entry moments dramatic and festive!",
-    seoTitle: "Party Poppers & Celebration Sash Bundle | Shah Decorator",
-    metaDescription: "Party accessories, Bride to Be sashes, and metallic poppers for celebrations.",
+    description: "Premium glittered satin sash with matching foil crown and 4 heavy confetti party poppers. Delivered anywhere in Karachi.",
+    seoTitle: "Party Poppers & Celebration Sash Bundle Karachi | Shah Decorator",
+    metaDescription: "Party accessories, Bride to Be sashes, and metallic poppers for celebrations in Karachi.",
   },
 
-  // 3. Mayon & Mehndi Essentials (Physical Deliverable)
+  // 3. Mayon & Mehndi Essentials (Physical Deliverable - Karachi Delivery)
   {
     id: "mh-thaal-ubtan-set",
     name: "Luxury Decorated Mehndi Thaal & Ubtan Bowl Set",
@@ -103,9 +103,9 @@
     seoIndex: true,
     image: "https://images.unsplash.com/photo-1545232979-fbf6c9fa19df?auto=format&fit=crop&w=800&q=80",
     imageAlt: "Decorated Mehndi thaal with ubtan bowls and marigold accents",
-    description: "Handcrafted wooden/metal Mehndi thaal decorated with gotta laces, mirror work, embedded candle holders, and matching ceramic ubtan bowls for Mayon rituals.",
-    seoTitle: "Decorated Mehndi Thaal & Ubtan Set | Shah Decorator",
-    metaDescription: "Buy designer Mehndi thaals and Mayun ritual accessories in Pakistan.",
+    description: "Handcrafted wooden/metal Mehndi thaal decorated with gotta laces, mirror work, embedded candle holders, and matching ceramic ubtan bowls for Mayon rituals in Karachi.",
+    seoTitle: "Decorated Mehndi Thaal & Ubtan Set Karachi | Shah Decorator",
+    metaDescription: "Buy designer Mehndi thaals and Mayun ritual accessories in Karachi.",
   },
   {
     id: "mh-gota-jewelry-set",
@@ -123,12 +123,12 @@
     seoIndex: true,
     image: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=800&q=80",
     imageAlt: "Handmade gota jewelry set with festive dholki photo props",
-    description: "Bridal floral jewelry set including matha patti, earrings, necklace, and hathphool, bundled with 10 vibrant photo booth props for dholki nights.",
-    seoTitle: "Gota Jewelry & Dholki Props Set | Shah Decorator",
-    metaDescription: "Handcrafted bridal gota jewelry and party props for Pakistani Mehndi celebrations.",
+    description: "Bridal floral jewelry set including matha patti, earrings, necklace, and hathphool, bundled with 10 vibrant photo booth props for Karachi dholki nights.",
+    seoTitle: "Gota Jewelry & Dholki Props Set Karachi | Shah Decorator",
+    metaDescription: "Handcrafted bridal gota jewelry and party props for Karachi Mehndi celebrations.",
   },
 
-  // 4. Room Decor Services (On-Location Service)
+  // 4. Room Decor Services (On-Location Service - Karachi Only)
   {
     id: "rm-bridal-suite",
     name: "Bridal & Groom Suite Romantic Decor Package",
@@ -141,14 +141,14 @@
     options: [
       { name: "Package Tier", required: true, values: ["Essential Setup (Rs. 8,500)", "Premium Deluxe (Rs. 14,000)", "Royal Grand (Rs. 22,000)"] },
       { name: "Color Palette", required: true, values: ["Rose Gold & White", "Crimson Red & Warm Gold", "Lavender & Silver"] },
-      { name: "Karachi Area / Sector", required: true, values: ["Orangi / Nazimabad", "Gulshan / Johar", "DHA / Clifton", "Other Karachi Area"] },
+      { name: "Karachi Area / Sector", required: true, values: ["Orangi / Nazimabad", "Gulshan / Johar", "DHA / Clifton", "PECHS / Tariq Road", "Other Karachi Area"] },
     ],
     enabled: true,
     seoIndex: true,
     image: "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80",
     imageAlt: "Romantic bridal suite room decoration with fairy lights and rose petals",
-    description: "Elevate wedding night memories with a professionally styled room decor package. Includes ceiling balloon canopy, hanging fairy lights, fresh rose petals bed styling, ambient LED pillar candles, and marquee letter lights. 50% advance deposit confirms booking.",
-    seoTitle: "Bridal & Groom Suite Room Decor | Shah Decorator",
+    description: "Elevate wedding night memories with a professionally styled room decor package. Includes ceiling balloon canopy, hanging fairy lights, fresh rose petals bed styling, ambient LED pillar candles, and marquee letter lights. Exclusively available across Karachi.",
+    seoTitle: "Bridal & Groom Suite Room Decor Karachi | Shah Decorator",
     metaDescription: "Professional romantic room decor for wedding nights and anniversaries in Karachi.",
   },
   {
@@ -163,17 +163,18 @@
     options: [
       { name: "Package Tier", required: true, values: ["Standard Glow (Rs. 7,500)", "Deluxe Celebration (Rs. 12,000)"] },
       { name: "Theme Palette", required: true, values: ["Rose Gold & White Pearl", "Champagne Gold & Pink"] },
+      { name: "Karachi Area / Sector", required: true, values: ["Orangi / Nazimabad", "Gulshan / Johar", "DHA / Clifton", "PECHS / Tariq Road", "Other Karachi Area"] },
     ],
     enabled: true,
     seoIndex: true,
     image: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=800&q=80",
     imageAlt: "Bride to be room surprise setup with foil banner and lights",
-    description: "Surprise the bride with custom 'Bride to Be' foil balloons, floor balloon clusters, twinkle string backdrops, photo banner strings, and entrance walkway decor.",
-    seoTitle: "Bride to Be Room Decor Package | Shah Decorator",
+    description: "Surprise the bride in Karachi with custom 'Bride to Be' foil balloons, floor balloon clusters, twinkle string backdrops, photo banner strings, and entrance walkway decor.",
+    seoTitle: "Bride to Be Room Decor Package Karachi | Shah Decorator",
     metaDescription: "Stunning Bride to Be room surprise setups and bridal shower decor in Karachi.",
   },
 
-  // 5. Event & Stage Decor (On-Location Service)
+  // 5. Event & Stage Decor (On-Location Service - Karachi Only)
   {
     id: "ev-mehndi-stage",
     name: "Bespoke Mehndi & Mayun Stage Setup",
@@ -186,13 +187,14 @@
     options: [
       { name: "Stage Tier", required: true, values: ["Classic Marigold Jhula (Rs. 28,000)", "Royal Floral Stage (Rs. 45,000)", "Grand Palace Theme (Rs. 75,000)"] },
       { name: "Theme Colors", required: true, values: ["Festive Yellow & Green", "Vibrant Multi-Color", "Mustard & Orange"] },
+      { name: "Banquet / Venue Location in Karachi", required: true, values: ["Banquet Hall / Lawn in Karachi", "Home / Rooftop in Karachi", "Farmhouse in Karachi"] },
     ],
     enabled: true,
     seoIndex: true,
     image: "https://images.unsplash.com/photo-1520854221256-17451cc331bf?auto=format&fit=crop&w=800&q=80",
     imageAlt: "Mehndi stage setup with floral swing and traditional drapes",
-    description: "Complete festive Mehndi stage setup including floral jhula swing, vibrant drapes, stage riser carpet, cushion seating lounge, Moroccan lamps, and warm spotlights.",
-    seoTitle: "Mehndi & Mayun Stage Decor Setup | Shah Decorator",
+    description: "Complete festive Mehndi stage setup across Karachi banquets and lawns including floral jhula swing, vibrant drapes, stage riser carpet, cushion seating lounge, Moroccan lamps, and warm spotlights.",
+    seoTitle: "Mehndi & Mayun Stage Decor Setup Karachi | Shah Decorator",
     metaDescription: "Book festive Mehndi stages, jhulas, and traditional decor in Karachi.",
   },
   {
@@ -206,13 +208,14 @@
     stock: 8,
     options: [
       { name: "Theme", required: true, values: ["Pastel Balloon Arch & Neon", "Jungle Safari Theme", "Princess Castle Pink", "Teddy Bear & Cloud Welcome"] },
+      { name: "Karachi Venue Type", required: true, values: ["Home / Living Room in Karachi", "Banquet Hall / Restaurant in Karachi", "Outdoor Lawn in Karachi"] },
     ],
     enabled: true,
     seoIndex: true,
     image: "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?auto=format&fit=crop&w=800&q=80",
     imageAlt: "Birthday and baby shower backdrop setup with balloon arch",
-    description: "Customized round or rectangular backdrop with organic balloon garlands, custom neon sign, cake plinths, and character cutouts for birthdays and baby arrivals.",
-    seoTitle: "Birthday & Baby Shower Backdrop Setup | Shah Decorator",
+    description: "Customized round or rectangular backdrop with organic balloon garlands, custom neon sign, cake plinths, and character cutouts for birthdays and baby arrivals across Karachi.",
+    seoTitle: "Birthday & Baby Shower Backdrop Setup Karachi | Shah Decorator",
     metaDescription: "Custom theme birthday and baby shower stage setups in Karachi by Shah Decorator.",
   },
 ];
