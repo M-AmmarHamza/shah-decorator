@@ -1,5 +1,4 @@
-User-agent: *
+﻿User-agent: *
 Allow: /
 
-# This fallback file is replaced during `npm run build` using VITE_SITE_URL.
-Sitemap: https://pakmarket.pk/sitemap.xml
+Sitemap: https://shahdecorator.pk/sitemap.xml

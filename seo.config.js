@@ -1,4 +1,4 @@
-const DEFAULT_SITE_URL = "https://pakmarket.pk";
+const DEFAULT_SITE_URL = "https://shahdecorator.pk";
 const DEFAULT_WHATSAPP = "923161013991";
 
 const envSiteUrl =
@@ -15,7 +15,7 @@ export const normalizeSiteUrl = (value = DEFAULT_SITE_URL) =>
   String(value).trim().replace(/\/+$/, "");
 
 export const SITE_CONFIG = Object.freeze({
-  name: "PakMarket",
+  name: "Shah Decorator",
   url: normalizeSiteUrl(envSiteUrl),
   locale: "en_PK",
   language: "en-PK",
@@ -23,139 +23,139 @@ export const SITE_CONFIG = Object.freeze({
   phone: `+${String(envWhatsApp || DEFAULT_WHATSAPP).replace(/\D/g, "")}`,
   whatsapp: String(envWhatsApp || DEFAULT_WHATSAPP).replace(/\D/g, ""),
   socials: Object.freeze({
-    facebook: "https://www.facebook.com/CodifyX/",
-    instagram: "https://www.instagram.com/codify.x/",
-    youtube: "https://www.youtube.com/@CodifyXOfficial",
+    facebook: "https://www.facebook.com/ShahDecorator/",
+    instagram: "https://www.instagram.com/shahdecorator/",
+    youtube: "https://www.youtube.com/@ShahDecorator",
   }),
   defaultImage:
-    "https://lh3.googleusercontent.com/aida-public/AB6AXuDEnJcw27yqpwlpvv0CQrU-eh2amN6a_STX9AuW9cgXJq-2eUdIFlH11x2GF28_1SJx-VlCy0CQdjtwlSrrOlkXOKQSy_p3-HJ6JYC0uPwvPdO-WnQHNQsCnaUvGuVMp2jW_WtC7h2GdsnUEKhCLZ2a93apKwCK_CAtXh0KApDteHht0WtdcSIwDn8vaLc4H_a7tRjAi1R_CihbpUUlcO_T23p06vocmxpHhQqibFSGuYf3lcP4V6oWkgPulKdXpssFUXX3vFp-4DU",
+    "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&q=80",
 });
 
 export const PAGE_SEO = Object.freeze({
   index: {
     path: "/",
-    title: "PakMarket | Premium Pakistani Local Products",
+    title: "Shah Decorator | Luxury Event Decor & Wedding Planning",
     description:
-      "Discover quality products from Pakistani local brands and place your order directly through WhatsApp with nationwide delivery.",
+      "Transform your events with Shah Decorator. Discover premium wedding stages, birthday themes, ambient lighting, and floral setups. Book directly via WhatsApp.",
     type: "website",
     schemaType: "WebSite",
   },
   products: {
     path: "/products",
-    title: "Pakistani Local Products Online | PakMarket",
+    title: "Decor Collections & Services | Shah Decorator",
     description:
-      "Browse fashion, food, home decor and handmade products from trusted Pakistani local brands. Order conveniently through WhatsApp.",
+      "Browse our exquisite decoration packages, wedding setups, lighting decor, and party backdrops. Book and customize directly through WhatsApp.",
     type: "website",
     schemaType: "CollectionPage",
   },
   product: {
     path: "/product",
-    title: "Product Details | PakMarket",
-    description: "View product details and order from PakMarket through WhatsApp.",
+    title: "Service Details | Shah Decorator",
+    description: "View setup details and book your decoration package directly through WhatsApp.",
     robots: "noindex, follow",
     type: "product",
     schemaType: "WebPage",
   },
   blog: {
     path: "/blog",
-    title: "PakMarket Blog | Local Brands, Craft and Shopping Guides",
+    title: "Shah Decorator Blog | Decor Ideas, Trends & Event Inspiration",
     description:
-      "Read useful stories and guides about Pakistani craftsmanship, local brands, responsible shopping and small businesses.",
+      "Explore wedding decoration trends, birthday theme ideas, lighting guides, and event styling inspiration from Shah Decorator.",
     type: "website",
     schemaType: "CollectionPage",
   },
   "blog-detail": {
     path: "/blog-detail",
-    title: "PakMarket Blog Article",
-    description: "Read stories and practical guides from PakMarket.",
+    title: "Shah Decorator Blog Article",
+    description: "Read event styling tips and decor guides from Shah Decorator.",
     robots: "noindex, follow",
     type: "article",
     schemaType: "WebPage",
   },
   about: {
     path: "/about",
-    title: "About PakMarket | Supporting Pakistani Local Brands",
+    title: "About Us | Shah Decorator - Crafting Unforgettable Events",
     description:
-      "Learn how PakMarket connects quality-conscious shoppers with Pakistani makers, artisans and home-based brands.",
+      "Learn about Shah Decorator's passion for bespoke wedding design, corporate setups, celebratory themes, and event decor excellence.",
     type: "website",
     schemaType: "AboutPage",
   },
   contact: {
     path: "/contact",
-    title: "Contact PakMarket | Order and Seller Support",
+    title: "Contact Shah Decorator | Booking & Event Inquiries",
     description:
-      "Contact PakMarket for WhatsApp order support, local-brand partnerships, delivery questions and general enquiries.",
+      "Get in touch with Shah Decorator for event consultations, custom quote requests, package bookings, and event planning support.",
     type: "website",
     schemaType: "ContactPage",
   },
   payment: {
     path: "/payment",
-    title: "Payment Methods | PakMarket",
+    title: "Payment & Booking Terms | Shah Decorator",
     description:
-      "View PakMarket payment methods including Easypaisa, JazzCash, MCB bank transfer and Cash on Delivery information.",
+      "View Shah Decorator accepted payment methods including Bank Transfer, JazzCash, Easypaisa, and booking advance payment details.",
     type: "website",
     schemaType: "WebPage",
   },
   "return-policy": {
     path: "/return-policy",
-    title: "7-Day Return Policy | PakMarket",
+    title: "Cancellation & Refund Policy | Shah Decorator",
     description:
-      "Read PakMarket's seven-day return conditions, eligibility requirements and return request process.",
+      "Read Shah Decorator policies on event booking modifications, cancellations, and advance security deposit terms.",
     type: "website",
     schemaType: "WebPage",
   },
   "privacy-policy": {
     path: "/privacy-policy",
-    title: "Privacy Policy | PakMarket",
+    title: "Privacy Policy | Shah Decorator",
     description:
-      "Learn how PakMarket collects, uses and protects information shared through the website and WhatsApp ordering process.",
+      "Learn how Shah Decorator protects and respects your personal details and event booking information.",
     type: "website",
     schemaType: "WebPage",
   },
   terms: {
     path: "/terms",
-    title: "Terms and Conditions | PakMarket",
+    title: "Terms and Conditions | Shah Decorator",
     description:
-      "Read the terms governing PakMarket product information, WhatsApp orders, payments, delivery and customer responsibilities.",
+      "Review the terms governing Shah Decorator event bookings, venue access, setup timings, and client responsibilities.",
     type: "website",
     schemaType: "WebPage",
   },
   "shipping-policy": {
     path: "/shipping-policy",
-    title: "Shipping Policy | PakMarket",
+    title: "Service Area & Setup Logistics | Shah Decorator",
     description:
-      "Review PakMarket delivery areas, expected timelines, shipping charges and order confirmation process.",
+      "Learn about our event setup zones, on-site installation timelines, transport logistics, and venue coordination.",
     type: "website",
     schemaType: "WebPage",
   },
   auth: {
     path: "/auth",
-    title: "Sign In or Create Account | PakMarket",
-    description: "Access your PakMarket account.",
+    title: "Client Portal | Shah Decorator",
+    description: "Access your Shah Decorator account.",
     robots: "noindex, nofollow",
     type: "website",
     schemaType: "WebPage",
   },
   profile: {
     path: "/profile",
-    title: "My Account | PakMarket",
-    description: "Manage your PakMarket account.",
+    title: "My Bookings & Account | Shah Decorator",
+    description: "Manage your Shah Decorator bookings and profile.",
     robots: "noindex, nofollow",
     type: "website",
     schemaType: "ProfilePage",
   },
   admin: {
     path: "/admin",
-    title: "PakMarket Admin",
-    description: "PakMarket administration area.",
+    title: "Shah Decorator Admin",
+    description: "Shah Decorator administration and event manager area.",
     robots: "noindex, nofollow, noarchive",
     type: "website",
     schemaType: "WebPage",
   },
   "404": {
     path: "/404",
-    title: "Page Not Found | PakMarket",
-    description: "The requested PakMarket page could not be found.",
+    title: "Page Not Found | Shah Decorator",
+    description: "The requested Shah Decorator page could not be found.",
     robots: "noindex, follow",
     type: "website",
     schemaType: "WebPage",

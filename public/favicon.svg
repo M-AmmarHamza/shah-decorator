@@ -1,4 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="PakMarket">
-  <rect width="64" height="64" rx="14" fill="#007a55"/>
-  <path fill="#fff" d="M17 15h19c9 0 15 5 15 13 0 9-7 14-16 14h-7v8H17V15Zm11 9v9h7c3 0 5-2 5-5s-2-4-5-4h-7Z"/>
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Shah Decorator">
+  <defs>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#D4AF37"/>
+      <stop offset="50%" stop-color="#966E2D"/>
+      <stop offset="100%" stop-color="#5B4315"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="#121212"/>
+  <rect x="3" y="3" width="58" height="58" rx="11" fill="none" stroke="url(#gold)" stroke-width="2"/>
+  <text x="32" y="42" font-family="'Cinzel', 'Playfair Display', Georgia, serif" font-size="28" font-weight="bold" fill="url(#gold)" text-anchor="middle">SD</text>
 </svg>
