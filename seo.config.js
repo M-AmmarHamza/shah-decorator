@@ -1,5 +1,5 @@
 const DEFAULT_SITE_URL = "https://shahdecorator.pk";
-const DEFAULT_WHATSAPP = "923161013991";
+const DEFAULT_WHATSAPP = "923138136846";
 
 const envSiteUrl =
   (typeof process !== "undefined" && process.env?.VITE_SITE_URL) ||

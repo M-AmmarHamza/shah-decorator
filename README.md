@@ -1,4 +1,4 @@
-﻿# Shah Decorator
+# Shah Decorator
 
 Shah Decorator is a responsive, modern event decoration and wedding styling website with instant WhatsApp booking, tailored catalog showcase, and an integrated management dashboard.
 
@@ -35,7 +35,9 @@ Shah Decorator is a responsive, modern event decoration and wedding styling webs
 ## WhatsApp & Site Configuration
 
 Edit `.env` or `seo.config.js` to customize:
-- `VITE_WHATSAPP_NUMBER`: 923161013991 (International format without `+`)
+- `VITE_WHATSAPP_NUMBER`: `923138136846` (WhatsApp / Primary: `+92 313 8136846`)
 - `VITE_SITE_URL`: `https://shahdecorator.pk`
+- `Address`: Shop # LS-20, 10 Phool Wali Gali, Sector 10, Orangi Town, Karachi
+- `Facebook`: `https://www.facebook.com/ShahDecorator/`
 - `catalog.js`: Decoration packages, prices, and photo assets
 - `theme-config.js`: Palette presets including "Royal Gold" (#966E2D)
