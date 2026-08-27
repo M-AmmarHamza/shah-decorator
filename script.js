@@ -891,6 +891,10 @@ function richTextToPlain(value) {
             ? sanitizeRichHtml(richDescription)
             : `<p>${contentEscape(richDescription || "Product details will be added soon.").replaceAll("\n", "<br>")}</p>`;
         }
+        const mediaProductDesc = document.querySelector(".media-product-desc");
+        if (mediaProductDesc && managedProduct.description) {
+          mediaProductDesc.textContent = managedProduct.description;
+        }
         const recommendationCopy = document.querySelector(".recommend-row")
           ?.closest("section")
           ?.querySelector(".section-heading p");
