@@ -401,7 +401,7 @@ function richTextToPlain(value) {
       const items = galleryImages.slice(galleryPage * size, (galleryPage + 1) * size);
       grid.innerHTML = items
         .map(
-          (image) => `<a class="product-gallery-item" href="${image.productSlug ? productUrl(image.productSlug) : "/products"}" data-image-slug="${contentEscape(image.slug || "")}"><img src="${contentEscape(image.url)}" alt="${contentEscape(image.alt || image.productName)}" loading="lazy"><span>${contentEscape(image.productName)}</span></a>`,
+          (image) => `<a class="product-gallery-item" href="${image.productSlug ? productUrl(image.productSlug) : "products.html"}" data-image-slug="${contentEscape(image.slug || "")}"><img src="${contentEscape(image.url)}" alt="${contentEscape(image.alt || image.productName)}" loading="lazy"><span>${contentEscape(image.productName)}</span></a>`,
         )
         .join("");
       empty.hidden = galleryImages.length > 0;
@@ -744,7 +744,7 @@ function richTextToPlain(value) {
         const main = document.querySelector("main");
         if (main)
           main.innerHTML =
-            '<section class="page-unavailable"><span class="material-symbols-outlined">construction</span><h1>Page temporarily unavailable</h1><p>This page is currently disabled. Please return to the homepage.</p><a class="btn btn-primary" href="/">Back to Home</a></section>';
+            '<section class="page-unavailable"><span class="material-symbols-outlined">construction</span><h1>Page temporarily unavailable</h1><p>This page is currently disabled. Please return to the homepage.</p><a class="btn btn-primary" href="index.html">Back to Home</a></section>';
       }
     }
   } catch {}
@@ -757,7 +757,7 @@ function richTextToPlain(value) {
       );
       if (!managedProduct && demoActive) {
         const main = document.querySelector("main");
-        if (main) main.innerHTML = '<section class="page-unavailable"><span class="material-symbols-outlined">inventory_2</span><h1>Product demo mein available nahi</h1><p>Store owner ne yeh product add nahi kiya.</p><a class="btn btn-primary" href="/products">Demo products dekhein</a></section>';
+        if (main) main.innerHTML = '<section class="page-unavailable"><span class="material-symbols-outlined">inventory_2</span><h1>Product demo mein available nahi</h1><p>Store owner ne yeh product add nahi kiya.</p><a class="btn btn-primary" href="products.html">Demo products dekhein</a></section>';
       }
       if (managedProduct) {
         const cleanProductPath = productUrl(managedProduct.slug);
@@ -829,7 +829,7 @@ function richTextToPlain(value) {
         const breadcrumbCurrent = breadcrumb?.querySelector(":scope > span:last-child");
         if (breadcrumbLinks?.[1]) {
           breadcrumbLinks[1].textContent = "Products";
-          breadcrumbLinks[1].href = "/products";
+          breadcrumbLinks[1].href = "products.html";
         }
         if (breadcrumbCurrent) breadcrumbCurrent.textContent = managedProduct.name;
 
@@ -1175,9 +1175,16 @@ function richTextToPlain(value) {
   const updateProductVisibility = () => {
     const matches = products.filter((card) => {
       const categories = (card.dataset.category || "").split(" ");
+      const title = card.querySelector("h3")?.textContent.toLowerCase() || "";
+      const badge = card.querySelector(".product-badge")?.textContent.toLowerCase() || "";
+      const matchesSearch =
+        !searchTerm ||
+        title.includes(searchTerm) ||
+        categories.some((cat) => cat.includes(searchTerm)) ||
+        badge.includes(searchTerm);
       return (
         (activeFilter === "all" || categories.includes(activeFilter)) &&
-        card.textContent.toLowerCase().includes(searchTerm)
+        matchesSearch
       );
     });
     products.forEach((card) => {
@@ -1421,7 +1428,9 @@ function richTextToPlain(value) {
       });
     };
     const start = () => {
-      timer = window.setInterval(next, 3200);
+      if (window.innerWidth <= 680) return;
+      window.clearInterval(timer);
+      timer = window.setInterval(next, 4800);
     };
     slider.addEventListener("mouseenter", () => window.clearInterval(timer));
     slider.addEventListener("mouseleave", start);
@@ -1483,14 +1492,14 @@ function richTextToPlain(value) {
         "noopener,noreferrer",
       );
       showToast(
-        "WhatsApp opened—please attach your selected slip before sending.",
+        "WhatsApp opened — please attach your payment slip before sending.",
       );
     });
   });
   document.addEventListener("click",event=>{const whatsapp=event.target.closest("[data-whatsapp]"),share=event.target.closest("[data-share-platform]");if(whatsapp)window.PakMarketDB?.track("whatsapp_order_click",{label:whatsapp.dataset.item||whatsapp.textContent.trim()},"page",location.pathname).catch(()=>{});if(share)window.PakMarketDB?.track("share_click",{platform:share.dataset.sharePlatform},"page",location.pathname).catch(()=>{})});
   if(isRoute("product")){
     const product=(()=>{try{return managedInventory.find(item=>item.slug===productSlug||item.id===productSlug)||null}catch{return null}})();
-    if(product){const actions=document.querySelector(".detail-primary-actions");if(window.PakMarketDB?.configured&&actions&&!document.querySelector("[data-wishlist]")){const button=document.createElement("button");button.type="button";button.className="btn wishlist-button";button.dataset.wishlist=product.id;button.innerHTML='<span class="material-symbols-outlined">favorite</span><span>Save</span>';actions.append(button);button.addEventListener("click",async()=>{const session=await window.PakMarketDB.session();if(!session){location.href="auth.html?next=product";return}const {error}=await window.PakMarketDB.client.from("wishlists").upsert({user_id:session.user.id,product_id:product.id});showToast(error?error.message:"Saved to your wishlist.")})}if(window.PakMarketDB?.configured){const reviewSection=document.createElement("section");reviewSection.className="container section product-reviews";reviewSection.innerHTML='<div><span class="eyebrow">Customer feedback</span><h2>Product Reviews</h2></div><div data-review-list><p>Loading reviews…</p></div><form data-review-form><div class="form-row"><label>Rating<select class="field" name="rating"><option value="5">5 — Excellent</option><option value="4">4 — Good</option><option value="3">3 — Average</option><option value="2">2 — Fair</option><option value="1">1 — Poor</option></select></label><label>Review title<input class="field" name="title" maxlength="80"></label></div><label>Your review<textarea class="field" name="body" rows="4" required maxlength="600"></textarea></label><button class="btn btn-primary">Submit review</button><small>Reviews appear after approval.</small></form>';document.querySelector(".product-detail")?.after(reviewSection);window.PakMarketDB.client.from("product_reviews").select("*").eq("product_id",product.id).eq("approved",true).then(({data})=>{reviewSection.querySelector("[data-review-list]").innerHTML=data?.length?data.map(review=>`<article class="review-item"><strong>${"★".repeat(review.rating)} ${contentEscape(review.title||"")}</strong><p>${contentEscape(review.body||"")}</p></article>`).join(""):"<p>No approved reviews yet.</p>"});reviewSection.querySelector("[data-review-form]").addEventListener("submit",async event=>{event.preventDefault();const session=await window.PakMarketDB.session();if(!session){location.href="auth.html?next=product";return}const values=new FormData(event.currentTarget),{error}=await window.PakMarketDB.client.from("product_reviews").upsert({product_id:product.id,user_id:session.user.id,rating:Number(values.get("rating")),title:values.get("title"),body:values.get("body"),approved:false});showToast(error?error.message:"Review submitted for approval.");if(!error)event.currentTarget.reset()})}const schema={"@context":"https://schema.org","@type":"Product",name:product.name,image:[product.image],description:richTextToPlain(product.description),sku:product.sku,offers:{"@type":"Offer",priceCurrency:"PKR",price:product.price,availability:product.stock>0?"https://schema.org/InStock":"https://schema.org/OutOfStock",url:location.href}};const node=document.createElement("script");node.type="application/ld+json";node.textContent=JSON.stringify(schema);document.head.append(node)}
+    if(product){const actions=document.querySelector(".detail-primary-actions");if(window.PakMarketDB?.configured&&actions&&!document.querySelector("[data-wishlist]")){const button=document.createElement("button");button.type="button";button.className="btn wishlist-button";button.dataset.wishlist=product.id;button.innerHTML='<span class="material-symbols-outlined">favorite</span><span>Save</span>';actions.append(button);button.addEventListener("click",async()=>{const session=await window.PakMarketDB.session();if(!session){location.href=`auth.html?next=product&product=${encodeURIComponent(product.slug || product.id)}`;return}const {error}=await window.PakMarketDB.client.from("wishlists").upsert({user_id:session.user.id,product_id:product.id});showToast(error?error.message:"Saved to your wishlist.")})}if(window.PakMarketDB?.configured){const reviewSection=document.createElement("section");reviewSection.className="container section product-reviews";reviewSection.innerHTML='<div><span class="eyebrow">Customer feedback</span><h2>Product Reviews</h2></div><div data-review-list><p>Loading reviews…</p></div><form data-review-form><div class="form-row"><label>Rating<select class="field" name="rating"><option value="5">5 — Excellent</option><option value="4">4 — Good</option><option value="3">3 — Average</option><option value="2">2 — Fair</option><option value="1">1 — Poor</option></select></label><label>Review title<input class="field" name="title" maxlength="80"></label></div><label>Your review<textarea class="field" name="body" rows="4" required maxlength="600"></textarea></label><button class="btn btn-primary">Submit review</button><small>Reviews appear after approval.</small></form>';document.querySelector(".product-detail")?.after(reviewSection);window.PakMarketDB.client.from("product_reviews").select("*").eq("product_id",product.id).eq("approved",true).then(({data})=>{reviewSection.querySelector("[data-review-list]").innerHTML=data?.length?data.map(review=>`<article class="review-item"><strong>${"★".repeat(review.rating)} ${contentEscape(review.title||"")}</strong><p>${contentEscape(review.body||"")}</p></article>`).join(""):"<p>No approved reviews yet.</p>"});reviewSection.querySelector("[data-review-form]").addEventListener("submit",async event=>{event.preventDefault();const session=await window.PakMarketDB.session();if(!session){location.href=`auth.html?next=product&product=${encodeURIComponent(product.slug || product.id)}`;return}const values=new FormData(event.currentTarget),{error}=await window.PakMarketDB.client.from("product_reviews").upsert({product_id:product.id,user_id:session.user.id,rating:Number(values.get("rating")),title:values.get("title"),body:values.get("body"),approved:false});showToast(error?error.message:"Review submitted for approval.");if(!error)event.currentTarget.reset()})}const schema={"@context":"https://schema.org","@type":"Product",name:product.name,image:[product.image],description:richTextToPlain(product.description),sku:product.sku,offers:{"@type":"Offer",priceCurrency:"PKR",price:product.price,availability:product.stock>0?"https://schema.org/InStock":"https://schema.org/OutOfStock",url:location.href}};const node=document.createElement("script");node.type="application/ld+json";node.textContent=JSON.stringify(schema);document.head.append(node)}
     if (product) {
       const orderForm = document.querySelector("[data-structured-order]");
       if (orderForm) {

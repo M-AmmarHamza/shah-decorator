@@ -65,6 +65,19 @@ function setBusy(form, busy) {
       ? "Sign in "
       : "Create account ";
 }
+function getPostAuthRedirect(role) {
+  const params = new URLSearchParams(location.search);
+  const next = params.get("next");
+  const product = params.get("product");
+  if (next === "product" && product) {
+    return `product.html?product=${encodeURIComponent(product)}`;
+  }
+  if (next) {
+    return next.endsWith(".html") || next.startsWith("/") ? next : `${next}.html`;
+  }
+  if (role === "customer") return "profile.html";
+  return "admin.html";
+}
 if (!window.PakMarketDB?.configured && !IS_LOCAL_PREVIEW) {
   document.querySelectorAll('[data-auth-form] button[type="submit"]').forEach(
     (button) => (button.disabled = true),
@@ -124,7 +137,7 @@ $("[data-auth-form=signin]").addEventListener("submit", async (event) => {
         return;
       }
       message("Signed in successfully. Redirecting…", "success");
-      setTimeout(() => location.href = profile.role === "customer" ? "/profile" : "/admin", 450);
+      setTimeout(() => location.href = getPostAuthRedirect(profile.role), 450);
       return;
     }
     const user = users().find((u) => u.email.toLowerCase() === email);
@@ -161,8 +174,7 @@ $("[data-auth-form=signin]").addEventListener("submit", async (event) => {
     message("Signed in successfully. Redirecting…", "success");
     setTimeout(
       () =>
-        (location.href =
-          user.role === "customer" ? "/" : "/admin"),
+        (location.href = getPostAuthRedirect(user.role)),
       450,
     );
   } catch (error) {
