@@ -959,44 +959,62 @@ function richTextToPlain(value) {
   const storefrontGrid = document.querySelector("[data-storefront-grid]");
   if (storefrontGrid) {
     try {
-      const managed = JSON.parse(
-        localStorage.getItem("pakmarket_inventory_v1"),
-      );
-      if (Array.isArray(managed)) {
-        const safe = (value = "") =>
-          String(value).replace(
-            /[&<>'"]/g,
-            (char) =>
-              ({
-                "&": "&amp;",
-                "<": "&lt;",
-                ">": "&gt;",
-                "'": "&#39;",
-                '"': "&quot;",
-              })[char],
-          );
-        const visible = managed.filter(
-          (product) => product.enabled ?? product.status === "active",
+      const itemsToRender = Array.isArray(managedInventory) && managedInventory.length > 0 ? managedInventory : DEFAULT_PRODUCTS;
+      const safe = (value = "") =>
+        String(value).replace(
+          /[&<>'"]/g,
+          (char) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              "'": "&#39;",
+              '"': "&quot;",
+            })[char],
         );
-        storefrontGrid.innerHTML = visible
-          .map((product) => {
-            const catName = String(product.category || "product").toLowerCase();
-            const isService = /service|room|stage|event|decor/i.test(catName) || /service|room|stage|event|decor/i.test(product.slug || "");
-            const slugCategory = catName.replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-            const categoryAttr = `all ${isService ? "services service" : "products product"} ${slugCategory} ${catName.replace(/[^a-z0-9]+/g, " ")}${product.featured ? " best" : ""}`;
-            const promotion = offerDetails(product);
-            return `<article class="product-card" data-product-card data-category="${safe(categoryAttr)}">
-            <a class="image-link" href="${productUrl(product.slug || product.id)}"><img src="${safe(product.image)}" alt="${safe(product.imageAlt || product.name)}"></a>
-            <span class="badge-light product-badge">${out ? "Out of Stock" : promotion.offer ? safe(promotion.offer.title) : isService ? "Booking Slot Available" : `${Number(product.stock)} in stock`}</span>
-            <div class="product-body"><h3>${safe(product.name)}</h3><div class="price-row"><span class="price">Rs. ${Math.round(promotion.finalPrice).toLocaleString("en-PK")}</span>${promotion.discount ? `<span class="old-price">Rs. ${Number(product.price).toLocaleString("en-PK")}</span>` : Number(product.comparePrice) > Number(product.price) ? `<span class="old-price">Rs. ${Number(product.comparePrice).toLocaleString("en-PK")}</span>` : ""}</div>${promotion.offer ? `<small class="offer-note">${safe(promotion.offer.code ? `Use ${promotion.offer.code}` : "Offer automatically applied")} · ${promotion.mode === "free" ? "Free delivery" : promotion.mode === "included" ? "Delivery included" : "Delivery separate"}</small>` : ""}${out ? '<span class="btn btn-soft card-button">Currently unavailable</span>' : `<a class="btn btn-whatsapp card-button" href="${whatsappUrl(orderMessage(product))}" target="_blank" rel="noreferrer"><span class="material-symbols-outlined">chat</span>${isService ? "Book on WhatsApp" : "Order on WhatsApp"}</a>`}</div>
-          </article>`;
-          })
-          .join("");
-        if (!visible.length) {
-          storefrontGrid.innerHTML = '<div class="storefront-empty"><span class="material-symbols-outlined">inventory_2</span><h2>No products added yet</h2><p>The store owner is currently adding products from the dashboard.</p></div>';
-          document.querySelectorAll("[data-load-more]").forEach((button) => button.hidden = true);
-        }
-      }
+      const visible = itemsToRender.filter(
+        (product) => product.enabled ?? product.status === "active" ?? true,
+      );
+      storefrontGrid.innerHTML = visible
+        .map((product) => {
+          const out = Number(product.stock ?? 10) <= 0;
+          const catName = String(product.category || "product").toLowerCase();
+          const isService = /service|room|stage|event|decor/i.test(catName) || /service|room|stage|event|decor/i.test(product.slug || "");
+          const slugCategory = catName.replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+          const categoryAttr = `all ${isService ? "services service" : "products product"} ${slugCategory} ${catName.replace(/[^a-z0-9]+/g, " ")}${product.featured ? " best" : ""}`;
+          const promotion = offerDetails(product);
+          return `<article class="product-card" data-product-card data-category="${safe(categoryAttr)}">
+          <a class="image-link" href="${productUrl(product.slug || product.id)}"><img src="${safe(product.image)}" alt="${safe(product.imageAlt || product.name)}" loading="lazy"></a>
+          <span class="badge-light product-badge">${out ? "Out of Stock" : promotion.offer ? safe(promotion.offer.title) : isService ? "Karachi Service" : "Karachi Delivery"}</span>
+          <div class="product-body">
+            <h3>${safe(product.name)}</h3>
+            <div class="price-row">
+              <span class="price">Rs. ${Math.round(promotion.finalPrice).toLocaleString("en-PK")}</span>
+              ${promotion.discount ? `<span class="old-price">Rs. ${Number(product.price).toLocaleString("en-PK")}</span>` : Number(product.comparePrice) > Number(product.price) ? `<span class="old-price">Rs. ${Number(product.comparePrice).toLocaleString("en-PK")}</span>` : ""}
+            </div>
+            ${promotion.offer ? `<small class="offer-note">${safe(promotion.offer.code ? `Use ${promotion.offer.code}` : "Offer automatically applied")}</small>` : ""}
+            ${out ? '<span class="btn btn-soft card-button">Currently unavailable</span>' : `<a class="btn btn-whatsapp card-button" href="${whatsappUrl(orderMessage(product))}" target="_blank" rel="noreferrer"><span class="material-symbols-outlined">chat</span>${isService ? "Book on WhatsApp" : "Order on WhatsApp"}</a>`}
+          </div>
+        </article>`;
+        })
+        .join("");
+
+      // Support home gallery filter buttons if present
+      document.querySelectorAll("[data-home-filter]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          document.querySelectorAll("[data-home-filter]").forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+          const targetFilter = btn.getAttribute("data-home-filter");
+          storefrontGrid.querySelectorAll(".product-card").forEach((card) => {
+            const cat = card.getAttribute("data-category") || "";
+            if (targetFilter === "all" || cat.includes(targetFilter)) {
+              card.style.display = "";
+            } else {
+              card.style.display = "none";
+            }
+          });
+        });
+      });
     } catch (error) {
       console.warn("Could not load managed inventory", error);
     }
