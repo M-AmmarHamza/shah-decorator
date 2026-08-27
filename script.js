@@ -59,8 +59,9 @@ document.addEventListener("DOMContentLoaded", () => {
     pathParts[0]?.toLowerCase() === "products" && Boolean(pathParts[1]);
   const isPrettyBlog =
     pathParts[0]?.toLowerCase() === "blog" && Boolean(pathParts[1]);
+  const isProductHtmlPage = window.location.pathname.endsWith("product.html") || window.location.pathname === "/product";
   const routeName =
-    (isPrettyProduct
+    (isPrettyProduct || isProductHtmlPage
       ? "product"
       : isPrettyBlog
         ? "blog-detail"
@@ -71,7 +72,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const productSlug =
     isPrettyProduct
       ? decodeURIComponent(pathParts[1])
-      : new URLSearchParams(window.location.search).get("product");
+      : new URLSearchParams(window.location.search).get("product") ||
+        new URLSearchParams(window.location.search).get("item") ||
+        new URLSearchParams(window.location.search).get("slug") ||
+        new URLSearchParams(window.location.search).get("id");
   const productUrl = (slug) => `/products/${encodeURIComponent(slug)}`;
   const blogSlug = isPrettyBlog
     ? decodeURIComponent(pathParts[1])
@@ -956,8 +960,11 @@ function richTextToPlain(value) {
     } catch {}
   }
 
-  const storefrontGrid = document.querySelector("[data-storefront-grid]");
-  if (storefrontGrid) {
+  const isCatalogPage = Boolean(document.querySelector("[data-catalog-grid]") || document.body.dataset.page === "products" || location.pathname.includes("products.html"));
+  const catalogGrid = document.querySelector("[data-catalog-grid]") || (isCatalogPage ? document.querySelector("[data-storefront-grid]") : null);
+  const homeGrid = !isCatalogPage ? document.querySelector("[data-storefront-grid], [data-home-showcase-grid]") : null;
+
+  if (homeGrid) {
     try {
       const itemsToRender = Array.isArray(managedInventory) && managedInventory.length > 0 ? managedInventory : DEFAULT_PRODUCTS;
       const safe = (value = "") =>
@@ -975,7 +982,7 @@ function richTextToPlain(value) {
       const visible = itemsToRender
         .filter((product) => product.enabled ?? product.status === "active" ?? true)
         .slice(0, 8);
-      storefrontGrid.innerHTML = visible
+      homeGrid.innerHTML = visible
         .map((product) => {
           const catName = String(product.category || "product").toLowerCase();
           const isService = /service|room|stage|event|decor/i.test(catName) || /service|room|stage|event|decor/i.test(product.slug || "");
@@ -998,7 +1005,7 @@ function richTextToPlain(value) {
           btn.classList.add("active");
           const targetFilter = btn.getAttribute("data-home-filter");
           let count = 0;
-          storefrontGrid.querySelectorAll(".product-card").forEach((card) => {
+          homeGrid.querySelectorAll(".product-card").forEach((card) => {
             const cat = card.getAttribute("data-category") || "";
             if ((targetFilter === "all" || cat.includes(targetFilter)) && count < 8) {
               card.style.display = "";
@@ -1010,7 +1017,85 @@ function richTextToPlain(value) {
         });
       });
     } catch (error) {
-      console.warn("Could not load managed inventory", error);
+      console.warn("Could not load home showcase inventory", error);
+    }
+  }
+
+  if (catalogGrid) {
+    try {
+      const itemsToRender = Array.isArray(managedInventory) && managedInventory.length > 0 ? managedInventory : DEFAULT_PRODUCTS;
+      const safe = (value = "") =>
+        String(value).replace(
+          /[&<>'"]/g,
+          (char) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              "'": "&#39;",
+              '"': "&quot;",
+            })[char],
+        );
+      const visible = itemsToRender.filter((product) => product.enabled ?? product.status === "active" ?? true);
+      
+      catalogGrid.innerHTML = visible
+        .map((product) => {
+          const catName = String(product.category || "product").toLowerCase();
+          const isService = /service|room|stage|event|decor/i.test(catName) || /service|room|stage|event|decor/i.test(product.slug || "");
+          const slugCategory = catName.replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+          const categoryAttr = `all ${isService ? "services service" : "products product"} ${slugCategory} ${catName.replace(/[^a-z0-9]+/g, " ")}${product.featured ? " best" : ""}`;
+          const promotion = offerDetails(product);
+          const hasDiscount = Number(product.comparePrice) > Number(product.price);
+          const discountPct = hasDiscount ? Math.round((1 - Number(product.price) / Number(product.comparePrice)) * 100) : 0;
+          const descSnippet = (product.description || "").slice(0, 105) + "...";
+
+          return `<article class="product-card catalog-detailed-card" data-product-card data-category="${safe(categoryAttr)}">
+            <div class="product-image-wrapper">
+              <a class="image-link" href="${productUrl(product.slug || product.id)}">
+                <img src="${safe(product.image)}" alt="${safe(product.imageAlt || product.name)}" loading="lazy">
+              </a>
+              <span class="badge-light product-badge">
+                <span class="material-symbols-outlined" style="font-size: 14px; vertical-align: middle;">${isService ? "room_service" : "local_shipping"}</span>
+                ${isService ? "Karachi Service" : "Karachi Delivery"}
+              </span>
+              ${hasDiscount ? `<span class="badge-discount">-${discountPct}% Off</span>` : ""}
+            </div>
+            
+            <div class="product-body">
+              <div class="product-meta-row">
+                <span class="product-category-tag">${safe(product.category)}</span>
+                <span class="product-rating">★ 5.0 (Karachi)</span>
+              </div>
+
+              <h3 class="product-title">
+                <a href="${productUrl(product.slug || product.id)}">${safe(product.name)}</a>
+              </h3>
+
+              <p class="product-desc-snippet">${safe(descSnippet)}</p>
+
+              <div class="price-row">
+                <div class="price-stack">
+                  <span class="price">Rs. ${Math.round(promotion.finalPrice).toLocaleString("en-PK")}</span>
+                  ${promotion.discount ? `<span class="old-price">Rs. ${Number(product.price).toLocaleString("en-PK")}</span>` : hasDiscount ? `<span class="old-price">Rs. ${Number(product.comparePrice).toLocaleString("en-PK")}</span>` : ""}
+                </div>
+                <span class="advance-tag">50% Advance</span>
+              </div>
+
+              <div class="card-action-row">
+                <a class="btn btn-primary card-action-btn" href="${productUrl(product.slug || product.id)}">
+                  <span class="material-symbols-outlined" style="font-size: 17px;">${isService ? "event_seat" : "visibility"}</span>
+                  ${isService ? "View Details & Book" : "View Options & Order"}
+                </a>
+                <a class="btn btn-whatsapp card-wa-icon-btn" href="${whatsappUrl(orderMessage(product))}" target="_blank" rel="noreferrer" title="${isService ? "Book on WhatsApp" : "Order on WhatsApp"}">
+                  <span class="material-symbols-outlined" style="font-size: 20px;">chat</span>
+                </a>
+              </div>
+            </div>
+          </article>`;
+        })
+        .join("");
+    } catch (error) {
+      console.warn("Could not load catalog inventory", error);
     }
   }
 
