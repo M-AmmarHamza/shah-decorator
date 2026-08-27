@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="en-PK">
   <head>
     <meta charset="UTF-8" />
@@ -55,14 +55,20 @@
       </header>
 
       <main>
-        <!-- 3.1 Hero Section -->
-        <section class="hero section-soft">
-          <div class="container hero-grid">
-            <div>
-              <span class="eyebrow"><span class="material-symbols-outlined">auto_awesome</span>✨ Bespoke Event Decor & Customized Gifts</span>
-              <h1>Turn Special Moments into <span style="color: var(--primary, #D45B7A);">Unforgettable Celebrations</span></h1>
+        <!-- Luxury Slider Hero Banner (Previous Proven Architecture) -->
+        <section class="hero" data-hero-slider>
+          <div class="hero-slides" aria-hidden="true">
+            <img class="hero-slide active" src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&q=80" alt="Luxury wedding stage and room decor">
+            <img class="hero-slide" src="https://images.unsplash.com/photo-1582794543139-8ac9cb0f7b11?auto=format&fit=crop&w=1200&q=80" alt="Handcrafted luxury bouquets and celebrations">
+            <img class="hero-slide" src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=1200&q=80" alt="Ambient lighting and party backdrop">
+          </div>
+          <div class="hero-overlay"></div>
+          <div class="container hero-inner">
+            <div class="hero-content">
+              <span class="eyebrow"><span class="material-symbols-outlined">auto_awesome</span>✨ Bespoke Event Decor &amp; Gifts</span>
+              <h1>Turn Special Moments into <span>Unforgettable Celebrations</span></h1>
               <p>
-                Handcrafted Chocolate & Currency Bouquets, Premium Party Supplies, and Luxury On-Location Event Decor. Browse our catalog and book seamlessly on WhatsApp.
+                Handcrafted Chocolate &amp; Currency Bouquets, Premium Party Supplies, and Luxury On-Location Event Decor. Browse our catalog and book seamlessly on WhatsApp.
               </p>
               <div class="hero-actions">
                 <a class="btn btn-primary" href="products.html">Browse Catalog</a>
@@ -71,49 +77,32 @@
                 </a>
               </div>
             </div>
-            <div class="hero-card">
-              <div class="hero-card-banner">
-                <img src="https://images.unsplash.com/photo-1582794543139-8ac9cb0f7b11?auto=format&fit=crop&w=800&q=80" alt="Luxury chocolate bouquet and event decor" fetchpriority="high">
-              </div>
-              <div class="hero-card-body">
-                <div class="hero-card-header">
-                  <div>
-                    <span class="eyebrow" style="margin-bottom:0.25rem;">Karachi's Favorite</span>
-                    <h3>Celebrations Crafted With Love</h3>
-                  </div>
-                  <span class="price-chip">From Rs. 1,450</span>
-                </div>
-                <div class="hero-card-bullets">
-                  <span><span class="material-symbols-outlined">check_circle</span>Bouquets Delivered Nationwide</span>
-                  <span><span class="material-symbols-outlined">check_circle</span>On-Location Decor Across Karachi</span>
-                </div>
-              </div>
-            </div>
+          </div>
+          <div class="hero-dots" aria-label="Hero slides">
+            <button class="active" type="button" data-hero-dot="0" aria-label="Show slide 1"></button>
+            <button type="button" data-hero-dot="1" aria-label="Show slide 2"></button>
+            <button type="button" data-hero-dot="2" aria-label="Show slide 3"></button>
           </div>
         </section>
 
-        <!-- 3.1 Trust & Value Proposition Badges -->
-        <section class="section-tight">
-          <div class="container value-band">
-            <div>
-              <span class="material-symbols-outlined">favorite</span>
-              <h3>Customized with Love</h3>
-              <p>Bespoke chocolate & currency bouquets crafted to your exact preferences.</p>
+        <!-- Trust & Value Proposition Badges -->
+        <section class="section-tight section-soft">
+          <div class="container trust-row">
+            <div class="trust-item">
+              <div class="trust-icon"><span class="material-symbols-outlined">favorite</span></div>
+              <div><strong>Customized with Love</strong><span>Bespoke bouquets crafted with care</span></div>
             </div>
-            <div>
-              <span class="material-symbols-outlined">schedule</span>
-              <h3>On-Time Setup Guarantee</h3>
-              <p>Professional decor teams arrive on schedule for stress-free celebrations.</p>
+            <div class="trust-item">
+              <div class="trust-icon"><span class="material-symbols-outlined">schedule</span></div>
+              <div><strong>On-Time Setup Guarantee</strong><span>Professional decor team on schedule</span></div>
             </div>
-            <div>
-              <span class="material-symbols-outlined">payments</span>
-              <h3>50% Advance Booking</h3>
-              <p>Lock your event date with an easy 50% deposit via JazzCash, Easypaisa, or Bank.</p>
+            <div class="trust-item">
+              <div class="trust-icon"><span class="material-symbols-outlined">payments</span></div>
+              <div><strong>50% Advance Booking</strong><span>Lock date via JazzCash / Bank</span></div>
             </div>
-            <div>
-              <span class="material-symbols-outlined">support_agent</span>
-              <h3>Direct WhatsApp Support</h3>
-              <p>Instant consultation, theme selection, and booking confirmation within minutes.</p>
+            <div class="trust-item">
+              <div class="trust-icon"><span class="material-symbols-outlined">support_agent</span></div>
+              <div><strong>Direct WhatsApp Support</strong><span>Fast consultation within minutes</span></div>
             </div>
           </div>
         </section>
