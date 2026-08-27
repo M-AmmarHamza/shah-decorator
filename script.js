@@ -980,16 +980,15 @@ function richTextToPlain(value) {
         );
         storefrontGrid.innerHTML = visible
           .map((product) => {
-            const out = Number(product.stock) <= 0;
-            const category = `${String(product.category || "product")
-              .toLowerCase()
-              .replace(/[^a-z0-9]+/g, " ")
-              .trim()}${product.featured ? " best" : ""}`;
+            const catName = String(product.category || "product").toLowerCase();
+            const isService = /service|room|stage|event|decor/i.test(catName) || /service|room|stage|event|decor/i.test(product.slug || "");
+            const slugCategory = catName.replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+            const categoryAttr = `all ${isService ? "services service" : "products product"} ${slugCategory} ${catName.replace(/[^a-z0-9]+/g, " ")}${product.featured ? " best" : ""}`;
             const promotion = offerDetails(product);
-            return `<article class="product-card" data-product-card data-category="all ${safe(category)}">
+            return `<article class="product-card" data-product-card data-category="${safe(categoryAttr)}">
             <a class="image-link" href="${productUrl(product.slug || product.id)}"><img src="${safe(product.image)}" alt="${safe(product.imageAlt || product.name)}"></a>
-            <span class="badge-light product-badge">${out ? "Out of Stock" : promotion.offer ? safe(promotion.offer.title) : `${Number(product.stock)} in stock`}</span>
-            <div class="product-body"><h3>${safe(product.name)}</h3><div class="price-row"><span class="price">Rs. ${Math.round(promotion.finalPrice).toLocaleString("en-PK")}</span>${promotion.discount ? `<span class="old-price">Rs. ${Number(product.price).toLocaleString("en-PK")}</span>` : Number(product.comparePrice) > Number(product.price) ? `<span class="old-price">Rs. ${Number(product.comparePrice).toLocaleString("en-PK")}</span>` : ""}</div>${promotion.offer ? `<small class="offer-note">${safe(promotion.offer.code ? `Use ${promotion.offer.code}` : "Offer automatically applied")} · ${promotion.mode === "free" ? "Free delivery" : promotion.mode === "included" ? "Delivery included" : "Delivery separate"}</small>` : ""}${out ? '<span class="btn btn-soft card-button">Currently unavailable</span>' : `<a class="btn btn-whatsapp card-button" href="${whatsappUrl(orderMessage(product))}" target="_blank" rel="noreferrer"><span class="material-symbols-outlined">chat</span>Order on WhatsApp</a>`}</div>
+            <span class="badge-light product-badge">${out ? "Out of Stock" : promotion.offer ? safe(promotion.offer.title) : isService ? "Booking Slot Available" : `${Number(product.stock)} in stock`}</span>
+            <div class="product-body"><h3>${safe(product.name)}</h3><div class="price-row"><span class="price">Rs. ${Math.round(promotion.finalPrice).toLocaleString("en-PK")}</span>${promotion.discount ? `<span class="old-price">Rs. ${Number(product.price).toLocaleString("en-PK")}</span>` : Number(product.comparePrice) > Number(product.price) ? `<span class="old-price">Rs. ${Number(product.comparePrice).toLocaleString("en-PK")}</span>` : ""}</div>${promotion.offer ? `<small class="offer-note">${safe(promotion.offer.code ? `Use ${promotion.offer.code}` : "Offer automatically applied")} · ${promotion.mode === "free" ? "Free delivery" : promotion.mode === "included" ? "Delivery included" : "Delivery separate"}</small>` : ""}${out ? '<span class="btn btn-soft card-button">Currently unavailable</span>' : `<a class="btn btn-whatsapp card-button" href="${whatsappUrl(orderMessage(product))}" target="_blank" rel="noreferrer"><span class="material-symbols-outlined">chat</span>${isService ? "Book on WhatsApp" : "Order on WhatsApp"}</a>`}</div>
           </article>`;
           })
           .join("");
@@ -1171,6 +1170,28 @@ function richTextToPlain(value) {
   let visibleLimit = initialSize;
   let activeFilter = "all";
   let searchTerm = "";
+
+  const urlFilterParam =
+    new URLSearchParams(window.location.search).get("type") ||
+    new URLSearchParams(window.location.search).get("filter") ||
+    new URLSearchParams(window.location.search).get("category") ||
+    (window.location.hash ? window.location.hash.replace("#", "") : "");
+  if (urlFilterParam) {
+    const targetFilter = urlFilterParam.toLowerCase();
+    const matchingButton = [...filterButtons].find(
+      (b) =>
+        b.dataset.filter === targetFilter ||
+        b.dataset.filter === targetFilter.replace(/s$/, "") ||
+        b.dataset.filter.includes(targetFilter),
+    );
+    if (matchingButton) {
+      filterButtons.forEach((item) => item.classList.remove("active"));
+      matchingButton.classList.add("active");
+      activeFilter = matchingButton.dataset.filter;
+    } else {
+      activeFilter = targetFilter;
+    }
+  }
 
   const updateProductVisibility = () => {
     const matches = products.filter((card) => {
