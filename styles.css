@@ -1400,11 +1400,12 @@ button {
   align-items: start;
 }
 
-.product-media {
+.product-media,
+.gallery {
   grid-column: 1;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 16px;
   min-width: 0;
 }
 
