@@ -1,4 +1,4 @@
-﻿export const DEFAULT_PRODUCTS = [
+export const DEFAULT_PRODUCTS = [
   // 1. Custom Bouquets (Physical Deliverable - Karachi Delivery)
   {
     id: "bq-ferrero-rose",
@@ -9,11 +9,7 @@
     price: 4800,
     comparePrice: 5500,
     stock: 25,
-    options: [
-      { name: "Size & Chocolate Count", required: true, values: ["Standard (12 Chocolates)", "Large (20 Chocolates)", "Deluxe (30 Chocolates)"] },
-      { name: "Wrapping Color Theme", required: true, values: ["Rose Gold", "Classic Black & Gold", "Pastel Pink", "Emerald Green"] },
-      { name: "Add-on Greeting Card", required: false, values: ["Free Handwritten Note", "None"] },
-    ],
+    options: [],
     enabled: true,
     seoIndex: true,
     image: "https://images.unsplash.com/photo-1582794543139-8ac9cb0f7b11?auto=format&fit=crop&w=800&q=80",
@@ -31,10 +27,7 @@
     price: 3500,
     comparePrice: 4200,
     stock: 20,
-    options: [
-      { name: "Note Denomination", required: true, values: ["Rs. 50 Notes (50 Notes)", "Rs. 100 Notes (50 Notes)", "Rs. 500 Notes (30 Notes)", "Rs. 1000 Notes (20 Notes)"] },
-      { name: "Theme Palette", required: true, values: ["Royal Gold & Red", "Rose Gold & Blush Pink", "Elegant Black & Gold"] },
-    ],
+    options: [],
     enabled: true,
     seoIndex: true,
     image: "https://images.unsplash.com/photo-1549465220-1a8b9238cd48?auto=format&fit=crop&w=800&q=80",
@@ -54,9 +47,7 @@
     price: 2200,
     comparePrice: 2800,
     stock: 50,
-    options: [
-      { name: "Color Theme", required: true, values: ["Rose Gold & White", "Metallic Gold & Black", "Pastel Rainbow", "Jungle Safari"] },
-    ],
+    options: [],
     enabled: true,
     seoIndex: true,
     image: "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?auto=format&fit=crop&w=800&q=80",
@@ -74,9 +65,7 @@
     price: 1450,
     comparePrice: 1800,
     stock: 40,
-    options: [
-      { name: "Sash Title", required: true, values: ["Bride to Be", "Mom to Be", "Birthday Queen", "Groom to Be"] },
-    ],
+    options: [],
     enabled: true,
     seoIndex: true,
     image: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=800&q=80",
@@ -96,9 +85,7 @@
     price: 3800,
     comparePrice: 4500,
     stock: 18,
-    options: [
-      { name: "Decoration Style", required: true, values: ["Royal Gota Kinari", "Floral Velvet", "Traditional Mirror Work"] },
-    ],
+    options: [],
     enabled: true,
     seoIndex: true,
     image: "https://images.unsplash.com/photo-1545232979-fbf6c9fa19df?auto=format&fit=crop&w=800&q=80",
@@ -116,9 +103,7 @@
     price: 2600,
     comparePrice: 3200,
     stock: 30,
-    options: [
-      { name: "Jewelry Color", required: true, values: ["Yellow & Green", "Pink & Orange", "Royal Red & Gold"] },
-    ],
+    options: [],
     enabled: true,
     seoIndex: true,
     image: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=800&q=80",
@@ -138,11 +123,7 @@
     price: 8500,
     comparePrice: 10500,
     stock: 10,
-    options: [
-      { name: "Package Tier", required: true, values: ["Essential Setup (Rs. 8,500)", "Premium Deluxe (Rs. 14,000)", "Royal Grand (Rs. 22,000)"] },
-      { name: "Color Palette", required: true, values: ["Rose Gold & White", "Crimson Red & Warm Gold", "Lavender & Silver"] },
-      { name: "Karachi Area / Sector", required: true, values: ["Orangi / Nazimabad", "Gulshan / Johar", "DHA / Clifton", "PECHS / Tariq Road", "Other Karachi Area"] },
-    ],
+    options: [],
     enabled: true,
     seoIndex: true,
     image: "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80",
@@ -160,11 +141,7 @@
     price: 7500,
     comparePrice: 9500,
     stock: 12,
-    options: [
-      { name: "Package Tier", required: true, values: ["Standard Glow (Rs. 7,500)", "Deluxe Celebration (Rs. 12,000)"] },
-      { name: "Theme Palette", required: true, values: ["Rose Gold & White Pearl", "Champagne Gold & Pink"] },
-      { name: "Karachi Area / Sector", required: true, values: ["Orangi / Nazimabad", "Gulshan / Johar", "DHA / Clifton", "PECHS / Tariq Road", "Other Karachi Area"] },
-    ],
+    options: [],
     enabled: true,
     seoIndex: true,
     image: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=800&q=80",
@@ -184,11 +161,7 @@
     price: 28000,
     comparePrice: 35000,
     stock: 6,
-    options: [
-      { name: "Stage Tier", required: true, values: ["Classic Marigold Jhula (Rs. 28,000)", "Royal Floral Stage (Rs. 45,000)", "Grand Palace Theme (Rs. 75,000)"] },
-      { name: "Theme Colors", required: true, values: ["Festive Yellow & Green", "Vibrant Multi-Color", "Mustard & Orange"] },
-      { name: "Banquet / Venue Location in Karachi", required: true, values: ["Banquet Hall / Lawn in Karachi", "Home / Rooftop in Karachi", "Farmhouse in Karachi"] },
-    ],
+    options: [],
     enabled: true,
     seoIndex: true,
     image: "https://images.unsplash.com/photo-1520854221256-17451cc331bf?auto=format&fit=crop&w=800&q=80",
@@ -206,10 +179,7 @@
     price: 12500,
     comparePrice: 16000,
     stock: 8,
-    options: [
-      { name: "Theme", required: true, values: ["Pastel Balloon Arch & Neon", "Jungle Safari Theme", "Princess Castle Pink", "Teddy Bear & Cloud Welcome"] },
-      { name: "Karachi Venue Type", required: true, values: ["Home / Living Room in Karachi", "Banquet Hall / Restaurant in Karachi", "Outdoor Lawn in Karachi"] },
-    ],
+    options: [],
     enabled: true,
     seoIndex: true,
     image: "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?auto=format&fit=crop&w=800&q=80",
