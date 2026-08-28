@@ -18,8 +18,8 @@
     </div>
     <header class="site-header">
       <div class="container nav">
-        <button class="mobile-nav-button" type="button" aria-label="Go back" onclick="history.length > 1 ? history.back() : location.href='products.html'">
-          <span class="material-symbols-outlined">arrow_back</span>
+        <button class="mobile-nav-button" type="button" aria-label="Open menu" aria-expanded="false" data-menu-button>
+          <span class="material-symbols-outlined">menu</span>
         </button>
         <a class="brand" href="index.html">Shah Decorator</a>
         <nav class="nav-links" aria-label="Main navigation">
@@ -39,6 +39,17 @@
         </div>
       </div>
     </header>
+
+    <div class="mobile-panel" data-mobile-panel hidden>
+      <nav aria-label="Mobile navigation">
+        <a href="index.html" data-page-link="home">Home</a>
+        <a href="products.html?type=products" data-page-link="products">Product</a>
+        <a href="products.html?type=services" data-page-link="services">Service</a>
+        <a href="about.html" data-page-link="about">About Us</a>
+        <a href="contact.html" data-page-link="contact">Contact Us</a>
+        <a class="btn btn-primary" href="https://wa.me/923138136846" data-whatsapp data-item="Shah Decorator">WhatsApp Booking</a>
+      </nav>
+    </div>
 
     <main class="container section-tight">
       <nav class="breadcrumb" aria-label="Breadcrumb">
