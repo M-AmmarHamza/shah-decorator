@@ -1438,6 +1438,33 @@ function richTextToPlain(value) {
     });
   });
 
+  document.querySelectorAll('button[aria-label="Share"], [data-header-share], [data-share-page]').forEach((button) => {
+    button.addEventListener("click", async (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      const title = document.querySelector("h1")?.textContent?.trim() || document.title || "Shah Decorator";
+      const url = window.location.href;
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title: title,
+            text: `${title} — Shah Decorator`,
+            url: url,
+          });
+          return;
+        } catch (error) {
+          if (error.name === "AbortError") return;
+        }
+      }
+      try {
+        await navigator.clipboard.writeText(url);
+        showToast("Setup link copied to clipboard!");
+      } catch {
+        showToast("Copy the link from your browser address bar.");
+      }
+    });
+  });
+
   document.querySelectorAll("[data-share-menu]").forEach((menu) => {
     const toggle = menu.querySelector("[data-share-toggle]");
     const popover = menu.querySelector("[data-share-popover]");
