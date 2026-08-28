@@ -13,9 +13,11 @@
     {"source":"/return-policy.html","destination":"/return-policy","permanent":true},
     {"source":"/privacy-policy.html","destination":"/privacy-policy","permanent":true},
     {"source":"/terms.html","destination":"/terms","permanent":true},
-    {"source":"/shipping-policy.html","destination":"/shipping-policy","permanent":true}
+    {"source":"/shipping-policy.html","destination":"/shipping-policy","permanent":true},
+    {"source":"/products/:slug","destination":"/product/:slug","permanent":true}
   ],
   "rewrites": [
+    {"source":"/product/:slug","destination":"/product?product=:slug"},
     {"source":"/products/:slug","destination":"/product?product=:slug"},
     {"source":"/blog/:slug","destination":"/blog-detail?blog=:slug"}
   ],

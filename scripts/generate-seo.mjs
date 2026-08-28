@@ -81,13 +81,15 @@ async function improveHomepageSchema() {
 
 async function generateProductPages() {
   const template = await readFile(join(outputDirectory, "product.html"), "utf8");
-  const directory = join(outputDirectory, "products");
+  const directory = join(outputDirectory, "product");
+  const legacyDirectory = join(outputDirectory, "products");
   await mkdir(directory, { recursive: true });
+  await mkdir(legacyDirectory, { recursive: true });
 
   for (const product of DEFAULT_PRODUCTS.filter(
     (item) => item.enabled && item.seoIndex,
   )) {
-    const path = `/products/${product.slug}`;
+    const path = `/product/${product.slug}`;
     const canonical = absoluteUrl(path, siteUrl);
     const isService = /service|room|stage|event|decor/i.test(product.category || "") || /service|room|stage|event|decor/i.test(product.slug || "");
     const availability =
@@ -165,6 +167,7 @@ async function generateProductPages() {
       );
     html = cleanInternalLinks(html);
     await writeFile(join(directory, `${product.slug}.html`), html);
+    await writeFile(join(legacyDirectory, `${product.slug}.html`), html);
   }
 }
 
@@ -282,7 +285,7 @@ async function generateCrawlerFiles() {
   const urls = [
     ...staticPages.map((page) => ({ path: page.path })),
     ...DEFAULT_PRODUCTS.filter((item) => item.enabled && item.seoIndex).map(
-      (item) => ({ path: `/products/${item.slug}` }),
+      (item) => ({ path: `/product/${item.slug}` }),
     ),
     ...DEFAULT_BLOGS.filter((item) => item.enabled && item.seoIndex).map(
       (item) => ({ path: `/blog/${item.slug}`, lastmod: item.publishDate }),

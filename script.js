@@ -56,7 +56,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const page = document.body.dataset.page || "";
   const pathParts = window.location.pathname.split("/").filter(Boolean);
   const isPrettyProduct =
-    pathParts[0]?.toLowerCase() === "products" && Boolean(pathParts[1]);
+    (pathParts[0]?.toLowerCase() === "product" || pathParts[0]?.toLowerCase() === "products") && Boolean(pathParts[1]);
   const isPrettyBlog =
     pathParts[0]?.toLowerCase() === "blog" && Boolean(pathParts[1]);
   const isProductHtmlPage = window.location.pathname.endsWith("product.html") || window.location.pathname === "/product";
@@ -76,7 +76,7 @@ document.addEventListener("DOMContentLoaded", () => {
         new URLSearchParams(window.location.search).get("item") ||
         new URLSearchParams(window.location.search).get("slug") ||
         new URLSearchParams(window.location.search).get("id");
-  const productUrl = (slug) => `/products/${encodeURIComponent(slug)}`;
+  const productUrl = (slug) => `/product/${encodeURIComponent(slug)}`;
   const blogSlug = isPrettyBlog
     ? decodeURIComponent(pathParts[1])
     : new URLSearchParams(window.location.search).get("blog");

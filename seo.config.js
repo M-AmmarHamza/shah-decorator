@@ -239,7 +239,7 @@ export function cleanInternalLinks(html) {
     "shipping-policy.html": "/shipping-policy",
     "auth.html": "/auth",
     "profile.html": "/profile",
-    "product.html": "/products",
+    "product.html": "/product",
     "blog-detail.html": "/blog",
   };
   return Object.entries(replacements).reduce(

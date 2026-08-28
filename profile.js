@@ -76,7 +76,7 @@ document.querySelector("[data-account-wishlist]").innerHTML = wishlist.data
   ? wishlist.data
       .map(
         (item) =>
-          `<a class="account-item" href="/products/${encodeURIComponent(item.products.slug)}"><strong>${item.products.name}</strong><b>Rs. ${Number(item.products.price).toLocaleString("en-PK")}</b></a>`,
+          `<a class="account-item" href="/product/${encodeURIComponent(item.products.slug)}"><strong>${item.products.name}</strong><b>Rs. ${Number(item.products.price).toLocaleString("en-PK")}</b></a>`,
       )
       .join("")
   : "<p>Your wishlist is empty.</p>";
