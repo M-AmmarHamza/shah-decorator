@@ -1279,15 +1279,12 @@ function richTextToPlain(value) {
 
   const updateCatalogHero = (filter) => {
     if (!pageHeroH1 || !pageHeroP) return;
-    if (filter === "services" || filter === "service" || filter === "room-decor" || filter === "event-decor") {
+    if (document.body.dataset.page === "services" || filter === "services" || filter === "service" || filter === "room-decor" || filter === "stage-decor" || filter === "event-decor" || filter === "mehndi-decor" || filter === "birthday-decor") {
       pageHeroH1.textContent = "On-Location Event & Stage Decor Services";
       pageHeroP.textContent = "Bespoke wedding stage setups, romantic room surprises, mehndi jhula decor, and theme backdrops installed professionally across Karachi.";
-    } else if (filter === "products" || filter === "product" || filter === "custom-bouquets" || filter === "party-supplies" || filter === "mayon-mehndi-items") {
-      pageHeroH1.textContent = "Deliverable Bouquets, Party Supplies & Decor Items";
-      pageHeroP.textContent = "Handcrafted Ferrero Rocher & currency bouquets, DIY party balloon garland kits, and decorative Mehndi thaals delivered anywhere in Karachi.";
-    } else {
-      pageHeroH1.textContent = "Party Supplies, Custom Bouquets & Event Decor";
-      pageHeroP.textContent = "Explore handcrafted Ferrero Rocher & currency bouquets, DIY party balloon kits, Mehndi thaals, and luxury on-location room & stage decor packages.";
+    } else if (document.body.dataset.page === "products" || filter === "products" || filter === "product" || filter === "custom-bouquets" || filter === "party-supplies" || filter === "mayon-mehndi-items") {
+      pageHeroH1.textContent = "Deliverable Bouquets & Party Supplies";
+      pageHeroP.textContent = "Handcrafted Ferrero Rocher & currency bouquets, DIY party balloon garland kits, and decorative Mehndi essentials dispatched safely across Karachi.";
     }
   };
 
@@ -1325,7 +1322,11 @@ function richTextToPlain(value) {
         categories.some((cat) => cat.includes(searchTerm)) ||
         badge.includes(searchTerm);
       return (
-        (activeFilter === "all" || categories.includes(activeFilter) || (activeFilter === "services" && categories.includes("service")) || (activeFilter === "products" && categories.includes("product"))) &&
+        (activeFilter === "all" ||
+         categories.includes(activeFilter) ||
+         (activeFilter === "stage-decor" && (categories.includes("stage-decor") || categories.includes("event-decor"))) ||
+         (activeFilter === "services" && (categories.includes("services") || categories.includes("service"))) ||
+         (activeFilter === "products" && (categories.includes("products") || categories.includes("product")))) &&
         matchesSearch
       );
     });
