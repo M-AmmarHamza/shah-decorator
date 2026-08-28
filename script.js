@@ -1651,12 +1651,19 @@ function richTextToPlain(value) {
       const qtyTitle = document.querySelector("[data-qty-title]");
       const formLegend = document.querySelector("[data-form-legend]");
       const cityLabel = document.querySelector("[data-city-label]");
+      const dateLabel = document.querySelector("[data-date-label]");
       const addressLabel = document.querySelector("[data-address-label]");
       const noteLabel = document.querySelector("[data-note-label]");
       const submitBtnText = document.querySelector("[data-submit-btn-text]");
       const subtotalLabel = document.querySelector("[data-summary-subtotal-label]");
       const deliveryLabel = document.querySelector("[data-summary-delivery-label]");
       const totalLabel = document.querySelector("[data-summary-total-label]");
+
+      const dateInput = orderForm?.elements?.event_date;
+      if (dateInput) {
+        const today = new Date().toISOString().split("T")[0];
+        dateInput.min = today;
+      }
 
       if (isService) {
         if (stockIcon) stockIcon.textContent = "event_available";
@@ -1665,12 +1672,13 @@ function richTextToPlain(value) {
         if (ratingText) ratingText.textContent = "(50+ Events Setup in Karachi)";
         if (qtyTitle) qtyTitle.textContent = "Number of Stages / Rooms";
         if (formLegend) formLegend.textContent = "Event & Venue Details";
-        if (cityLabel) cityLabel.textContent = "Event Area / Town";
-        if (orderForm?.elements?.city) orderForm.elements.city.placeholder = "e.g. Gulshan, DHA, Nazimabad, Karachi";
-        if (addressLabel) addressLabel.textContent = "Event Date & Venue Address";
-        if (orderForm?.elements?.address) orderForm.elements.address.placeholder = "e.g. Date: 25 Dec 2026, Venue: Banquet / Lawn, Karachi";
+        if (cityLabel) cityLabel.textContent = "Event Town / Area (Karachi)";
+        if (orderForm?.elements?.city) orderForm.elements.city.placeholder = "e.g. Gulshan, DHA, North Nazimabad, Karachi";
+        if (dateLabel) dateLabel.textContent = "Event Date";
+        if (addressLabel) addressLabel.textContent = "Venue Name & Address";
+        if (orderForm?.elements?.address) orderForm.elements.address.placeholder = "e.g. Banquet Name / Lawn / Home Address, Karachi";
         if (noteLabel) noteLabel.textContent = "Special Customization Requests";
-        if (orderForm?.elements?.note) orderForm.elements.note.placeholder = "e.g. Stage size, dress color matching, extra fairy lights...";
+        if (orderForm?.elements?.note) orderForm.elements.note.placeholder = "e.g. Stage dimensions, dress color theme, fairy lights...";
         if (submitBtnText) submitBtnText.textContent = "Book on WhatsApp";
         if (subtotalLabel) subtotalLabel.textContent = "Setup Estimate";
         if (deliveryLabel) deliveryLabel.textContent = "On-Site Logistics";
@@ -1685,8 +1693,9 @@ function richTextToPlain(value) {
         if (ratingText) ratingText.textContent = "(Karachi Delivery Available)";
         if (qtyTitle) qtyTitle.textContent = "Quantity";
         if (formLegend) formLegend.textContent = "Delivery & Contact Details";
-        if (cityLabel) cityLabel.textContent = "Delivery Area / Town";
+        if (cityLabel) cityLabel.textContent = "Delivery Town / Area (Karachi)";
         if (orderForm?.elements?.city) orderForm.elements.city.placeholder = "e.g. Nazimabad, Gulshan, DHA Karachi";
+        if (dateLabel) dateLabel.textContent = "Delivery Date";
         if (addressLabel) addressLabel.textContent = "Complete Delivery Address";
         if (orderForm?.elements?.address) orderForm.elements.address.placeholder = "e.g. House #, Street #, Sector / Block, Area, Karachi";
         if (noteLabel) noteLabel.textContent = "Special Instructions / Card Note";
@@ -1726,6 +1735,7 @@ function richTextToPlain(value) {
           name: orderForm.elements.name.value,
           mobile: orderForm.elements.mobile.value,
           city: orderForm.elements.city.value,
+          event_date: orderForm.elements.event_date ? orderForm.elements.event_date.value : "",
           address: orderForm.elements.address.value,
           note: orderForm.elements.note.value,
           payment: orderForm.elements.payment.value,

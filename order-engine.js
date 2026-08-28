@@ -60,8 +60,9 @@ export function validateOrder({ product, quantity, selections, customer }) {
   if (clean(customer?.name, 80).length < 2) errors.name = "Enter your full name.";
   const phone = clean(customer?.mobile, 30).replace(/[\s()-]/g, "");
   if (!/^\+?\d{10,15}$/.test(phone)) errors.mobile = "Enter a valid mobile number.";
-  if (!clean(customer?.city, 80)) errors.city = "Enter your city.";
-  if (clean(customer?.address, 300).length < 5) errors.address = "Enter your delivery address.";
+  if (!clean(customer?.city, 80)) errors.city = "Enter town/area.";
+  if (!clean(customer?.event_date, 30)) errors.event_date = "Select date from calendar.";
+  if (clean(customer?.address, 300).length < 3) errors.address = "Enter address details.";
   if (!clean(customer?.payment, 50)) errors.payment = "Select a payment method.";
   return errors;
 }
@@ -93,8 +94,9 @@ export function buildOrderMessage({ id, quote, customer, productUrl }) {
       `*Customer & Event Details:*`,
       `Client Name: ${clean(customer.name, 80)}`,
       `WhatsApp: ${clean(customer.mobile, 30)}`,
-      `Event Area in Karachi: ${clean(customer.city, 80)}`,
-      `Event Date & Venue: ${clean(customer.address, 300)}`,
+      `Event Town / Area: ${clean(customer.city, 80)}`,
+      `Event Date: ${clean(customer.event_date, 30)}`,
+      `Venue Name & Address: ${clean(customer.address, 300)}`,
       customer.note ? `Custom Requests: ${clean(customer.note, 300)}` : "",
       `Payment Preference: ${clean(customer.payment, 50)}`,
       `Service Link: ${clean(productUrl, 300)}`,
@@ -116,7 +118,8 @@ export function buildOrderMessage({ id, quote, customer, productUrl }) {
     `*Delivery Details:*`,
     `Customer Name: ${clean(customer.name, 80)}`,
     `WhatsApp: ${clean(customer.mobile, 30)}`,
-    `Delivery Town/Area: ${clean(customer.city, 80)}`,
+    `Delivery Town / Area: ${clean(customer.city, 80)}`,
+    `Delivery Date: ${clean(customer.event_date, 30)}`,
     `Delivery Address: ${clean(customer.address, 300)}`,
     customer.note ? `Special Note: ${clean(customer.note, 300)}` : "",
     `Payment Method: ${clean(customer.payment, 50)}`,
