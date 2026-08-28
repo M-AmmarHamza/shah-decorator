@@ -2703,14 +2703,19 @@ button {
   }
 
   .gallery-main {
-    margin-inline: -14px;
-    border-radius: 0;
+    margin-inline: 0;
+    width: 100%;
+    max-width: 100%;
+    border-radius: var(--radius);
+    overflow: hidden;
   }
 
   .gallery-main img {
-    height: min(100vw, 520px);
-    aspect-ratio: auto;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1 / 1;
     object-fit: cover;
+    display: block;
     background: var(--card);
   }
 
