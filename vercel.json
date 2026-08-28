@@ -14,6 +14,10 @@
     {"source":"/privacy-policy.html","destination":"/privacy-policy","permanent":true},
     {"source":"/terms.html","destination":"/terms","permanent":true},
     {"source":"/shipping-policy.html","destination":"/shipping-policy","permanent":true},
+    {"source":"/services","destination":"/products?type=services","permanent":true},
+    {"source":"/service","destination":"/products?type=services","permanent":true},
+    {"source":"/services.html","destination":"/products?type=services","permanent":true},
+    {"source":"/service.html","destination":"/products?type=services","permanent":true},
     {"source":"/products/:slug","destination":"/product/:slug","permanent":true}
   ],
   "rewrites": [

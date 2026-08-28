@@ -1132,8 +1132,18 @@ function richTextToPlain(value) {
     }
   });
 
+  const currentTypeParam = new URLSearchParams(window.location.search).get("type") || "";
   document.querySelectorAll("[data-page-link]").forEach((link) => {
-    if (link.dataset.pageLink === page) link.classList.add("active");
+    link.classList.remove("active");
+    if (page === "products") {
+      if ((currentTypeParam === "services" || currentTypeParam === "service") && link.dataset.pageLink === "services") {
+        link.classList.add("active");
+      } else if ((currentTypeParam === "products" || currentTypeParam === "product" || !currentTypeParam) && link.dataset.pageLink === "products") {
+        link.classList.add("active");
+      }
+    } else if (link.dataset.pageLink === page) {
+      link.classList.add("active");
+    }
   });
 
   let currentSession = null;
@@ -1264,6 +1274,23 @@ function richTextToPlain(value) {
   let activeFilter = "all";
   let searchTerm = "";
 
+  const pageHeroH1 = document.querySelector(".page-hero h1");
+  const pageHeroP = document.querySelector(".page-hero p");
+
+  const updateCatalogHero = (filter) => {
+    if (!pageHeroH1 || !pageHeroP) return;
+    if (filter === "services" || filter === "service" || filter === "room-decor" || filter === "event-decor") {
+      pageHeroH1.textContent = "On-Location Event & Stage Decor Services";
+      pageHeroP.textContent = "Bespoke wedding stage setups, romantic room surprises, mehndi jhula decor, and theme backdrops installed professionally across Karachi.";
+    } else if (filter === "products" || filter === "product" || filter === "custom-bouquets" || filter === "party-supplies" || filter === "mayon-mehndi-items") {
+      pageHeroH1.textContent = "Deliverable Bouquets, Party Supplies & Decor Items";
+      pageHeroP.textContent = "Handcrafted Ferrero Rocher & currency bouquets, DIY party balloon garland kits, and decorative Mehndi thaals delivered anywhere in Karachi.";
+    } else {
+      pageHeroH1.textContent = "Party Supplies, Custom Bouquets & Event Decor";
+      pageHeroP.textContent = "Explore handcrafted Ferrero Rocher & currency bouquets, DIY party balloon kits, Mehndi thaals, and luxury on-location room & stage decor packages.";
+    }
+  };
+
   const urlFilterParam =
     new URLSearchParams(window.location.search).get("type") ||
     new URLSearchParams(window.location.search).get("filter") ||
@@ -1284,6 +1311,7 @@ function richTextToPlain(value) {
     } else {
       activeFilter = targetFilter;
     }
+    updateCatalogHero(activeFilter);
   }
 
   const updateProductVisibility = () => {
@@ -1297,7 +1325,7 @@ function richTextToPlain(value) {
         categories.some((cat) => cat.includes(searchTerm)) ||
         badge.includes(searchTerm);
       return (
-        (activeFilter === "all" || categories.includes(activeFilter)) &&
+        (activeFilter === "all" || categories.includes(activeFilter) || (activeFilter === "services" && categories.includes("service")) || (activeFilter === "products" && categories.includes("product"))) &&
         matchesSearch
       );
     });
@@ -1322,6 +1350,12 @@ function richTextToPlain(value) {
       button.classList.add("active");
       activeFilter = button.dataset.filter;
       visibleLimit = initialSize;
+      updateCatalogHero(activeFilter);
+      try {
+        const newUrl = new URL(window.location);
+        newUrl.searchParams.set("type", activeFilter);
+        window.history.replaceState(null, "", newUrl.toString());
+      } catch {}
       updateProductVisibility();
     });
   });
