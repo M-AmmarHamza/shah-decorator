@@ -1623,7 +1623,84 @@ function richTextToPlain(value) {
   document.addEventListener("click",event=>{const whatsapp=event.target.closest("[data-whatsapp]"),share=event.target.closest("[data-share-platform]");if(whatsapp)window.PakMarketDB?.track("whatsapp_order_click",{label:whatsapp.dataset.item||whatsapp.textContent.trim()},"page",location.pathname).catch(()=>{});if(share)window.PakMarketDB?.track("share_click",{platform:share.dataset.sharePlatform},"page",location.pathname).catch(()=>{})});
   if(isRoute("product")){
     const product=(()=>{try{return managedInventory.find(item=>item.slug===productSlug||item.id===productSlug)||null}catch{return null}})();
-    if(product){const actions=document.querySelector(".detail-primary-actions");if(window.PakMarketDB?.configured&&actions&&!document.querySelector("[data-wishlist]")){const button=document.createElement("button");button.type="button";button.className="btn wishlist-button";button.dataset.wishlist=product.id;button.innerHTML='<span class="material-symbols-outlined">favorite</span><span>Save</span>';actions.append(button);button.addEventListener("click",async()=>{const session=await window.PakMarketDB.session();if(!session){location.href=`auth.html?next=product&product=${encodeURIComponent(product.slug || product.id)}`;return}const {error}=await window.PakMarketDB.client.from("wishlists").upsert({user_id:session.user.id,product_id:product.id});showToast(error?error.message:"Saved to your wishlist.")})}if(window.PakMarketDB?.configured){const reviewSection=document.createElement("section");reviewSection.className="container section product-reviews";reviewSection.innerHTML='<div><span class="eyebrow">Customer feedback</span><h2>Product Reviews</h2></div><div data-review-list><p>Loading reviews…</p></div><form data-review-form><div class="form-row"><label>Rating<select class="field" name="rating"><option value="5">5 — Excellent</option><option value="4">4 — Good</option><option value="3">3 — Average</option><option value="2">2 — Fair</option><option value="1">1 — Poor</option></select></label><label>Review title<input class="field" name="title" maxlength="80"></label></div><label>Your review<textarea class="field" name="body" rows="4" required maxlength="600"></textarea></label><button class="btn btn-primary">Submit review</button><small>Reviews appear after approval.</small></form>';document.querySelector(".product-detail")?.after(reviewSection);window.PakMarketDB.client.from("product_reviews").select("*").eq("product_id",product.id).eq("approved",true).then(({data})=>{reviewSection.querySelector("[data-review-list]").innerHTML=data?.length?data.map(review=>`<article class="review-item"><strong>${"★".repeat(review.rating)} ${contentEscape(review.title||"")}</strong><p>${contentEscape(review.body||"")}</p></article>`).join(""):"<p>No approved reviews yet.</p>"});reviewSection.querySelector("[data-review-form]").addEventListener("submit",async event=>{event.preventDefault();const session=await window.PakMarketDB.session();if(!session){location.href=`auth.html?next=product&product=${encodeURIComponent(product.slug || product.id)}`;return}const values=new FormData(event.currentTarget),{error}=await window.PakMarketDB.client.from("product_reviews").upsert({product_id:product.id,user_id:session.user.id,rating:Number(values.get("rating")),title:values.get("title"),body:values.get("body"),approved:false});showToast(error?error.message:"Review submitted for approval.");if(!error)event.currentTarget.reset()})}const schema={"@context":"https://schema.org","@type":"Product",name:product.name,image:[product.image],description:richTextToPlain(product.description),sku:product.sku,offers:{"@type":"Offer",priceCurrency:"PKR",price:product.price,availability:product.stock>0?"https://schema.org/InStock":"https://schema.org/OutOfStock",url:location.href}};const node=document.createElement("script");node.type="application/ld+json";node.textContent=JSON.stringify(schema);document.head.append(node)}
+    if(product){
+      const isService = product.itemType === "service" || /service|room|stage|event|decor/i.test(product.category || "") || /service|room|stage|event|decor/i.test(product.slug || "");
+
+      const titleEl = document.querySelector(".detail-title-row h1");
+      if (titleEl) titleEl.textContent = product.name;
+      const mainImg = document.querySelector(".gallery-main img");
+      if (mainImg) {
+        mainImg.src = product.image;
+        mainImg.alt = product.imageAlt || product.name;
+      }
+      const priceEl = document.querySelector(".detail-price .price");
+      if (priceEl) priceEl.textContent = money(product.price);
+      const oldPriceEl = document.querySelector(".detail-price .old-price");
+      if (oldPriceEl) {
+        oldPriceEl.textContent = product.comparePrice ? money(product.comparePrice) : "";
+        oldPriceEl.style.display = product.comparePrice ? "" : "none";
+      }
+      const descEl = document.querySelector(".detail-description");
+      if (descEl) descEl.textContent = product.description;
+
+      const orderForm = document.querySelector("[data-structured-order]");
+      const stockIcon = document.querySelector("[data-stock-icon]");
+      const stockTitle = document.querySelector("[data-stock-title]");
+      const stockDesc = document.querySelector("[data-stock-desc]");
+      const ratingText = document.querySelector(".stars span:last-child");
+      const qtyTitle = document.querySelector("[data-qty-title]");
+      const formLegend = document.querySelector("[data-form-legend]");
+      const cityLabel = document.querySelector("[data-city-label]");
+      const addressLabel = document.querySelector("[data-address-label]");
+      const noteLabel = document.querySelector("[data-note-label]");
+      const submitBtnText = document.querySelector("[data-submit-btn-text]");
+      const subtotalLabel = document.querySelector("[data-summary-subtotal-label]");
+      const deliveryLabel = document.querySelector("[data-summary-delivery-label]");
+      const totalLabel = document.querySelector("[data-summary-total-label]");
+
+      if (isService) {
+        if (stockIcon) stockIcon.textContent = "event_available";
+        if (stockTitle) stockTitle.textContent = "Dates Available For Booking";
+        if (stockDesc) stockDesc.textContent = "On-ground setup & supervision included in Karachi";
+        if (ratingText) ratingText.textContent = "(50+ Events Setup in Karachi)";
+        if (qtyTitle) qtyTitle.textContent = "Number of Stages / Rooms";
+        if (formLegend) formLegend.textContent = "Event & Venue Details";
+        if (cityLabel) cityLabel.textContent = "Event Area / Town";
+        if (orderForm?.elements?.city) orderForm.elements.city.placeholder = "e.g. Gulshan, DHA, Nazimabad, Karachi";
+        if (addressLabel) addressLabel.textContent = "Event Date & Venue Address";
+        if (orderForm?.elements?.address) orderForm.elements.address.placeholder = "e.g. Date: 25 Dec 2026, Venue: Banquet / Lawn, Karachi";
+        if (noteLabel) noteLabel.textContent = "Special Customization Requests";
+        if (orderForm?.elements?.note) orderForm.elements.note.placeholder = "e.g. Stage size, dress color matching, extra fairy lights...";
+        if (submitBtnText) submitBtnText.textContent = "Book on WhatsApp";
+        if (subtotalLabel) subtotalLabel.textContent = "Setup Estimate";
+        if (deliveryLabel) deliveryLabel.textContent = "On-Site Logistics";
+        if (totalLabel) totalLabel.textContent = "Total Estimate";
+        if (orderForm?.elements?.payment) {
+          orderForm.elements.payment.innerHTML = '<option value="">Select payment</option><option>50% Advance Bank Transfer</option><option>50% Advance JazzCash</option><option>50% Advance Easypaisa</option><option>Cash on Setup</option>';
+        }
+      } else {
+        if (stockIcon) stockIcon.textContent = "local_shipping";
+        if (stockTitle) stockTitle.textContent = "In Stock - Karachi Delivery";
+        if (stockDesc) stockDesc.textContent = "Dispatched safely in protective gift packaging";
+        if (ratingText) ratingText.textContent = "(Karachi Delivery Available)";
+        if (qtyTitle) qtyTitle.textContent = "Quantity";
+        if (formLegend) formLegend.textContent = "Delivery & Contact Details";
+        if (cityLabel) cityLabel.textContent = "Delivery Area / Town";
+        if (orderForm?.elements?.city) orderForm.elements.city.placeholder = "e.g. Nazimabad, Gulshan, DHA Karachi";
+        if (addressLabel) addressLabel.textContent = "Complete Delivery Address";
+        if (orderForm?.elements?.address) orderForm.elements.address.placeholder = "e.g. House #, Street #, Sector / Block, Area, Karachi";
+        if (noteLabel) noteLabel.textContent = "Special Instructions / Card Note";
+        if (orderForm?.elements?.note) orderForm.elements.note.placeholder = "e.g. Custom greeting card message, ribbon color preference...";
+        if (submitBtnText) submitBtnText.textContent = "Order on WhatsApp";
+        if (subtotalLabel) subtotalLabel.textContent = "Product Subtotal";
+        if (deliveryLabel) deliveryLabel.textContent = "Karachi Delivery";
+        if (totalLabel) totalLabel.textContent = "Total Amount";
+        if (orderForm?.elements?.payment) {
+          orderForm.elements.payment.innerHTML = '<option value="">Select payment</option><option>Advance Bank Transfer</option><option>JazzCash</option><option>Easypaisa</option><option>Cash on Delivery (50% Advance)</option>';
+        }
+      }
+
+      const actions=document.querySelector(".detail-primary-actions");if(window.PakMarketDB?.configured&&actions&&!document.querySelector("[data-wishlist]")){const button=document.createElement("button");button.type="button";button.className="btn wishlist-button";button.dataset.wishlist=product.id;button.innerHTML='<span class="material-symbols-outlined">favorite</span><span>Save</span>';actions.append(button);button.addEventListener("click",async()=>{const session=await window.PakMarketDB.session();if(!session){location.href=`auth.html?next=product&product=${encodeURIComponent(product.slug || product.id)}`;return}const {error}=await window.PakMarketDB.client.from("wishlists").upsert({user_id:session.user.id,product_id:product.id});showToast(error?error.message:"Saved to your wishlist.")})}if(window.PakMarketDB?.configured){const reviewSection=document.createElement("section");reviewSection.className="container section product-reviews";reviewSection.innerHTML='<div><span class="eyebrow">Customer feedback</span><h2>Product Reviews</h2></div><div data-review-list><p>Loading reviews…</p></div><form data-review-form><div class="form-row"><label>Rating<select class="field" name="rating"><option value="5">5 — Excellent</option><option value="4">4 — Good</option><option value="3">3 — Average</option><option value="2">2 — Fair</option><option value="1">1 — Poor</option></select></label><label>Review title<input class="field" name="title" maxlength="80"></label></div><label>Your review<textarea class="field" name="body" rows="4" required maxlength="600"></textarea></label><button class="btn btn-primary">Submit review</button><small>Reviews appear after approval.</small></form>';document.querySelector(".product-detail")?.after(reviewSection);window.PakMarketDB.client.from("product_reviews").select("*").eq("product_id",product.id).eq("approved",true).then(({data})=>{reviewSection.querySelector("[data-review-list]").innerHTML=data?.length?data.map(review=>`<article class="review-item"><strong>${"★".repeat(review.rating)} ${contentEscape(review.title||"")}</strong><p>${contentEscape(review.body||"")}</p></article>`).join(""):"<p>No approved reviews yet.</p>"});reviewSection.querySelector("[data-review-form]").addEventListener("submit",async event=>{event.preventDefault();const session=await window.PakMarketDB.session();if(!session){location.href=`auth.html?next=product&product=${encodeURIComponent(product.slug || product.id)}`;return}const values=new FormData(event.currentTarget),{error}=await window.PakMarketDB.client.from("product_reviews").upsert({product_id:product.id,user_id:session.user.id,rating:Number(values.get("rating")),title:values.get("title"),body:values.get("body"),approved:false});showToast(error?error.message:"Review submitted for approval.");if(!error)event.currentTarget.reset()})}const schema={"@context":"https://schema.org","@type":isService?"Service":"Product",name:product.name,image:[product.image],description:richTextToPlain(product.description),sku:product.sku,offers:{"@type":"Offer",priceCurrency:"PKR",price:product.price,availability:product.stock>0?"https://schema.org/InStock":"https://schema.org/OutOfStock",url:location.href}};const node=document.createElement("script");node.type="application/ld+json";node.textContent=JSON.stringify(schema);document.head.append(node)}
     if (product) {
       const orderForm = document.querySelector("[data-structured-order]");
       if (orderForm) {

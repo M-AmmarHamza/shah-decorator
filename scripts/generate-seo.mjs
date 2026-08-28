@@ -91,7 +91,7 @@ async function generateProductPages() {
   )) {
     const path = `/product/${product.slug}`;
     const canonical = absoluteUrl(path, siteUrl);
-    const isService = /service|room|stage|event|decor/i.test(product.category || "") || /service|room|stage|event|decor/i.test(product.slug || "");
+    const isService = product.itemType === "service" || /service|room|stage|event|decor/i.test(product.category || "") || /service|room|stage|event|decor/i.test(product.slug || "");
     const availability =
       Number(product.stock) > 0
         ? "https://schema.org/InStock"
@@ -100,8 +100,8 @@ async function generateProductPages() {
       "@context": "https://schema.org",
       "@graph": [
         {
-          "@type": "Product",
-          "@id": `${canonical}#product`,
+          "@type": isService ? "Service" : "Product",
+          "@id": `${canonical}#${isService ? "service" : "product"}`,
           name: product.name,
           description: product.description,
           image: [product.image],
@@ -130,7 +130,7 @@ async function generateProductPages() {
             {
               "@type": "ListItem",
               position: 2,
-              name: isService ? "Service" : "Product",
+              name: isService ? "Services" : "Products",
               item: absoluteUrl(isService ? "/products.html?type=services" : "/products.html?type=products", siteUrl),
             },
             { "@type": "ListItem", position: 3, name: product.name },
@@ -140,7 +140,7 @@ async function generateProductPages() {
     };
     const page = {
       path,
-      title: product.seoTitle || `${product.name} | PakMarket`,
+      title: product.seoTitle || `${product.name} | Shah Decorator`,
       description: product.metaDescription || product.description,
       image: product.image,
       imageAlt: product.imageAlt || product.name,
@@ -149,9 +149,11 @@ async function generateProductPages() {
     };
     let html = replaceSeoHead(template, page, siteUrl)
       .replaceAll("Handcrafted Leather Tote", escapeHtml(product.name))
+      .replaceAll("Luxury Wedding Stage &amp; Floral Backdrop", escapeHtml(product.name))
+      .replaceAll("Luxury Wedding Stage & Floral Backdrop", escapeHtml(product.name))
       .replace(
         /<nav class="breadcrumb" aria-label="Breadcrumb">[\s\S]*?<\/nav>/i,
-        `<nav class="breadcrumb" aria-label="Breadcrumb"><a href="index.html">Home</a><span class="material-symbols-outlined">chevron_right</span><a href="products.html?type=${isService ? "services" : "products"}">${isService ? "Service" : "Product"}</a><span class="material-symbols-outlined">chevron_right</span><span>${escapeHtml(product.name)}</span></nav>`,
+        `<nav class="breadcrumb" aria-label="Breadcrumb"><a href="index.html">Home</a><span class="material-symbols-outlined">chevron_right</span><a href="products.html?type=${isService ? "services" : "products"}">${isService ? "Services" : "Products"}</a><span class="material-symbols-outlined">chevron_right</span><span>${escapeHtml(product.name)}</span></nav>`,
       )
       .replace(
         /<img\s+data-gallery-main[^>]*>/i,
@@ -162,9 +164,49 @@ async function generateProductPages() {
         `<span class="price">Rs. ${Number(product.price).toLocaleString("en-PK")}</span>`,
       )
       .replace(
+        /<span class="old-price">[\s\S]*?<\/span>/i,
+        product.comparePrice ? `<span class="old-price">Rs. ${Number(product.comparePrice).toLocaleString("en-PK")}</span>` : `<span class="old-price" style="display:none"></span>`,
+      )
+      .replace(
         /<p class="detail-description">[\s\S]*?<\/p>/i,
         `<p class="detail-description">${escapeHtml(product.description)}</p>`,
       );
+
+    if (isService) {
+      html = html
+        .replace(/<span class="material-symbols-outlined" data-stock-icon>[\s\S]*?<\/span>/i, `<span class="material-symbols-outlined" data-stock-icon>event_available</span>`)
+        .replace(/<strong data-stock-title>[\s\S]*?<\/strong>/i, `<strong data-stock-title>Dates Available For Booking</strong>`)
+        .replace(/<span data-stock-desc>[\s\S]*?<\/span>/i, `<span data-stock-desc>On-ground setup &amp; supervision included in Karachi</span>`)
+        .replace(/<strong data-qty-title>[\s\S]*?<\/strong>/i, `<strong data-qty-title>Number of Stages / Rooms</strong>`)
+        .replace(/<legend data-form-legend>[\s\S]*?<\/legend>/i, `<legend data-form-legend>Event &amp; Venue Details</legend>`)
+        .replace(/<span data-city-label>[\s\S]*?<\/span>/i, `<span data-city-label>Event Area / Town</span>`)
+        .replace(/placeholder="e\.g\.\s*Nazimabad,\s*Gulshan,\s*DHA\s*Karachi"/i, `placeholder="e.g. Gulshan, DHA, Nazimabad, Karachi"`)
+        .replace(/<span data-address-label>[\s\S]*?<\/span>/i, `<span data-address-label>Event Date &amp; Venue Address</span>`)
+        .replace(/placeholder="e\.g\.\s*House\s*#,\s*Street\s*#,\s*Sector\s*\/\s*Block,\s*Area,\s*Karachi"/i, `placeholder="e.g. Date: 25 Dec 2026, Venue: Banquet / Lawn, Karachi"`)
+        .replace(/<span data-note-label>[\s\S]*?<\/span>/i, `<span data-note-label>Special Customization Requests</span>`)
+        .replace(/placeholder="e\.g\.\s*Custom\s*greeting\s*card\s*message,\s*ribbon\s*color\s*preference\.\.\."/i, `placeholder="e.g. Stage size, dress color matching, extra fairy lights..."`)
+        .replace(/<span data-summary-subtotal-label>[\s\S]*?<\/span>/i, `<span data-summary-subtotal-label>Setup Estimate</span>`)
+        .replace(/<span data-summary-delivery-label>[\s\S]*?<\/span>/i, `<span data-summary-delivery-label>On-Site Logistics</span>`)
+        .replace(/<span data-summary-total-label>[\s\S]*?<\/span>/i, `<span data-summary-total-label>Total Estimate</span>`)
+        .replace(/<span data-submit-btn-text>[\s\S]*?<\/span>/i, `<span data-submit-btn-text>Book on WhatsApp</span>`)
+        .replace(/<span>\(50\+\s*Events\s*Done\)<\/span>/i, `<span>(50+ Events Setup in Karachi)</span>`);
+    } else {
+      html = html
+        .replace(/<span class="material-symbols-outlined" data-stock-icon>[\s\S]*?<\/span>/i, `<span class="material-symbols-outlined" data-stock-icon>local_shipping</span>`)
+        .replace(/<strong data-stock-title>[\s\S]*?<\/strong>/i, `<strong data-stock-title>In Stock - Karachi Delivery</strong>`)
+        .replace(/<span data-stock-desc>[\s\S]*?<\/span>/i, `<span data-stock-desc>Dispatched safely in protective gift packaging</span>`)
+        .replace(/<strong data-qty-title>[\s\S]*?<\/strong>/i, `<strong data-qty-title>Quantity</strong>`)
+        .replace(/<legend data-form-legend>[\s\S]*?<\/legend>/i, `<legend data-form-legend>Delivery &amp; Contact Details</legend>`)
+        .replace(/<span data-city-label>[\s\S]*?<\/span>/i, `<span data-city-label>Delivery Area / Town</span>`)
+        .replace(/<span data-address-label>[\s\S]*?<\/span>/i, `<span data-address-label>Complete Delivery Address</span>`)
+        .replace(/<span data-note-label>[\s\S]*?<\/span>/i, `<span data-note-label>Special Instructions / Card Note</span>`)
+        .replace(/<span data-summary-subtotal-label>[\s\S]*?<\/span>/i, `<span data-summary-subtotal-label>Product Subtotal</span>`)
+        .replace(/<span data-summary-delivery-label>[\s\S]*?<\/span>/i, `<span data-summary-delivery-label>Karachi Delivery</span>`)
+        .replace(/<span data-summary-total-label>[\s\S]*?<\/span>/i, `<span data-summary-total-label>Total Amount</span>`)
+        .replace(/<span data-submit-btn-text>[\s\S]*?<\/span>/i, `<span data-submit-btn-text>Order on WhatsApp</span>`)
+        .replace(/<span>\(50\+\s*Events\s*Done\)<\/span>/i, `<span>(Karachi Delivery Available)</span>`);
+    }
+
     html = cleanInternalLinks(html);
     await writeFile(join(directory, `${product.slug}.html`), html);
     await writeFile(join(legacyDirectory, `${product.slug}.html`), html);

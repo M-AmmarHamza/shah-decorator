@@ -73,29 +73,53 @@ export function createOrderId() {
 }
 
 export function buildOrderMessage({ id, quote, customer, productUrl }) {
+  const isService = quote.product?.itemType === "service" || /service|room|stage|event|decor/i.test(quote.product?.category || "") || /service|room|stage|event|decor/i.test(quote.product?.slug || "");
   const optionLines = Object.entries(quote.selections || {})
     .map(([name, value]) => `${clean(name, 40)}: ${clean(value, 60)}`)
     .join("\n");
-  const deliveryLine = quote.delivery.known ? money(quote.delivery.amount) : "Owner will confirm";
-  const totalLine = quote.payable === null ? "Owner will confirm after delivery charge" : money(quote.payable);
+  const deliveryLine = quote.delivery.known ? money(quote.delivery.amount) : "Free in Karachi";
+  const totalLine = quote.payable === null ? "Owner will confirm" : money(quote.payable);
+
+  if (isService) {
+    return [
+      `*New Decor Booking Request #${clean(id, 30)}*`,
+      `Service: ${clean(quote.product.name, 120)}`,
+      `Package / Stages: ${quote.quantity}`,
+      `Setup Estimate: ${money(quote.subtotal)}`,
+      quote.discount ? `Discount: -${money(quote.discount)}` : "",
+      `On-Site Logistics: ${deliveryLine}`,
+      `Total Estimate: ${totalLine}`,
+      "",
+      `*Customer & Event Details:*`,
+      `Client Name: ${clean(customer.name, 80)}`,
+      `WhatsApp: ${clean(customer.mobile, 30)}`,
+      `Event Area in Karachi: ${clean(customer.city, 80)}`,
+      `Event Date & Venue: ${clean(customer.address, 300)}`,
+      customer.note ? `Custom Requests: ${clean(customer.note, 300)}` : "",
+      `Payment Preference: ${clean(customer.payment, 50)}`,
+      `Service Link: ${clean(productUrl, 300)}`,
+    ].filter(Boolean).join("\n");
+  }
+
   return [
-    `New Order #${clean(id, 30)}`,
+    `*New Product Order #${clean(id, 30)}*`,
     `Product: ${clean(quote.product.name, 120)}`,
     `SKU: ${clean(quote.product.sku || "N/A", 50)}`,
     optionLines,
     `Quantity: ${quote.quantity}`,
     `Unit Price: ${money(quote.unitPrice)}`,
-    `Product Total: ${money(quote.subtotal)}`,
+    `Subtotal: ${money(quote.subtotal)}`,
     quote.discount ? `Discount: -${money(quote.discount)}` : "",
-    `Delivery: ${deliveryLine}`,
+    `Karachi Delivery: ${deliveryLine}`,
     `Grand Total: ${totalLine}`,
     "",
-    `Customer: ${clean(customer.name, 80)}`,
-    `Mobile: ${clean(customer.mobile, 30)}`,
-    `City: ${clean(customer.city, 80)}`,
-    `Address: ${clean(customer.address, 300)}`,
-    customer.note ? `Note: ${clean(customer.note, 300)}` : "",
-    `Payment: ${clean(customer.payment, 50)}`,
+    `*Delivery Details:*`,
+    `Customer Name: ${clean(customer.name, 80)}`,
+    `WhatsApp: ${clean(customer.mobile, 30)}`,
+    `Delivery Town/Area: ${clean(customer.city, 80)}`,
+    `Delivery Address: ${clean(customer.address, 300)}`,
+    customer.note ? `Special Note: ${clean(customer.note, 300)}` : "",
+    `Payment Method: ${clean(customer.payment, 50)}`,
     `Product Link: ${clean(productUrl, 300)}`,
   ].filter(Boolean).join("\n");
 }
