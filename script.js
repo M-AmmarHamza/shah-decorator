@@ -1140,35 +1140,25 @@ function richTextToPlain(value) {
   try {
     currentSession = JSON.parse(localStorage.getItem("pakmarket_session_v1"));
   } catch {}
-  const accountHref =
-    currentSession && ["admin", "super_admin"].includes(currentSession.role)
-      ? "/admin"
-      : "/auth";
-  const navActions = document.querySelector(".nav-actions");
-  if (navActions && !navActions.querySelector("[data-account-link]")) {
-    const accountLink = document.createElement("a");
-    accountLink.className = "account-link";
-    accountLink.dataset.accountLink = "";
-    accountLink.href = accountHref;
-    accountLink.setAttribute(
-      "aria-label",
-      currentSession ? "Open account" : "Sign in or create account",
-    );
-    accountLink.innerHTML = `<span class="material-symbols-outlined">${currentSession ? "account_circle" : "login"}</span>`;
-    navActions.appendChild(accountLink);
-  }
-  const mobileNav = document.querySelector("[data-mobile-panel] nav");
-  if (mobileNav && !mobileNav.querySelector("[data-account-link]")) {
-    const mobileAccount = document.createElement("a");
-    mobileAccount.dataset.accountLink = "";
-    mobileAccount.href = accountHref;
-    mobileAccount.textContent =
-      currentSession && ["admin", "super_admin"].includes(currentSession.role)
-        ? "Admin Dashboard"
-        : currentSession
-          ? "My Account"
-          : "Sign in / Create account";
-    mobileNav.insertBefore(mobileAccount, mobileNav.lastElementChild);
+  if (currentSession && ["admin", "super_admin"].includes(currentSession.role)) {
+    const navActions = document.querySelector(".nav-actions");
+    if (navActions && !navActions.querySelector("[data-account-link]")) {
+      const accountLink = document.createElement("a");
+      accountLink.className = "account-link";
+      accountLink.dataset.accountLink = "";
+      accountLink.href = "/admin";
+      accountLink.setAttribute("aria-label", "Admin Dashboard");
+      accountLink.innerHTML = `<span class="material-symbols-outlined">admin_panel_settings</span>`;
+      navActions.appendChild(accountLink);
+    }
+    const mobileNav = document.querySelector("[data-mobile-panel] nav");
+    if (mobileNav && !mobileNav.querySelector("[data-account-link]")) {
+      const mobileAccount = document.createElement("a");
+      mobileAccount.dataset.accountLink = "";
+      mobileAccount.href = "/admin";
+      mobileAccount.textContent = "Admin Dashboard";
+      mobileNav.insertBefore(mobileAccount, mobileNav.lastElementChild);
+    }
   }
 
   document.querySelectorAll("[data-whatsapp]").forEach((link) => {
