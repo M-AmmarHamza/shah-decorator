@@ -499,7 +499,8 @@ button {
 .hero {
   position: relative;
   display: block;
-  min-height: 620px;
+  min-height: 440px;
+  max-height: 520px;
   overflow: hidden;
   background: var(--text);
   isolation: isolate;
@@ -534,9 +535,10 @@ button {
 .hero-inner {
   position: relative;
   display: flex;
-  min-height: 620px;
+  min-height: 440px;
+  max-height: 520px;
   align-items: center;
-  padding-block: 70px;
+  padding-block: 44px;
 }
 
 .hero-content {
@@ -2106,14 +2108,15 @@ button {
   }
 
   .hero {
-    min-height: 560px;
+    min-height: 380px;
+    max-height: 460px;
     padding: 0;
     text-align: left;
   }
 
-  .hero-inner { min-height:560px; padding-block:54px; }
-  .hero-content { width:min(600px,75%); }
-  .hero-overlay { background:linear-gradient(90deg,rgba(4,20,17,.9),rgba(4,20,17,.62) 60%,rgba(4,20,17,.2)); }
+  .hero-inner { min-height: 380px; max-height: 460px; padding-block: 36px; }
+  .hero-content { width: min(600px, 80%); }
+  .hero-overlay { background: linear-gradient(90deg, rgba(4, 20, 17, 0.9), rgba(4, 20, 17, 0.62) 60%, rgba(4, 20, 17, 0.2)); }
 
   .hero h1,
   .page-hero h1 {
@@ -2236,13 +2239,19 @@ button {
   }
 
   .hero {
-    min-height: 520px;
+    min-height: 320px;
+    max-height: 400px;
     padding: 0;
   }
 
-  .hero-inner { min-height:520px; align-items:flex-end; padding-block:46px 72px; }
-  .hero-content { width:100%; }
-  .hero-overlay { background:linear-gradient(0deg,rgba(3,18,15,.94) 0%,rgba(3,18,15,.67) 62%,rgba(3,18,15,.25) 100%); }
+  .hero-inner {
+    min-height: 320px;
+    max-height: 400px;
+    align-items: center;
+    padding-block: 28px 40px;
+  }
+  .hero-content { width: 100%; }
+  .hero-overlay { background: linear-gradient(0deg, rgba(3, 18, 15, 0.94) 0%, rgba(3, 18, 15, 0.67) 62%, rgba(3, 18, 15, 0.25) 100%); }
 
   .hero .eyebrow {
     font-size: 11px;
