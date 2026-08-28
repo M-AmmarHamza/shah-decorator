@@ -1705,7 +1705,7 @@ function richTextToPlain(value) {
         if (deliveryLabel) deliveryLabel.textContent = "Karachi Delivery";
         if (totalLabel) totalLabel.textContent = "Total Amount";
         if (orderForm?.elements?.payment) {
-          orderForm.elements.payment.innerHTML = '<option value="">Select payment</option><option>Advance Bank Transfer</option><option>JazzCash</option><option>Easypaisa</option><option>Cash on Delivery (50% Advance)</option>';
+          orderForm.elements.payment.innerHTML = '<option value="">Select payment</option><option>Bank Transfer</option><option>JazzCash</option><option>Easypaisa</option><option>Cash on Delivery (50% Advance)</option>';
         }
       }
 
