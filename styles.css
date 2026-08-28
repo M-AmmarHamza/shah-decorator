@@ -1400,6 +1400,42 @@ button {
   align-items: start;
 }
 
+.gallery-block {
+  grid-column: 1;
+  grid-row: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.trust-block {
+  grid-column: 1;
+  grid-row: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.detail-header-block {
+  grid-column: 2;
+  grid-row: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.order-block {
+  grid-column: 2;
+  grid-row: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
 .product-media,
 .gallery {
   grid-column: 1;
@@ -2311,17 +2347,38 @@ button {
     display: flex;
     flex-direction: column;
     width: 100%;
-    gap: 24px;
+    gap: 20px;
   }
 
-  .product-media,
-  .gallery {
-    grid-column: 1;
+  .detail-header-block {
+    order: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
     width: 100%;
   }
 
-  .detail-copy {
-    grid-column: 1;
+  .gallery-block {
+    order: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .order-block {
+    order: 3;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+  }
+
+  .trust-block {
+    order: 4;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
     width: 100%;
   }
 
@@ -2609,11 +2666,6 @@ button {
     gap: 16px;
   }
 
-  .detail-copy {
-    display: contents;
-    width: 100%;
-  }
-
   .detail-header-block {
     order: 1;
     display: flex;
@@ -2622,12 +2674,27 @@ button {
     width: 100%;
   }
 
-  .product-media,
-  .gallery {
+  .gallery-block {
     order: 2;
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .order-block {
+    order: 3;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+  }
+
+  .trust-block {
+    order: 4;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
     width: 100%;
   }
 
@@ -2652,6 +2719,7 @@ button {
     gap: 10px;
   }
 
+  .detail-header-block h1,
   .detail-copy h1 {
     font-size: 22px;
   }
@@ -2661,20 +2729,17 @@ button {
   }
 
   .stock-card {
-    order: 3;
     width: 100%;
     box-sizing: border-box;
     padding: 11px 12px;
   }
 
   .structured-order {
-    order: 4;
     width: 100%;
     box-sizing: border-box;
   }
 
   .order-response-time {
-    order: 5;
     width: 100%;
   }
 
