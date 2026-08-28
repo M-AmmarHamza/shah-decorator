@@ -131,7 +131,7 @@ async function generateProductPages() {
               "@type": "ListItem",
               position: 2,
               name: isService ? "Services" : "Products",
-              item: absoluteUrl(isService ? "/products.html?type=services" : "/products.html?type=products", siteUrl),
+              item: absoluteUrl(isService ? "/services" : "/products", siteUrl),
             },
             { "@type": "ListItem", position: 3, name: product.name },
           ],
@@ -153,7 +153,7 @@ async function generateProductPages() {
       .replaceAll("Luxury Wedding Stage & Floral Backdrop", escapeHtml(product.name))
       .replace(
         /<nav class="breadcrumb" aria-label="Breadcrumb">[\s\S]*?<\/nav>/i,
-        `<nav class="breadcrumb" aria-label="Breadcrumb"><a href="index.html">Home</a><span class="material-symbols-outlined">chevron_right</span><a href="products.html?type=${isService ? "services" : "products"}">${isService ? "Services" : "Products"}</a><span class="material-symbols-outlined">chevron_right</span><span>${escapeHtml(product.name)}</span></nav>`,
+        `<nav class="breadcrumb" aria-label="Breadcrumb"><a href="index.html">Home</a><span class="material-symbols-outlined">chevron_right</span><a href="${isService ? "services.html" : "products.html"}">${isService ? "Services" : "Products"}</a><span class="material-symbols-outlined">chevron_right</span><span>${escapeHtml(product.name)}</span></nav>`,
       )
       .replace(
         /<img\s+data-gallery-main[^>]*>/i,

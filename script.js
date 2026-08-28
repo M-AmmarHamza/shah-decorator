@@ -834,8 +834,8 @@ function richTextToPlain(value) {
         if (breadcrumbLinks?.[1]) {
           const catName = String(managedProduct.category || "").toLowerCase();
           const isService = /service|room|stage|event|decor/i.test(catName) || /service|room|stage|event|decor/i.test(managedProduct.slug || "");
-          breadcrumbLinks[1].textContent = isService ? "Service" : "Product";
-          breadcrumbLinks[1].href = isService ? "products.html?type=services" : "products.html?type=products";
+          breadcrumbLinks[1].textContent = isService ? "Services" : "Products";
+          breadcrumbLinks[1].href = isService ? "services.html" : "products.html";
         }
         if (breadcrumbCurrent) breadcrumbCurrent.textContent = managedProduct.name;
 

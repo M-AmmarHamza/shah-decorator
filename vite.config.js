@@ -10,6 +10,7 @@ import {
 const pages = [
   "index",
   "products",
+  "services",
   "product",
   "blog",
   "blog-detail",

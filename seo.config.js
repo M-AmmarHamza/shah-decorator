@@ -48,6 +48,14 @@ export const PAGE_SEO = Object.freeze({
     type: "website",
     schemaType: "CollectionPage",
   },
+  services: {
+    path: "/services",
+    title: "Event & Stage Decor Services in Karachi | Shah Decorator",
+    description:
+      "Book bespoke wedding stages, romantic room decor, mehndi jhula setups, and theme backdrops across Karachi with professional on-site installation.",
+    type: "website",
+    schemaType: "CollectionPage",
+  },
   product: {
     path: "/product",
     title: "Service Details | Shah Decorator",
@@ -229,6 +237,7 @@ export function cleanInternalLinks(html) {
   const replacements = {
     "index.html": "/",
     "products.html": "/products",
+    "services.html": "/services",
     "blog.html": "/blog",
     "about.html": "/about",
     "contact.html": "/contact",
