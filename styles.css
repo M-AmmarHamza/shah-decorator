@@ -1573,6 +1573,12 @@ button {
   max-width: 100%;
 }
 
+.detail-header-block {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
 .detail-title-row {
   display: flex;
   align-items: start;
@@ -2597,6 +2603,24 @@ button {
     gap: 16px;
   }
 
+  .detail-copy {
+    display: contents;
+  }
+
+  .detail-header-block {
+    order: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .gallery {
+    order: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
   .breadcrumb {
     display: none;
   }
@@ -2627,7 +2651,16 @@ button {
   }
 
   .stock-card {
+    order: 3;
     padding: 11px 12px;
+  }
+
+  .structured-order {
+    order: 4;
+  }
+
+  .order-response-time {
+    order: 5;
   }
 
   .info-stack {
